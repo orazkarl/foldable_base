@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+Работы
+<br>
+{% for contract in contracts %}
+    <a href="{% url 'contract_detail' slug=contract.contstruct_object.slug contract_slug=contract.slug %}">{{ contract.name }}</a>
+
+{% endfor %}
+</body>
+</html>
