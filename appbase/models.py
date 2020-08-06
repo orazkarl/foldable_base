@@ -7,6 +7,7 @@ slug_help_text = "Слаг - это короткая метка для пред�
 class Object(models.Model):
     name = models.CharField('Название', max_length=250)
     slug = models.SlugField(max_length=250, null=True, blank=True, help_text=slug_help_text, db_index=True, unique=True)
+    address = models.CharField('Адрес', max_length=250)
 
     def __str__(self):
         return self.name
@@ -28,7 +29,8 @@ class Contract(models.Model):
     name = models.CharField('Название', max_length=250)
     slug = models.SlugField(max_length=250, null=True, blank=True, help_text=slug_help_text, db_index=True, unique=True)
     contractor = models.CharField('Подрядчик', max_length=250, null=True, blank=True)
-    contract = models.FileField('Договор')
+    contract = models.FileField('Договор', upload_to='contracts/')
+    number_contract = models.CharField('Номер договора', max_length=250)
     status = models.CharField('Статус работы', max_length=100, choices=STATUS_WORK)
 
     def __str__(self):
@@ -65,3 +67,18 @@ class Material(models.Model):
     class Meta:
         verbose_name = 'Материал'
         verbose_name_plural = 'Материалы'
+
+
+class InvoiceForPayment(models.Model):
+    STATUS_CHOICES = [
+        ['да', 'да'],
+        ['нет', 'нет'],
+        ['потом', 'потом']
+    ]
+    contract = models.ForeignKey(Contract, on_delete=models.CASCADE, verbose_name='Подряд')
+    file = models.FileField('Документ (счет на оплату)', upload_to='invoices/')
+    status = models.CharField('Статус ответа', choices=STATUS_CHOICES, max_length=10, default='нет')
+
+    class Meta:
+        verbose_name = 'Счет на оплату'
+        verbose_name_plural = 'Счета на оплату'

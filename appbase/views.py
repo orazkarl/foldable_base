@@ -9,7 +9,7 @@ class HomeView(generic.ListView):
 
 
 class ObjectDetailView(generic.DetailView):
-    template_name = 'object_detail.html'
+    template_name = 'appbase/object_detail.html'
     model = Object
 
     def get(self, request, *args, **kwargs):
