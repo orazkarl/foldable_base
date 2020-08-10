@@ -1,0 +1,36 @@
+{% extends 'appbase/base.html' %}
+{% load static %}
+{% block content %}
+    <div class="main-content">
+        <div class="container-fluid">
+            <div class="card">
+                <div class="card-header d-block">
+                    <h3>{{ contract.name }}</h3>
+                    <p>{{ contract.contractor }}</p>
+                </div>
+                <div class="card-body p-0 ">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Название</th>
+                                <th>Файл</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for request in contract.request.all %}
+                                <tr>
+                                <th scope="row">{{ forloop.counter }}</th>
+                                <td>{{ request.name }}</td>
+                                <td>{{ request.file }}</td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

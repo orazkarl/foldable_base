@@ -5,7 +5,10 @@
     <title>Title</title>
 </head>
 <body>
-{% for object in object_list %}
+{#{% for object in object_list %}#}
+{#    <a href="{% url 'object_detail' object.slug %}">{{ object.name }}</a>#}
+{#{% endfor %}#}
+{% for object in request.user.object.all %}
     <a href="{% url 'object_detail' object.slug %}">{{ object.name }}</a>
 {% endfor %}
 </body>

@@ -2,8 +2,58 @@
 {% load static %}
 {% block content %}
     <div class="main-content">
-            <div class="container-fluid">
+        <div class="container-fluid">
+            <div class="card">
+                <div class="card-header d-block">
+                    <div class="row">
+                        <div class="col-md-10"><h3>Работы</h3></div>
+                        <div class="col-md-2"><a type="button" href="{% url 'contract_add' object.slug %}" class="btn btn-primary">Добавить работу</a></div>
+                    </div>
 
+
+                </div>
+                <div class="card-body p-0 table-border-style">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Название</th>
+                                <th>Подрядчик</th>
+                                <th>Номер договора</th>
+                                <th>Договор</th>
+                                <th>Статус работы</th>
+                                <th>Счета на оплату</th>
+                                <th>Удалить</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for contract in contracts %}
+                                <tr>
+                                <th scope="row">{{ forloop.counter }}</th>
+                                <td><a href="{% url 'contract_detail' slug=contract.contstruct_object.slug contract_slug=contract.slug %}" style="color: #4da3ff">{{ contract.name }}</a></td>
+                                <td>{{ contract.contractor }}</td>
+                                <td>{{ contract.number_contract }}</td>
+                                <td><a href="{{ contract.contract.url }}" style="color: #4da3ff; " download>скачать</a>
+                                <td>{{ contract.status }}</td>
+                                <td>Посмотреть</td>
+{#                                <td>#}
+{#                                    <form action="{% url 'contract_delete' object.slug%}" method="post">#}
+{#                                        {% csrf_token %}#}
+{#                                        <input type="text" name="contract" value="{{ contract.id }}" style="display: none">#}
+{#                                        <button class="btn btn-danger" type="submit">Удалить</button>#}
+{#                                    </form>#}
+{#                                </td>#}
+                                <td>
+                                    <a href="{% url 'contract_edit' slug=contract.contstruct_object.slug contract_slug=contract.slug %}"> Изменить</a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
         </div>
+    </div>
 {% endblock %}

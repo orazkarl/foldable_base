@@ -69,13 +69,26 @@ class Material(models.Model):
         verbose_name_plural = 'Материалы'
 
 
+class RequestForMaterial(models.Model):
+    contract = models.ForeignKey(Contract, on_delete=models.CASCADE, verbose_name='Подряд', related_name='request')
+    name = models.CharField('Название', max_length=100)
+    file = models.FileField('Документ (заявка)', upload_to='request/')
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name = 'Заявка'
+        verbose_name_plural = 'Заявки'
+
+
 class InvoiceForPayment(models.Model):
     STATUS_CHOICES = [
         ['да', 'да'],
         ['нет', 'нет'],
         ['потом', 'потом']
     ]
-    contract = models.ForeignKey(Contract, on_delete=models.CASCADE, verbose_name='Подряд')
+    contract = models.ForeignKey(Contract, on_delete=models.CASCADE, verbose_name='Подряд', related_name='invoice')
     file = models.FileField('Документ (счет на оплату)', upload_to='invoices/')
     status = models.CharField('Статус ответа', choices=STATUS_CHOICES, max_length=10, default='нет')
 

@@ -1,0 +1,51 @@
+{% extends 'appbase/base.html' %}
+{% load static %}
+{% block content %}
+    <div class="main-content">
+        <div class="container-fluid">
+            <div class="card">
+                <div class="card-header"><h3>Добавить работу</h3></div>
+
+                <div class="card-body">
+                    <form class="forms-sample" action="/objects/{{ object.slug }}/contract/add" method="post"
+                          enctype="multipart/form-data">
+
+                        <input type="text" name="object" value="{{ object.id }}" style="">
+                        <div class="form-group">
+                            <label for="name">Название</label>
+                            <input type="text" class="form-control" id="name" placeholder="Название" name="name">
+                        </div>
+                        <div class="form-group">
+                            <label for="contractor">Подрядчик</label>
+                            <input type="text" class="form-control" id="contractor" placeholder="Подрядчик"
+                                   name="contractor">
+                        </div>
+                        <div class="form-group">
+                            <label>Договор</label>
+                            <input type="file" name="contract" class="form-control">
+
+                        </div>
+                        <div class="form-group">
+                            <label for="number_contract">Номер договора</label>
+                            <input type="text" class="form-control" id="number_contract"
+                                   placeholder="Номер договора" name="number_contract">
+                        </div>
+                        <div class="form-group">
+                            <label for="status">Статус работы</label>
+                            <select class="form-control" id="status" name="status">
+                                <option value="выполнение">выполнение</option>
+                                <option value="выполнено">выполнено</option>
+                                <option value="проверка">проверка</option>
+                                <option value="невыполнено">невыполнено</option>
+                            </select>
+                        </div>
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-primary mr-2">Сохранить</button>
+                        <button class="btn btn-light">Cancel</button>
+
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

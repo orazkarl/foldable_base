@@ -1,7 +1,6 @@
 from django.contrib import admin
-from django.contrib.auth.models import  Group
+from django.contrib.auth.models import Group
 from .models import Object, Contract, Material, InvoiceForPayment
-
 
 admin.site.unregister(Group)
 
@@ -17,10 +16,12 @@ class InvoiceForPaymentInline(admin.TabularInline):
     raw_id_fields = ['contract']
     extra = 1
 
+
 @admin.register(Contract)
 class ContractAdmin(admin.ModelAdmin):
     list_display = ['name']
     prepopulated_fields = {'slug': ('name',)}
-    inlines = [InvoiceForPaymentInline]
+    # inlines = [InvoiceForPaymentInline]
+
 
 admin.site.register(Material)
