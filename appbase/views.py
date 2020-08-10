@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect
 from django.views import generic
-from .models import Object, Contract, Material
+from .models import Object, Contract, Material, RequestForMaterial
 from transliterate import slugify
 
 
@@ -32,11 +32,14 @@ class ContractDetailView(generic.ListView):
     def get(self, request, *args, **kwargs):
         contract_slug = self.kwargs['contract_slug']
         object_slug = self.kwargs['slug']
-        contract = Contract.objects.get()
+        contract = Contract.objects.get(slug=contract_slug)
+
         materials = Material.objects.filter(contract=contract)
         self.extra_context = {
             'materials': materials,
-            'contract': contract
+            'contract': contract,
+            'requests': RequestForMaterial.objects.filter(contract=contract)
+
         }
         return super().get(request, *args, **kwargs)
 
@@ -109,3 +112,24 @@ def contract_delete(request, slug):
     contract_id = request.POST['contract']
     Contract.objects.get(id=contract_id).delete()
     return redirect('/objects/' + slug)
+
+
+class RequestAddView(generic.TemplateView):
+    template_name = 'appbase/contract/request/add.html'
+
+    def get(self, request, *args, **kwargs):
+        object_slug = self.kwargs['slug']
+        contract_slug = self.kwargs['contract_slug']
+        contract = Contract.objects.get(slug=contract_slug)
+        self.extra_context = {
+            # 'object': object,
+            'contract': contract
+        }
+        return super().get(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        contract = Contract.objects.get(id=request.POST['contract'])
+        name = request.POST['name']
+        file = request.FILES['request']
+        RequestForMaterial.objects.create(contract=contract, name=name, file=file)
+        return redirect('/objects/'+self.kwargs['slug']+ '/' + contract.slug)

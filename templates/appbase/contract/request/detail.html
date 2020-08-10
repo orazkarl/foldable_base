@@ -9,7 +9,7 @@
                         <div class="col-md-10"><h3>{{ contract.name }}</h3>
                     <p>{{ contract.contractor }}</p></div>
                         <div class="col-md-2">
-                            <a href="{% url 'request_add' slug=contract.contstruct_object.slug contract_slug=contract.slug %}" class="btn btn-primary">Новая заявка</a>
+                            <a href="" class="btn btn-primary">Новая заявка</a>
                         </div>
                     </div>
 
@@ -25,7 +25,7 @@
                             </tr>
                             </thead>
                             <tbody>
-                            {% for request in requests %}
+                            {% for request in contract.request.all %}
                                 <tr>
                                 <th scope="row">{{ forloop.counter }}</th>
                                 <td>{{ request.name }}</td>

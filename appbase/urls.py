@@ -10,4 +10,5 @@ urlpatterns = [
     path('objects/<slug:slug>/contract/add', views.ContractAddView.as_view(), name='contract_add'),
     path('objects/<slug:slug>/contract/delete', views.contract_delete, name='contract_delete'),
 
+    path('objects/<slug:slug>/contract/<slug:contract_slug>/request/add', views.RequestAddView.as_view(), name='request_add'),
 ]
