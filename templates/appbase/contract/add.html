@@ -7,10 +7,10 @@
                 <div class="card-header"><h3>Добавить работу</h3></div>
 
                 <div class="card-body">
-                    <form class="forms-sample" action="/objects/{{ object.slug }}/contract/add" method="post"
+                    <form class="forms-sample" action="{% url 'contract_add' object.slug%}" method="post"
                           enctype="multipart/form-data">
 
-                        <input type="text" name="object" value="{{ object.id }}" style="">
+                        <input type="text" name="object" value="{{ object.id }}" style="display: none">
                         <div class="form-group">
                             <label for="name">Название</label>
                             <input type="text" class="form-control" id="name" placeholder="Название" name="name">

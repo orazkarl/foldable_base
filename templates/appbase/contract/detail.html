@@ -7,9 +7,10 @@
                 <div class="card-header d-block">
                     <div class="row">
                         <div class="col-md-10"><h3>{{ contract.name }}</h3>
-                    <p>{{ contract.contractor }}</p></div>
+                        <p>{{ contract.contractor }}</p></div>
                         <div class="col-md-2">
-                            <a href="{% url 'request_add' slug=contract.contstruct_object.slug contract_slug=contract.slug %}" class="btn btn-primary">Новая заявка</a>
+
+                            <a href="{% url 'request_add' contract.slug%}" class="btn btn-primary">Новая заявка</a>
                         </div>
                     </div>
 
@@ -21,15 +22,17 @@
                             <tr>
                                 <th>#</th>
                                 <th>Название</th>
-                                <th>Файл</th>
+                                <th>Договор</th>
+                                <th>Изменить</th>
                             </tr>
                             </thead>
                             <tbody>
                             {% for request in requests %}
                                 <tr>
                                 <th scope="row">{{ forloop.counter }}</th>
-                                <td>{{ request.name }}</td>
-                                <td>{{ request.file }}</td>
+                                <td><a href="{% url 'request_detail'  request.id  %}">{{ request.name }}</a></td>
+                                <td><a href="{{ request.file.url }}" download>скачать</a></td>
+                                <td><a href="{% url 'request_edit' request.id %}" class="btn btn-danger">Изменить</a></td>
                                 </tr>
                             {% endfor %}
                             </tbody>

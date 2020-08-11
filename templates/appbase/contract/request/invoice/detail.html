@@ -8,10 +8,11 @@
                     <div class="row">
                         <div class="col-md-10">
                             <h3>{{ request_mat.name }}</h3>
+{#                            <p>{{ contract.contractor }}</p>#}
                             <a href="{{ request_mat.file.url }}" download>{{ request_mat.file }}</a>
                         </div>
                         <div class="col-md-2">
-                            <a href="{% url 'invoice_add' request_mat.id %}" class="btn btn-primary">Новый счет</a>
+                            <a href="" class="btn btn-primary">Новый счет</a>
                         </div>
                     </div>
 
@@ -22,18 +23,16 @@
                             <thead>
                             <tr>
                                 <th>#</th>
+                                <th>Название</th>
                                 <th>Файл</th>
-                                <th>Статус</th>
-                                <th>Изменить</th>
                             </tr>
                             </thead>
                             <tbody>
-                            {% for invoice in request_mat.invoice.all %}
+                            {% for request in contract.request.all %}
                                 <tr>
                                     <th scope="row">{{ forloop.counter }}</th>
-                                    <td>{{ invoice.file }}</td>
-                                    <td>{{ invoice.status }}</td>
-                                <td><a href="{% url 'invoice_edit' invoice.id %}" class="btn btn-danger">Изменить</a></td>
+                                    <td>{{ request.name }}</td>
+                                    <td>{{ request.file }}</td>
                                 </tr>
                             {% endfor %}
                             </tbody>

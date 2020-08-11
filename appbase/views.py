@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect
 from django.views import generic
-from .models import Object, Contract, Material, RequestForMaterial
+from .models import Object, Contract, Material, RequestForMaterial, InvoiceForPayment
 from transliterate import slugify
 
 
@@ -24,21 +24,21 @@ class ObjectDetailView(generic.DetailView):
         return super().get(request, *args, **kwargs)
 
 
-class ContractDetailView(generic.ListView):
+class ContractDetailView(generic.TemplateView):
     template_name = 'appbase/contract/detail.html'
+
     # model = Material
-    queryset = Material.objects.all()
+    # queryset = Material.objects.all()
 
     def get(self, request, *args, **kwargs):
-        contract_slug = self.kwargs['contract_slug']
-        object_slug = self.kwargs['slug']
+        contract_slug = self.kwargs['slug']
         contract = Contract.objects.get(slug=contract_slug)
-
         materials = Material.objects.filter(contract=contract)
         self.extra_context = {
             'materials': materials,
             'contract': contract,
-            'requests': RequestForMaterial.objects.filter(contract=contract)
+            'requests': RequestForMaterial.objects.filter(contract=contract),
+            'object': Object.objects.get(slug=contract.contstruct_object.slug),
 
         }
         return super().get(request, *args, **kwargs)
@@ -48,10 +48,9 @@ class ContractAddView(generic.TemplateView):
     template_name = 'appbase/contract/add.html'
 
     def get(self, request, *args, **kwargs):
-        object_slug = self.kwargs['slug']
-        object = Object.objects.get(slug=object_slug)
+        print('asd')
         self.extra_context = {
-            'object': object,
+            'object': Object.objects.get(slug=self.kwargs['slug']),
         }
         return super().get(request, *args, **kwargs)
 
@@ -63,29 +62,33 @@ class ContractAddView(generic.TemplateView):
         contract = request.FILES['contract']
         number_contract = request.POST['number_contract']
         status = request.POST['status']
-        slug = slugify(name)
+        if slugify(name) == None:
+            slug = name
+        else:
+            slug = slugify(name)
 
-        Contract.objects.create(contstruct_object_id=object_id, name=name, slug=slug, contract=contract, contractor=contractor, number_contract=number_contract, status=status)
+        Contract.objects.create(contstruct_object_id=object_id, name=name, slug=slug, contract=contract,
+                                contractor=contractor, number_contract=number_contract, status=status)
 
-        return redirect('/objects/'+self.kwargs['slug'])
+        return redirect('/objects/' + Object.objects.get(id=object_id).slug)
 
 
 class ContractEditView(generic.TemplateView):
     template_name = 'appbase/contract/edit.html'
 
     def get(self, request, *args, **kwargs):
-        object_slug = self.kwargs['slug']
-        contract_slug = self.kwargs['contract_slug']
-        object = Object.objects.get(slug=object_slug)
+
+        contract_slug = self.kwargs['slug']
+
         contract = Contract.objects.get(slug=contract_slug)
         self.extra_context = {
-            'object': object,
+            'object': Object.objects.get(slug=contract.contstruct_object.slug),
             'contract': contract
         }
         return super().get(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
-        contract_slug = self.kwargs['contract_slug']
+        contract_slug = self.kwargs['slug']
         contract = Contract.objects.get(slug=contract_slug)
         object_id = request.POST['object']
         name = request.POST['name']
@@ -106,24 +109,24 @@ class ContractEditView(generic.TemplateView):
         contract.status = status
         contract.save()
 
-        return redirect('/objects/'+self.kwargs['slug'])
+        return redirect('/objects/' + contract.contstruct_object.slug)
 
-def contract_delete(request, slug):
-    contract_id = request.POST['contract']
-    Contract.objects.get(id=contract_id).delete()
-    return redirect('/objects/' + slug)
+
+def contract_delete(request):
+    contract = Contract.objects.get(id=int(request.POST['contract']))
+    red = contract.contstruct_object.slug
+    contract.delete()
+
+    return redirect('/objects/' + red)
 
 
 class RequestAddView(generic.TemplateView):
     template_name = 'appbase/contract/request/add.html'
 
     def get(self, request, *args, **kwargs):
-        object_slug = self.kwargs['slug']
-        contract_slug = self.kwargs['contract_slug']
-        contract = Contract.objects.get(slug=contract_slug)
+        contract = Contract.objects.get(slug=self.kwargs['slug'])
         self.extra_context = {
-            # 'object': object,
-            'contract': contract
+            'contract' : contract,
         }
         return super().get(request, *args, **kwargs)
 
@@ -132,4 +135,100 @@ class RequestAddView(generic.TemplateView):
         name = request.POST['name']
         file = request.FILES['request']
         RequestForMaterial.objects.create(contract=contract, name=name, file=file)
-        return redirect('/objects/'+self.kwargs['slug']+ '/' + contract.slug)
+        return redirect('/contract/detail/' + contract.slug)
+
+
+class RequestEditView(generic.TemplateView):
+    template_name = 'appbase/contract/request/edit.html'
+
+    def get(self, request, *args, **kwargs):
+        request_mat = RequestForMaterial.objects.get(id=self.kwargs['id'])
+        self.extra_context = {
+            'request_mat': request_mat,
+            'object': Object.objects.get(contract__request=request_mat)
+        }
+
+        return super().get(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        request_mat = RequestForMaterial.objects.get(id=request.POST['id'])
+
+        # contract_slug = self.kwargs['contract_slug']
+        # contract = Contract.objects.get(slug=contract_slug)
+        # object_id = request.POST['object']
+        name = request.POST['name']
+        if request.FILES:
+            request_mat_file = request.FILES['request']
+        else:
+            request_mat_file = request_mat.file
+
+        request_mat.name = name
+        request_mat.file = request_mat_file
+        request_mat.save()
+
+        return redirect('/contract/detail/' + request_mat.contract.slug)
+
+
+
+class RequestDetailView(generic.TemplateView):
+    template_name = 'appbase/contract/request/detail.html'
+
+    def get(self, request, *args, **kwargs):
+        request_mat = RequestForMaterial.objects.get(id=self.kwargs['id'])
+
+        self.extra_context = {
+            'request_mat': request_mat,
+            'object': Object.objects.get(slug=request_mat.contract.contstruct_object.slug),
+        }
+        return super().get(request, *args, **kwargs)
+
+def request_delete(request):
+    request_mat = RequestForMaterial.objects.get(id=request.POST['id'])
+    red = '/contract/detail/' + request_mat.contract.slug
+    request_mat.delete()
+
+    return redirect(red)
+
+
+class InvoiceAddView(generic.TemplateView):
+    template_name = 'appbase/contract/request/invoice/add.html'
+
+    def get(self, request, *args, **kwargs):
+        request_mat = RequestForMaterial.objects.get(id=self.kwargs['id'])
+        self.extra_context = {
+            'request_mat': request_mat,
+        }
+        return super().get(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        request_mat = RequestForMaterial.objects.get(id=int(request.POST['id']))
+        file = request.FILES['invoice']
+        InvoiceForPayment.objects.create(request_mat=request_mat, file=file)
+        return redirect('/request/detail/' + str(request_mat.id))
+
+
+class InvoiceEditView(generic.TemplateView):
+    template_name = 'appbase/contract/request/invoice/edit.html'
+
+    def get(self, request, *args, **kwargs):
+        invoice = InvoiceForPayment.objects.get(id=int(self.kwargs['id']))
+
+        self.extra_context = {
+            'invoice': invoice,
+        }
+        return super().get(request, *args,  **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        invoice = InvoiceForPayment.objects.get(id=int(request.POST['id']))
+        file = request.FILES['invoice']
+        invoice.file = file
+        invoice.save()
+        return redirect('/request/detail/' + str(invoice.request_mat.id))
+
+
+def invoice_delete(request):
+    invoice = InvoiceForPayment.objects.get(id=request.POST['id'])
+    red = '/request/detail/' + str(invoice.request_mat.id)
+    invoice.delete()
+
+    return redirect(red)

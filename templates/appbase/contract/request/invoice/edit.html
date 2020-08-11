@@ -1,0 +1,44 @@
+{% extends 'appbase/base.html' %}
+{% load static %}
+{% block content %}
+    <div class="main-content">
+        <div class="container-fluid">
+            <div class="card">
+                <div class="card-header"><h3>Изменить счет</h3></div>
+{#                {{ invoice.id }}#}
+                <div class="card-body">
+                    <form class="forms-sample" action="{% url 'invoice_edit' invoice.id %}" method="post"
+                          enctype="multipart/form-data">
+
+                        <input type="text" name="id" value="{{ invoice.id }}" style="display: none">
+{#                        <div class="form-group">#}
+{#                            <label for="name">Название</label>#}
+{#                            <input type="text" class="form-control" id="name" placeholder="Название" name="name" value="{{ request_mat.name }}">#}
+{#                        </div>#}
+
+                        <div class="form-group">
+                            <label>Счет</label>
+                            <br>
+                            На данный момент: <a href="{{ invoice.file.url}}" download>{{ invoice.file }}</a>
+                            <br>
+                             Изменить:
+                            <input type="file" name="invoice" class="form-control">
+                        </div>
+
+
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-primary mr-2">Изменить</button>
+{#                        <button class="btn btn-light">Cancel</button>#}
+
+                    </form>
+                    <br>
+                    <form action="{% url 'invoice_delete'  %}" method="post">
+                        {% csrf_token %}
+                        <input type="text" name="id" value="{{ invoice.id }}" style="display: none">
+                        <button class="btn btn-danger" type="submit">Удалить</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

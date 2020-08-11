@@ -31,7 +31,7 @@
                             {% for contract in contracts %}
                                 <tr>
                                 <th scope="row">{{ forloop.counter }}</th>
-                                <td><a href="{% url 'contract_detail' slug=contract.contstruct_object.slug contract_slug=contract.slug %}" style="color: #4da3ff">{{ contract.name }}</a></td>
+                                <td><a href="{% url 'contract_detail' contract.slug %}" style="color: #4da3ff">{{ contract.name }}</a></td>
                                 <td>{{ contract.contractor }}</td>
                                 <td>{{ contract.number_contract }}</td>
                                 <td><a href="{{ contract.contract.url }}" style="color: #4da3ff; " download>скачать</a>
@@ -45,7 +45,7 @@
 {#                                    </form>#}
 {#                                </td>#}
                                 <td>
-                                    <a href="{% url 'contract_edit' slug=contract.contstruct_object.slug contract_slug=contract.slug %}"> Изменить</a>
+                                    <a href="{% url 'contract_edit' contract.slug %}"> Изменить</a>
                                 </td>
                             </tr>
                             {% endfor %}
