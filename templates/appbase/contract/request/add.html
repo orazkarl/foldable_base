@@ -4,7 +4,9 @@
     <div class="main-content">
         <div class="container-fluid">
             <div class="card">
-                <div class="card-header"><h3>Добавить заявку</h3></div>
+                <div class="card-header d-block"><a href="{% url 'contract_detail' contract.slug %}"
+                                                    class="btn btn-light"><i
+                        class="ik ik-arrow-left"></i>Назад</a><h3>Добавить заявку</h3></div>
 
                 <div class="card-body">
                     <form class="forms-sample" action="{% url 'request_add' contract.slug %}" method="post"

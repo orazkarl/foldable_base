@@ -4,10 +4,16 @@
     <div class="main-content">
         <div class="container-fluid">
             <div class="card">
-                <div class="card-header"><h3>Добавить работу</h3></div>
+
+                <div class="card-header d-block">
+                    <a href="{% url 'object_detail' object.slug %}" class="btn btn-light"><i
+                            class="ik ik-arrow-left"></i>Назад</a>
+
+                    <h3>Добавить работу</h3>
+                </div>
 
                 <div class="card-body">
-                    <form class="forms-sample" action="{% url 'contract_add' object.slug%}" method="post"
+                    <form class="forms-sample" action="{% url 'contract_add' object.slug %}" method="post"
                           enctype="multipart/form-data">
 
                         <input type="text" name="object" value="{{ object.id }}" style="display: none">

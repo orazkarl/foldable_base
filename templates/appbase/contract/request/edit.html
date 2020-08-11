@@ -4,7 +4,11 @@
     <div class="main-content">
         <div class="container-fluid">
             <div class="card">
-                <div class="card-header"><h3>Добавить работу</h3></div>
+                <div class="card-header d-block">
+                    <a href="{% url 'contract_detail' request_mat.contract.slug %}"
+                                                    class="btn btn-light"><i
+                        class="ik ik-arrow-left"></i>Назад</a>
+                    <h3>Изменить заявку</h3></div>
 
                 <div class="card-body">
                     <form class="forms-sample" action="{% url 'request_edit' request_mat.id %}" method="post"
@@ -27,7 +31,7 @@
 
 
                         {% csrf_token %}
-                        <button type="submit" class="btn btn-primary mr-2">Изменить</button>
+                        <button type="submit" class="btn btn-primary mr-2">Сохранить</button>
 {#                        <button class="btn btn-light">Cancel</button>#}
 
                     </form>

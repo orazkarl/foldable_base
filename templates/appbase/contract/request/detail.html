@@ -5,6 +5,9 @@
         <div class="container-fluid">
             <div class="card">
                 <div class="card-header d-block">
+                    <a href="{% url 'contract_detail' request_mat.contract.slug %}"
+                                                    class="btn btn-light"><i
+                        class="ik ik-arrow-left"></i>Назад</a>
                     <div class="row">
                         <div class="col-md-10">
                             <h3>{{ request_mat.name }}</h3>

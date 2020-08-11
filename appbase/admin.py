@@ -25,3 +25,4 @@ class ContractAdmin(admin.ModelAdmin):
 
 
 admin.site.register(Material)
+admin.site.register(InvoiceForPayment)

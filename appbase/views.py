@@ -2,13 +2,17 @@ from django.shortcuts import render, redirect
 from django.views import generic
 from .models import Object, Contract, Material, RequestForMaterial, InvoiceForPayment
 from transliterate import slugify
+from django.contrib.auth.decorators import login_required
+from django.utils.decorators import method_decorator
 
 
+@method_decorator(login_required(login_url='/accounts/login/'), name='dispatch')
 class HomeView(generic.ListView):
     template_name = 'index.html'
     queryset = Object.objects.all()
 
 
+@method_decorator(login_required(login_url='/accounts/login/'), name='dispatch')
 class ObjectDetailView(generic.DetailView):
     template_name = 'appbase/object_detail.html'
     model = Object
@@ -24,6 +28,7 @@ class ObjectDetailView(generic.DetailView):
         return super().get(request, *args, **kwargs)
 
 
+@method_decorator(login_required(login_url='/accounts/login/'), name='dispatch')
 class ContractDetailView(generic.TemplateView):
     template_name = 'appbase/contract/detail.html'
 
@@ -44,6 +49,7 @@ class ContractDetailView(generic.TemplateView):
         return super().get(request, *args, **kwargs)
 
 
+@method_decorator(login_required(login_url='/accounts/login/'), name='dispatch')
 class ContractAddView(generic.TemplateView):
     template_name = 'appbase/contract/add.html'
 
@@ -73,6 +79,7 @@ class ContractAddView(generic.TemplateView):
         return redirect('/objects/' + Object.objects.get(id=object_id).slug)
 
 
+@method_decorator(login_required(login_url='/accounts/login/'), name='dispatch')
 class ContractEditView(generic.TemplateView):
     template_name = 'appbase/contract/edit.html'
 
@@ -112,6 +119,7 @@ class ContractEditView(generic.TemplateView):
         return redirect('/objects/' + contract.contstruct_object.slug)
 
 
+@login_required(login_url='/accounts/login/')
 def contract_delete(request):
     contract = Contract.objects.get(id=int(request.POST['contract']))
     red = contract.contstruct_object.slug
@@ -120,13 +128,15 @@ def contract_delete(request):
     return redirect('/objects/' + red)
 
 
+@method_decorator(login_required(login_url='/accounts/login/'), name='dispatch')
 class RequestAddView(generic.TemplateView):
     template_name = 'appbase/contract/request/add.html'
 
     def get(self, request, *args, **kwargs):
         contract = Contract.objects.get(slug=self.kwargs['slug'])
         self.extra_context = {
-            'contract' : contract,
+            'contract': contract,
+            'object': Object.objects.get(contract=contract)
         }
         return super().get(request, *args, **kwargs)
 
@@ -138,6 +148,7 @@ class RequestAddView(generic.TemplateView):
         return redirect('/contract/detail/' + contract.slug)
 
 
+@method_decorator(login_required(login_url='/accounts/login/'), name='dispatch')
 class RequestEditView(generic.TemplateView):
     template_name = 'appbase/contract/request/edit.html'
 
@@ -169,7 +180,7 @@ class RequestEditView(generic.TemplateView):
         return redirect('/contract/detail/' + request_mat.contract.slug)
 
 
-
+@method_decorator(login_required(login_url='/accounts/login/'), name='dispatch')
 class RequestDetailView(generic.TemplateView):
     template_name = 'appbase/contract/request/detail.html'
 
@@ -182,6 +193,8 @@ class RequestDetailView(generic.TemplateView):
         }
         return super().get(request, *args, **kwargs)
 
+
+@login_required(login_url='/accounts/login/')
 def request_delete(request):
     request_mat = RequestForMaterial.objects.get(id=request.POST['id'])
     red = '/contract/detail/' + request_mat.contract.slug
@@ -190,6 +203,7 @@ def request_delete(request):
     return redirect(red)
 
 
+@method_decorator(login_required(login_url='/accounts/login/'), name='dispatch')
 class InvoiceAddView(generic.TemplateView):
     template_name = 'appbase/contract/request/invoice/add.html'
 
@@ -197,6 +211,7 @@ class InvoiceAddView(generic.TemplateView):
         request_mat = RequestForMaterial.objects.get(id=self.kwargs['id'])
         self.extra_context = {
             'request_mat': request_mat,
+            'object': Object.objects.get(contract__request=request_mat)
         }
         return super().get(request, *args, **kwargs)
 
@@ -207,6 +222,7 @@ class InvoiceAddView(generic.TemplateView):
         return redirect('/request/detail/' + str(request_mat.id))
 
 
+@method_decorator(login_required(login_url='/accounts/login/'), name='dispatch')
 class InvoiceEditView(generic.TemplateView):
     template_name = 'appbase/contract/request/invoice/edit.html'
 
@@ -215,8 +231,9 @@ class InvoiceEditView(generic.TemplateView):
 
         self.extra_context = {
             'invoice': invoice,
+            'object': Object.objects.get(contract__request__invoice=invoice)
         }
-        return super().get(request, *args,  **kwargs)
+        return super().get(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
         invoice = InvoiceForPayment.objects.get(id=int(request.POST['id']))
@@ -226,6 +243,7 @@ class InvoiceEditView(generic.TemplateView):
         return redirect('/request/detail/' + str(invoice.request_mat.id))
 
 
+@login_required(login_url='/accounts/login/')
 def invoice_delete(request):
     invoice = InvoiceForPayment.objects.get(id=request.POST['id'])
     red = '/request/detail/' + str(invoice.request_mat.id)
