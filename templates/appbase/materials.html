@@ -1,0 +1,71 @@
+{% extends 'appbase/base.html' %}
+{% load static %}
+{% block content %}
+    <div class="main-content">
+        <div class="container-fluid">
+            <div class="card">
+                <div class="card-header d-block">
+                    <div class="row">
+                        <div class="col-md-10"><h3>Счета на оплату</h3></div>
+                        {#                        <div class="col-md-2"><a type="button" href="{% url 'contract_add' object.slug %}" class="btn btn-primary">Добавить работу</a></div>#}
+                    </div>
+
+
+                </div>
+                <div class="card-body p-0 table-border-style">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Работа</th>
+                                <th>Номер договора</th>
+                                <th>Договор</th>
+                                <th>Счет на оплату</th>
+                                <th>Статус</th>
+                                <th>Оплачен?</th>
+                                <th></th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for invoice in invoices %}
+                                <tr>
+                                    <th scope="row">{{ forloop.counter }}</th>
+                                    <td>{{ invoice.request_mat.contract.name }}</td>
+                                    <td>{{ invoice.request_mat.contract.number_contract }}</td>
+                                    <td><a href="{{ invoice.request_mat.contract.contract.url }}" target="_blank"
+                                           style="color: #4da3ff">посмотреть</a></td>
+                                    <td><a href="{{ invoice.file.url }}" target="_blank" style="color: #4da3ff">посмотреть</a>
+                                    </td>
+                                    <td>{{ invoice.status }}</td>
+                                    <td>
+                                        {% if invoice.is_paid %}
+                                            Да
+                                        {% else %}
+                                            Нет
+                                        {% endif %}
+
+                                    </td>
+                                    <td>
+
+                                        {% if invoice.is_paid == False %}
+                                            <form action="{% url 'invoice_for_payment' object.slug %}" method="post">
+                                                {% csrf_token %}
+                                                <input type="text" name="invoice_id" value="{{ invoice.id }}"
+                                                       style="display: none">
+                                                <button type="submit" class="btn btn-primary">Оплатить</button>
+                                            </form>
+                                        {% endif %}
+                                    </td>
+
+
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

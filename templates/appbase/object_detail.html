@@ -7,7 +7,10 @@
                 <div class="card-header d-block">
                     <div class="row">
                         <div class="col-md-10"><h3>Работы</h3></div>
-                        <div class="col-md-2"><a type="button" href="{% url 'contract_add' object.slug %}" class="btn btn-primary">Добавить работу</a></div>
+                        <div class="col-md-2">
+                            <a type="button" href="{% url 'contract_add' object.slug %}" class="btn btn-primary">Добавить работу</a>
+
+                        </div>
                     </div>
 
 
@@ -34,7 +37,7 @@
                                 <td><a href="{% url 'contract_detail' contract.slug %}" style="color: #4da3ff">{{ contract.name }}</a></td>
                                 <td>{{ contract.contractor }}</td>
                                 <td>{{ contract.number_contract }}</td>
-                                <td><a href="{{ contract.contract.url }}" style="color: #4da3ff; " download>скачать</a>
+                                <td><a href="{{ contract.contract.url }}" style="color: #4da3ff; " target="_blank">скачать</a>
                                 <td>{{ contract.status }}</td>
                                 <td>Посмотреть</td>
 {#                                <td>#}

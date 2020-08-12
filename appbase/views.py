@@ -4,6 +4,8 @@ from .models import Object, Contract, Material, RequestForMaterial, InvoiceForPa
 from transliterate import slugify
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
+from openpyxl import load_workbook
+
 
 
 @method_decorator(login_required(login_url='/accounts/login/'), name='dispatch')
@@ -250,3 +252,88 @@ def invoice_delete(request):
     invoice.delete()
 
     return redirect(red)
+
+
+@method_decorator(login_required(login_url='/accounts/login/'), name='dispatch')
+class InvoiceForPaymentView(generic.TemplateView):
+    template_name = 'appbase/invoices.html'
+
+    def get(self, request, *args, **kwargs):
+        con_object = Object.objects.get(slug=self.kwargs['slug'])
+        invoices = InvoiceForPayment.objects.filter(status='да', request_mat__contract__contstruct_object=con_object)
+        self.extra_context = {
+            'object': con_object,
+            'invoices': invoices,
+        }
+        return super().get(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        invoice = InvoiceForPayment.objects.get(id=int(request.POST['invoice_id']))
+        invoice.is_paid = True
+        invoice.save()
+        return redirect('/invoice_for_payment/' + invoice.request_mat.contract.contstruct_object.slug)
+
+
+@method_decorator(login_required(login_url='/accounts/login/'), name='dispatch')
+class AddMaterialView(generic.TemplateView):
+    template_name = 'appbase/contract/add_material.html'
+
+    def get(self, request, *args, **kwargs):
+        self.extra_context = {
+            'object': Object.objects.get(contract__slug=self.kwargs['slug']),
+            'contract': Contract.objects.get(slug=self.kwargs['slug']),
+        }
+        return super().get(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        contract = Contract.objects.get(id=int(request.POST['contract']))
+        file = request.FILES['file']
+        wb = load_workbook(file)
+        sheet_name = wb.sheetnames[0]
+        sheet = wb.get_sheet_by_name(sheet_name)
+        data = list(sheet.values)
+        for item in data:
+            name = item[0]
+            quantuty = item[1]
+            units = item[2]
+            price = item[3]
+            sum_price = item[4]
+            Material.objects.create(contract=contract, name=name, quantity=quantuty, units=units, price=price, sum_price=sum_price)
+        return redirect('/contract/detail/' + contract.slug)
+        # return super().get(request, *args, **kwargs)
+
+
+class PaidMaterailsView(generic.TemplateView):
+    template_name = 'appbase/paid_materials.html'
+
+    def get(self, request, *args, **kwargs):
+        materails = Material.objects.filter(contract__contstruct_object__slug=self.kwargs['slug'], is_delivery=False)
+        self.extra_context = {
+            'object': Object.objects.get(slug=self.kwargs['slug']),
+            # 'contract': Contract.objects.get(slug=self.kwargs['slug']),
+            'materials': materails
+        }
+        return super().get(request, *args, **kwargs)
+
+
+import requests
+
+token = '1318683651:AAH_fhHdb-PGt9kGhSqEOrVXvak3-jFRljk'
+channel_id = '-1001342160485'
+
+
+def send_telegram(request):
+    # keyboard = types.InlineKeyboardMarkup()  # наша клавиатура
+    # key_yes = types.InlineKeyboardButton(text='Да', callback_data='yes')  # кнопка «Да»
+    # keyboard.add(key_yes)  # добавляем кнопку в клавиатуру
+    # key_no = types.InlineKeyboardButton(text='Нет', callback_data='no')
+    # keyboard.add(key_no)
+    # bot.send_message('438797738', text='ку', reply_markup=keyboard)
+
+    invoice = InvoiceForPayment.objects.get(id=int(request.POST['id']))
+    request_mat_file = invoice.request_mat.file
+    invoice_file = invoice.file
+
+    # requests.get("https://api.telegram.org/bot%s/sendMessage" % token,
+    #              params={'chat_id': channel_id, 'text': message})
+    return redirect('/request/detail/' + str(invoice.request_mat.id))

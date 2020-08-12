@@ -5,14 +5,19 @@
         <div class="container-fluid">
             <div class="card">
                 <div class="card-header d-block">
-                    <a href="{% url 'object_detail' object.slug %}" class="btn btn-light"><i class="ik ik-arrow-left"></i>Назад</a>
+                    <a href="{% url 'object_detail' object.slug %}" class="btn btn-light"><i
+                            class="ik ik-arrow-left"></i>Назад</a>
                     <div class="row">
 
-                        <div class="col-md-10"><h3>{{ contract.name }}</h3>
-                        <p>{{ contract.contractor }}</p></div>
+                        <div class="col-md-8"><h3>{{ contract.name }}</h3>
+                            <p>{{ contract.contractor }}</p></div>
+                        <div class="col-md-2">
+                            <a type="button" href="{% url 'add_material' contract.slug %}" class="btn btn-primary">Загрузить материалы</a>
+                        </div>
                         <div class="col-md-2">
 
-                            <a href="{% url 'request_add' contract.slug%}" class="btn btn-primary">Новая заявка</a>
+                            <a href="{% url 'request_add' contract.slug %}" class="btn btn-primary">Новая заявка</a>
+
                         </div>
                     </div>
 
@@ -31,10 +36,11 @@
                             <tbody>
                             {% for request in requests %}
                                 <tr>
-                                <th scope="row">{{ forloop.counter }}</th>
-                                <td><a href="{% url 'request_detail'  request.id  %}">{{ request.name }}</a></td>
-                                <td><a href="{{ request.file.url }}" download>скачать</a></td>
-                                <td><a href="{% url 'request_edit' request.id %}" class="btn btn-danger">Изменить</a></td>
+                                    <th scope="row">{{ forloop.counter }}</th>
+                                    <td><a href="{% url 'request_detail'  request.id %}">{{ request.name }}</a></td>
+                                    <td><a href="{{ request.file.url }}" download>скачать</a></td>
+                                    <td><a href="{% url 'request_edit' request.id %}"
+                                           class="btn btn-danger">Изменить</a></td>
                                 </tr>
                             {% endfor %}
                             </tbody>

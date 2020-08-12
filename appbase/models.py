@@ -43,6 +43,7 @@ class Contract(models.Model):
 
 class Material(models.Model):
     MATERIAL_CHOICES = [
+        ['-', '-'],
         ['ок', 'ок'],
         ['брак', 'брак'],
         ['нехватка', 'нехватка'],
@@ -55,7 +56,8 @@ class Material(models.Model):
     units = models.CharField('Единицы измерения', max_length=20, null=True, blank=True)
     price = models.DecimalField('Цена', max_digits=15, decimal_places=2)
     sum_price = models.DecimalField('Сумма', max_digits=15, decimal_places=2, null=True, blank=True)
-    status = models.CharField('Статус', max_length=250, choices=MATERIAL_CHOICES, default='ок')
+    status = models.CharField('Статус', max_length=250, choices=MATERIAL_CHOICES, default='-')
+    is_delivery = models.BooleanField('Доставлен?', default=False)
 
     def save(self, *args, **kwargs):
         self.sum_price = self.quantity * self.price
@@ -84,14 +86,17 @@ class RequestForMaterial(models.Model):
 
 class InvoiceForPayment(models.Model):
     STATUS_CHOICES = [
+        ['-', '-'],
         ['да', 'да'],
         ['нет', 'нет'],
         ['потом', 'потом']
     ]
     # contract = models.ForeignKey(Contract, on_delete=models.CASCADE, verbose_name='Подряд', related_name='invoice')
-    request_mat = models.ForeignKey(RequestForMaterial, on_delete=models.CASCADE, verbose_name='Заявка', related_name='invoice')
+    request_mat = models.ForeignKey(RequestForMaterial, on_delete=models.CASCADE, verbose_name='Заявка',
+                                    related_name='invoice')
     file = models.FileField('Документ (счет на оплату)', upload_to='invoices/')
-    status = models.CharField('Статус ответа', choices=STATUS_CHOICES, max_length=10, default='нет')
+    status = models.CharField('Статус ответа', choices=STATUS_CHOICES, max_length=10, default='-')
+    is_paid = models.BooleanField('Оплачен?', default=False)
 
     class Meta:
         verbose_name = 'Счет на оплату'
