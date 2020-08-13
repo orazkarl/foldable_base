@@ -1,11 +1,10 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, HttpResponse
 from django.views import generic
 from .models import Object, Contract, Material, RequestForMaterial, InvoiceForPayment
 from transliterate import slugify
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from openpyxl import load_workbook
-
 
 
 @method_decorator(login_required(login_url='/accounts/login/'), name='dispatch')
@@ -298,7 +297,8 @@ class AddMaterialView(generic.TemplateView):
             units = item[2]
             price = item[3]
             sum_price = item[4]
-            Material.objects.create(contract=contract, name=name, quantity=quantuty, units=units, price=price, sum_price=sum_price)
+            Material.objects.create(contract=contract, name=name, quantity=quantuty, units=units, price=price,
+                                    sum_price=sum_price)
         return redirect('/contract/detail/' + contract.slug)
         # return super().get(request, *args, **kwargs)
 
@@ -315,25 +315,89 @@ class PaidMaterailsView(generic.TemplateView):
         }
         return super().get(request, *args, **kwargs)
 
+    def post(self, request, *args, **kwargs):
+        materials = request.POST.getlist('materials')
+        for material_id in materials:
+            material = Material.objects.get(id=material_id)
+            material.is_delivery = True
+            material.save()
+        return redirect('/objects/' + self.kwargs['slug'] + '/paid_materials')
+
+
+class MaterialsView(generic.TemplateView):
+    template_name = 'appbase/materials.html'
+
+    def get(self, request, *args, **kwargs):
+        self.extra_context = {
+            'object': Object.objects.get(slug=self.kwargs['slug']),
+            'materials': Material.objects.filter(contract__contstruct_object__slug=self.kwargs['slug'],
+                                                 is_delivery=True)
+        }
+        return super().get(request, *args, **kwargs)
+
 
 import requests
+import telebot
+from telebot import types
 
 token = '1318683651:AAH_fhHdb-PGt9kGhSqEOrVXvak3-jFRljk'
 channel_id = '-1001342160485'
 
+bot = telebot.TeleBot(token)
+
+
 
 def send_telegram(request):
-    # keyboard = types.InlineKeyboardMarkup()  # наша клавиатура
-    # key_yes = types.InlineKeyboardButton(text='Да', callback_data='yes')  # кнопка «Да»
-    # keyboard.add(key_yes)  # добавляем кнопку в клавиатуру
-    # key_no = types.InlineKeyboardButton(text='Нет', callback_data='no')
-    # keyboard.add(key_no)
-    # bot.send_message('438797738', text='ку', reply_markup=keyboard)
+
+    keyboard = types.InlineKeyboardMarkup()  # наша клавиатура
+    key_yes = types.InlineKeyboardButton(text='Да', callback_data='yes')  # кнопка «Да»
+    keyboard.add(key_yes)  # добавляем кнопку в клавиатуру
+    key_no = types.InlineKeyboardButton(text='Нет', callback_data='no')
+    keyboard.add(key_no)
+    key_then = types.InlineKeyboardButton(text='Потом', callback_data='then')
+    keyboard.add(key_then)
 
     invoice = InvoiceForPayment.objects.get(id=int(request.POST['id']))
     request_mat_file = invoice.request_mat.file
     invoice_file = invoice.file
 
+    msg = '----------------------------------------\n'
+    msg += 'Новый счет!\n'
+    bot.send_message('438797738', text=msg)
+    msg = 'Объект: ' + str(invoice.request_mat.contract.contstruct_object) + '\n'
+    msg += 'Работа: ' + str(invoice.request_mat.contract) + '\n'
+    msg += 'Текущий статус:: ' + str(invoice.status) + '\n'
+    msg += 'ID: ' + str(invoice.id) + '\n'
+    bot.send_document('438797738', request_mat_file)
+    bot.send_document('438797738', invoice_file)
+    bot.send_message('438797738', text=msg, reply_markup=keyboard)
     # requests.get("https://api.telegram.org/bot%s/sendMessage" % token,
-    #              params={'chat_id': channel_id, 'text': message})
+    #              params={'chat_id': '438797738', 'text': 'message'})
+
     return redirect('/request/detail/' + str(invoice.request_mat.id))
+
+
+def api_telegram_response(request):
+    if request.GET['token'] == '123':
+        print('asd')
+        response = request.GET['response']
+        invoice_id = int(request.GET['invoice_id'])
+        invoice = InvoiceForPayment.objects.get(id=invoice_id)
+        status = '-'
+        if response == 'yes':
+            status = 'да'
+        elif response == 'no':
+            status = 'нет'
+        elif response == 'then':
+            status = 'потом'
+        invoice.status = status
+        invoice.save()
+
+
+    return HttpResponse('ok')
+
+
+
+
+
+

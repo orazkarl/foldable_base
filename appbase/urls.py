@@ -26,6 +26,9 @@ urlpatterns = [
     path('add_materials/contract/<slug:slug>', views.AddMaterialView.as_view(), name='add_material'),
 
     path('objects/<slug:slug>/paid_materials', views.PaidMaterailsView.as_view(), name='paid_materials'),
+    path('objects/<slug:slug>/materials', views.MaterialsView.as_view(), name='materials'),
+
+    path('api/telegram/', views.api_telegram_response)
 
 
 ]

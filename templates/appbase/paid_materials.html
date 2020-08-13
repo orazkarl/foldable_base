@@ -25,26 +25,30 @@
                                 <th>Цена</th>
                                 <th>Сумма</th>
                                 <th>Статус</th>
-{#                                <th>Доставлен?</th>#}
+                                <th></th>
                             </tr>
                             </thead>
                             <tbody>
-                            {% for material in materials %}
-                                <tr>
-                                    <th scope="row">{{ forloop.counter }}</th>
-                                    <td>{{ material.contract }}</td>
-                                    <td>{{ material.name }}</td>
-                                    <td>{{ material.quantity }}</td>
-                                    <td>{{ material.units }}</td>
-                                    <td>{{ material.price }}</td>
-                                    <td>{{ material.sum_price }}</td>
-                                    <td>{{ material.status }}</td>
-{#                                    <td>{{ material.is_delivery }}</td>#}
-
-                                </tr>
-                            {% endfor %}
+                            <form action="/objects/{{ object.slug }}/paid_materials" method="post">
+                            {% csrf_token %}
+                                {% for material in materials %}
+                                    <tr>
+                                        <th scope="row">{{ forloop.counter }}</th>
+                                        <td>{{ material.contract }}</td>
+                                        <td>{{ material.name }}</td>
+                                        <td>{{ material.quantity }}</td>
+                                        <td>{{ material.units }}</td>
+                                        <td>{{ material.price }}</td>
+                                        <td>{{ material.sum_price }}</td>
+                                        <td>{{ material.status }}</td>
+                                        <td><input type="checkbox" name="materials" value="{{ material.id }}"></td>
+                                    </tr>
+                                {% endfor %}
+                                <button type="submit" name="delivered" class="btn btn-primary">Доставлено</button>
+                            </form>
                             </tbody>
                         </table>
+
                     </div>
                 </div>
             </div>
