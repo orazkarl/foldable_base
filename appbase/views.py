@@ -273,7 +273,7 @@ def invoice_delete(request):
 
     return redirect(red)
 
-
+import datetime
 @method_decorator(login_required(login_url='/accounts/login/'), name='dispatch')
 class InvoiceForPaymentView(generic.TemplateView):
     template_name = 'appbase/invoices.html'
@@ -281,16 +281,29 @@ class InvoiceForPaymentView(generic.TemplateView):
     def get(self, request, *args, **kwargs):
         con_object = Object.objects.get(slug=self.kwargs['slug'])
         invoices = InvoiceForPayment.objects.filter(status='да', request_mat__contract__contstruct_object=con_object)
+
         self.extra_context = {
             'object': con_object,
             'invoices': invoices,
+            'current_date': datetime.datetime.now()
+
         }
         return super().get(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
         invoice = InvoiceForPayment.objects.get(id=int(request.POST['invoice_id']))
-        invoice.is_paid = True
-        invoice.save()
+
+        if request.POST['submit'] == 'paid':
+            invoice.is_paid = True
+            invoice.reset_date = datetime.datetime.now() + datetime.timedelta(hours=1)
+            invoice.save()
+        elif request.POST['submit'] == 'looked':
+            invoice.is_looked = True
+            invoice.save()
+        elif request.POST['submit'] == 'cancel':
+            invoice.is_looked = False
+            invoice.is_paid = False
+            invoice.save()
         return redirect('/invoice_for_payment/' + invoice.request_mat.contract.contstruct_object.slug)
 
 

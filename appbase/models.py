@@ -104,9 +104,10 @@ class InvoiceForPayment(models.Model):
     file = models.FileField('Документ (счет на оплату)', upload_to='invoices/')
     status = models.CharField('Статус ответа', choices=STATUS_CHOICES, max_length=10, default='-')
     is_paid = models.BooleanField('Оплачен?', default=False)
-
+    is_looked = models.BooleanField('Просмотрен?', default=False)
     created_at = models.DateTimeField('Создан', auto_now_add=True)
     updated_at = models.DateTimeField('Изменен', auto_now=True)
+    reset_date = models.DateTimeField(null=True, blank=True)
     class Meta:
         verbose_name = 'Счет на оплату'
         verbose_name_plural = 'Счета на оплату'

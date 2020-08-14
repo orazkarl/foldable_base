@@ -1,5 +1,9 @@
 {% extends 'appbase/base.html' %}
 {% load static %}
+{% load tz %}
+
+{% load mathfilters %}
+
 {% block content %}
     <div class="main-content">
         <div class="container-fluid">
@@ -51,15 +55,43 @@
 
                                     </td>
                                     <td>
+                                        {#                                        {% localtime off %}#}
 
-                                        {% if invoice.is_paid == False %}
-                                            <form action="{% url 'invoice_for_payment' object.slug %}" method="post">
-                                                {% csrf_token %}
-                                                <input type="text" name="invoice_id" value="{{ invoice.id }}"
-                                                       style="display: none">
-                                                <button type="submit" class="btn btn-primary">Оплатить</button>
-                                            </form>
-                                        {% endif %}
+
+                                        {#                                        {% endlocaltime %}#}
+
+
+
+
+                                        {% if invoice.updated_at.hour|addition:6  == 10 %}11 {% endif %}
+
+                                        <form action="{% url 'invoice_for_payment' object.slug %}" method="post">
+                                            {% csrf_token %}
+                                            <input type="text" name="invoice_id" value="{{ invoice.id }}"
+                                                   style="display: none">
+                                            {% if invoice.is_looked == False %}
+                                                <button type="submit" class="btn btn-success" name="submit"
+                                                        value="looked">Посмотрел(а)
+                                                </button>
+                                            {% else %}
+                                                {% if invoice.is_paid == False %}
+                                                    <button type="submit" class="btn btn-primary" name="submit"
+                                                            value="paid">Оплатил(а)
+                                                    </button>
+                                                {% else %}
+                                                    {% if invoice.reset_date|date:"YmdHis" >  current_date.hour|date:"YmdHis" %}
+                                                        <button type="submit" class="btn btn-danger" name="submit"
+                                                                value="cancel">Отменить
+
+
+                                                        </button>
+                                                    {% endif %}
+
+                                                {% endif %}
+
+                                            {% endif %}
+
+                                        </form>
                                     </td>
 
 
@@ -72,4 +104,5 @@
             </div>
         </div>
     </div>
+
 {% endblock %}
