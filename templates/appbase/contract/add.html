@@ -6,7 +6,7 @@
             <div class="card">
 
                 <div class="card-header d-block">
-                    <a href="{% url 'object_detail' object.slug %}" class="btn btn-light"><i
+                    <a href="javascript:history.go(-1)" class="btn btn-light"><i
                             class="ik ik-arrow-left"></i>Назад</a>
 
                     <h3>Добавить работу</h3>
@@ -39,7 +39,7 @@
                         <div class="form-group">
                             <label for="status">Статус работы</label>
                             <select class="form-control" id="status" name="status">
-                                <option value="выполнение">выполнение</option>
+                                <option value="в работе">в работе</option>
                                 <option value="выполнено">выполнено</option>
                                 <option value="проверка">проверка</option>
                                 <option value="невыполнено">невыполнено</option>

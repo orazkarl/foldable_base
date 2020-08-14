@@ -22,6 +22,8 @@
                                 <th>Номер договора</th>
                                 <th>Договор</th>
                                 <th>Счет на оплату</th>
+                                <th>Создан</th>
+                                <th>Изменен</th>
                                 <th>Статус</th>
                                 <th>Оплачен?</th>
                                 <th></th>
@@ -37,6 +39,8 @@
                                            style="color: #4da3ff">посмотреть</a></td>
                                     <td><a href="{{ invoice.file.url }}" target="_blank" style="color: #4da3ff">посмотреть</a>
                                     </td>
+                                    <td>{{ invoice.created_at }}</td>
+                                    <td>{{ invoice.updated_at }}</td>
                                     <td>{{ invoice.status }}</td>
                                     <td>
                                         {% if invoice.is_paid %}

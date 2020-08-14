@@ -11,7 +11,8 @@
                     <div class="row">
                         <div class="col-md-10">
                             <h3>{{ request_mat.name }}</h3>
-                            <a href="{{ request_mat.file.url }}" download>{{ request_mat.file }}</a>
+                            <p>Файл: <a href="{{ request_mat.file.url }}" target="_blank" style="color: #4da3ff">{{ request_mat.file }}</p>
+                            </a>
                         </div>
                         <div class="col-md-2">
                             <a href="{% url 'invoice_add' request_mat.id %}" class="btn btn-primary">Новый счет</a>
@@ -27,7 +28,10 @@
                                 <th>#</th>
                                 <th>Файл</th>
                                 <th>Статус</th>
-                                <th>Изменить</th>
+                                <th>Оплачено?</th>
+                                <th>Создан</th>
+                                <th>Изменен</th>
+                                <th></th>
                                 <th>Отправить в телеграм</th>
                             </tr>
                             </thead>
@@ -35,8 +39,16 @@
                             {% for invoice in request_mat.invoice.all %}
                                 <tr>
                                     <th scope="row">{{ forloop.counter }}</th>
-                                    <td>{{ invoice.file }}</td>
+                                    <td><a href="{{ invoice.file.url }}" style="color: #4da3ff" target="_blank ">{{ invoice.file }}</a></td>
                                     <td>{{ invoice.status }}</td>
+                                    <td>{% if invoice.is_paid %}
+                                        Да
+                                    {% else %}
+                                        Нет
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ invoice.created_at }}</td>
+                                    <td>{{ invoice.updated_at }}</td>
                                     <td>
                                         <a href="{% url 'invoice_edit' invoice.id %}"
                                            class="btn btn-danger">Изменить</a>

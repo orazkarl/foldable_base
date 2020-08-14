@@ -6,7 +6,12 @@ from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from openpyxl import load_workbook
 
-
+status_dict = {
+    'в работе' : 1,
+    'невыполнено' : 2,
+    'проверка': 3,
+    'выполнено': 4
+}
 @method_decorator(login_required(login_url='/accounts/login/'), name='dispatch')
 class HomeView(generic.ListView):
     template_name = 'index.html'
@@ -14,17 +19,32 @@ class HomeView(generic.ListView):
 
 
 @method_decorator(login_required(login_url='/accounts/login/'), name='dispatch')
-class ObjectDetailView(generic.DetailView):
+class ObjectDetailView(generic.TemplateView):
     template_name = 'appbase/object_detail.html'
-    model = Object
+
+    # model = Object
 
     def get(self, request, *args, **kwargs):
-        object_slug = self.kwargs.get(self.slug_url_kwarg, None)
-
-        contracts = Contract.objects.filter(contstruct_object__slug=object_slug)
+        object_slug = self.kwargs['slug']
+        pk = self.kwargs['pk']
+        status = ''
+        if pk == 1:
+            contracts = Contract.objects.filter(contstruct_object__slug=object_slug, status='в работе')
+            status = 'в работе'
+        elif pk == 2:
+            contracts = Contract.objects.filter(contstruct_object__slug=object_slug, status='невыполнено')
+            status = 'невыполнено'
+        elif pk == 3:
+            contracts = Contract.objects.filter(contstruct_object__slug=object_slug, status='проверка')
+            status = 'проверка'
+        elif pk == 4:
+            contracts = Contract.objects.filter(contstruct_object__slug=object_slug, status='выполнено')
+            status = 'выполнено'
 
         self.extra_context = {
             'contracts': contracts,
+            'status': status,
+            'object': Object.objects.get(slug=object_slug)
         }
         return super().get(request, *args, **kwargs)
 
@@ -77,7 +97,7 @@ class ContractAddView(generic.TemplateView):
         Contract.objects.create(contstruct_object_id=object_id, name=name, slug=slug, contract=contract,
                                 contractor=contractor, number_contract=number_contract, status=status)
 
-        return redirect('/objects/' + Object.objects.get(id=object_id).slug)
+        return redirect('/objects/' + Object.objects.get(id=object_id).slug + '/' + str(status_dict[status] ))
 
 
 @method_decorator(login_required(login_url='/accounts/login/'), name='dispatch')
@@ -117,16 +137,17 @@ class ContractEditView(generic.TemplateView):
         contract.status = status
         contract.save()
 
-        return redirect('/objects/' + contract.contstruct_object.slug)
+
+        return redirect('/objects/' + Object.objects.get(id=object_id).slug + '/' + str(status_dict[status] ))
 
 
 @login_required(login_url='/accounts/login/')
 def contract_delete(request):
     contract = Contract.objects.get(id=int(request.POST['contract']))
-    red = contract.contstruct_object.slug
+    red = contract.contstruct_object.slug + '/' +  str(status_dict[contract.status])
     contract.delete()
 
-    return redirect('/objects/' + red)
+    return redirect(red)
 
 
 @method_decorator(login_required(login_url='/accounts/login/'), name='dispatch')
@@ -336,7 +357,6 @@ class MaterialsView(generic.TemplateView):
         return super().get(request, *args, **kwargs)
 
 
-import requests
 import telebot
 from telebot import types
 
@@ -346,9 +366,7 @@ channel_id = '-1001342160485'
 bot = telebot.TeleBot(token)
 
 
-
 def send_telegram(request):
-
     keyboard = types.InlineKeyboardMarkup()  # наша клавиатура
     key_yes = types.InlineKeyboardButton(text='Да', callback_data='yes')  # кнопка «Да»
     keyboard.add(key_yes)  # добавляем кнопку в клавиатуру
@@ -360,24 +378,25 @@ def send_telegram(request):
     invoice = InvoiceForPayment.objects.get(id=int(request.POST['id']))
     request_mat_file = invoice.request_mat.file
     invoice_file = invoice.file
-
-    msg = '----------------------------------------\n'
+    msg = '\n\n\n'
+    msg += '🔔🔔🔔🔔🔔🔔🔔🔔🔔🔔🔔🔔🔔🔔🔔🔔\n'
     msg += 'Новый счет!\n'
     bot.send_message('438797738', text=msg)
     msg = 'Объект: ' + str(invoice.request_mat.contract.contstruct_object) + '\n'
     msg += 'Работа: ' + str(invoice.request_mat.contract) + '\n'
-    msg += 'Текущий статус:: ' + str(invoice.status) + '\n'
-    msg += 'ID: ' + str(invoice.id) + '\n'
+    msg += 'Текущий статус: ' + str(invoice.status) + '\n'
+    bot.send_message('438797738', text=msg)
+
     bot.send_document('438797738', request_mat_file)
     bot.send_document('438797738', invoice_file)
+    msg = 'ID: ' + str(invoice.id) + '\n'
     bot.send_message('438797738', text=msg, reply_markup=keyboard)
-    # requests.get("https://api.telegram.org/bot%s/sendMessage" % token,
-    #              params={'chat_id': '438797738', 'text': 'message'})
 
     return redirect('/request/detail/' + str(invoice.request_mat.id))
 
 
 def api_telegram_response(request):
+    print('asd')
     if request.GET['token'] == '123':
         print('asd')
         response = request.GET['response']
@@ -390,14 +409,11 @@ def api_telegram_response(request):
             status = 'нет'
         elif response == 'then':
             status = 'потом'
+        print(status)
         invoice.status = status
         invoice.save()
 
-
     return HttpResponse('ok')
-
-
-
 
 
 

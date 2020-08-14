@@ -25,6 +25,8 @@
                                 <th>Цена</th>
                                 <th>Сумма</th>
                                 <th>Статус</th>
+                                <th>Создан</th>
+                                <th>Изменен</th>
                                 <th>Доставлено?</th>
                                 <th></th>
                             </tr>
@@ -42,8 +44,10 @@
                                     <td>{{ material.price }}</td>
                                     <td>{{ material.sum_price }}</td>
                                     <td>{{ material.status }}</td>
+                                    <td>{{ material.created_at }}</td>
+                                    <td>{{ material.updated_at }}</td>
                                     <td>{{ material.is_delivery }}</td>
-{#                                    <td><input type="checkbox" name="materials" value="{{ material.id }}"></td>#}
+                                    {#                                    <td><input type="checkbox" name="materials" value="{{ material.id }}"></td>#}
                                 </tr>
                             {% endfor %}
 

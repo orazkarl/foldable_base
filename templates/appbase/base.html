@@ -79,10 +79,20 @@
                     <nav id="main-menu-navigation" class="navigation-main">
 
                         <div class="nav-item">
-                            <a href="/objects/{{ object.slug }}"><i class="ik ik-share-2"></i><span>Работы</span></a>
+{#                            <a href="/objects/{{ object.slug }}"><i class="ik ik-share-2"></i><span>Работы</span></a>#}
+                        </div>
+                        <div class="nav-item has-sub">
+                            <a href="javascript:void(0)"><i class="ik ik-layers"></i><span>Работы</span></a>
+                            <div class="submenu-content">
+                                <a href="/objects/{{ object.slug }}/1" class="menu-item">в работе</a>
+                                <a href="/objects/{{ object.slug }}/2" class="menu-item">не выполнено</a>
+                                <a href="/objects/{{ object.slug }}/3" class="menu-item">проверка</a>
+                                <a href="/objects/{{ object.slug }}/4" class="menu-item">выполнено</a>
+                            </div>
                         </div>
                         <div class="nav-item">
-                            <a href="/objects/{{ object.slug }}/materials"><i class="ik ik-menu"></i><span>Материалы</span></a>
+                            <a href="/objects/{{ object.slug }}/materials"><i
+                                    class="ik ik-menu"></i><span>Материалы</span></a>
                         </div>
                         <div class="nav-item">
                             <a href="/objects/{{ object.slug }}/paid_materials"><i class="ik ik-inbox"></i><span>Оплаченные материалы</span></a>
@@ -92,6 +102,9 @@
                         </div>
                         <div class="nav-item">
                             <a href=""><i class="ik ik-bar-chart-2"></i><span>Аналитика</span></a>
+                        </div>
+                        <div class="nav-item">
+                            <a href=""><i class="ik ik-clock"></i><span>История</span></a>
                         </div>
                     </nav>
                 </div>

@@ -5,14 +5,26 @@
         <div class="container-fluid">
             <div class="card">
                 <div class="card-header d-block">
-                    <a href="{% url 'object_detail' object.slug %}" class="btn btn-light"><i
+                    <a href="javascript:history.go(-1)" class="btn btn-light"><i
                             class="ik ik-arrow-left"></i>Назад</a>
                     <div class="row">
 
-                        <div class="col-md-8"><h3>{{ contract.name }}</h3>
-                            <p>{{ contract.contractor }}</p></div>
+                        <div class="col-md-8">
+                            <h3>{{ contract.name }}</h3>
+                            <p>Подрядчик: {{ contract.contractor }}</p>
+                            <p>
+                                Номер договора: {{ contract.number_contract }}
+                                <br>
+                                <a href="{{ contract.contract.url }}" target="_blank" style="color: #4da3ff">Договор</a>
+
+                            </p>
+                            <p>
+                                Статус: {{ contract.status }}
+                            </p>
+                        </div>
                         <div class="col-md-2">
-                            <a type="button" href="{% url 'add_material' contract.slug %}" class="btn btn-primary">Загрузить материалы</a>
+                            <a type="button" href="{% url 'add_material' contract.slug %}" class="btn btn-primary">Загрузить
+                                материалы</a>
                         </div>
                         <div class="col-md-2">
 
@@ -30,16 +42,22 @@
                                 <th>#</th>
                                 <th>Название</th>
                                 <th>Договор</th>
-                                <th>Изменить</th>
+                                <th>Создан</th>
+                                <th>Изменен</th>
+                                <th></th>
                             </tr>
                             </thead>
                             <tbody>
-                            {% for request in requests %}
+                            {% for request_mat in requests %}
                                 <tr>
                                     <th scope="row">{{ forloop.counter }}</th>
-                                    <td><a href="{% url 'request_detail'  request.id %}">{{ request.name }}</a></td>
-                                    <td><a href="{{ request.file.url }}" download>скачать</a></td>
-                                    <td><a href="{% url 'request_edit' request.id %}"
+                                    <td><a href="{% url 'request_detail'  request_mat.id %}"
+                                           style="color: #4da3ff">{{ request_mat.name }}</a></td>
+                                    <td><a href="{{ request_mat.file.url }}" target="_blank" style="color: #4da3ff">посмотреть</a>
+                                    </td>
+                                    <td>{{ request_mat.created_at }}</td>
+                                    <td>{{ request_mat.updated_at }}</td>
+                                    <td><a href="{% url 'request_edit' request_mat.id %}"
                                            class="btn btn-danger">Изменить</a></td>
                                 </tr>
                             {% endfor %}

@@ -9,6 +9,8 @@ class Object(models.Model):
     slug = models.SlugField(max_length=250, null=True, blank=True, help_text=slug_help_text, db_index=True, unique=True)
     address = models.CharField('Адрес', max_length=250)
 
+    created_at = models.DateTimeField('Создан', auto_now_add=True)
+    updated_at = models.DateTimeField('Изменен', auto_now=True)
     def __str__(self):
         return self.name
 
@@ -19,10 +21,10 @@ class Object(models.Model):
 
 class Contract(models.Model):
     STATUS_WORK = [
-        ['выполнено', 'выполнено'],
+        ['в работе', 'в работе'],
         ['невыполнено', 'невыполнено'],
         ['проверка', 'проверка'],
-        ['выполнение', 'выполнение']
+        ['выполнено', 'выполнено']
     ]
 
     contstruct_object = models.ForeignKey(Object, on_delete=models.CASCADE, verbose_name='Строительный объект')
@@ -32,7 +34,8 @@ class Contract(models.Model):
     contract = models.FileField('Договор', upload_to='contracts/')
     number_contract = models.CharField('Номер договора', max_length=250)
     status = models.CharField('Статус работы', max_length=100, choices=STATUS_WORK)
-
+    created_at = models.DateTimeField('Создан', auto_now_add=True)
+    updated_at = models.DateTimeField('Изменен', auto_now=True)
     def __str__(self):
         return self.name
 
@@ -59,6 +62,8 @@ class Material(models.Model):
     status = models.CharField('Статус', max_length=250, choices=MATERIAL_CHOICES, default='-')
     is_delivery = models.BooleanField('Доставлен?', default=False)
 
+    created_at = models.DateTimeField('Создан', auto_now_add=True)
+    updated_at = models.DateTimeField('Изменен', auto_now=True)
     def save(self, *args, **kwargs):
         self.sum_price = self.quantity * self.price
         return super(Material, self).save(*args, **kwargs)
@@ -76,6 +81,8 @@ class RequestForMaterial(models.Model):
     name = models.CharField('Название', max_length=100)
     file = models.FileField('Документ (заявка)', upload_to='request/')
 
+    created_at = models.DateTimeField('Создан', auto_now_add=True)
+    updated_at = models.DateTimeField('Изменен', auto_now=True)
     def __str__(self):
         return self.name
 
@@ -98,6 +105,8 @@ class InvoiceForPayment(models.Model):
     status = models.CharField('Статус ответа', choices=STATUS_CHOICES, max_length=10, default='-')
     is_paid = models.BooleanField('Оплачен?', default=False)
 
+    created_at = models.DateTimeField('Создан', auto_now_add=True)
+    updated_at = models.DateTimeField('Изменен', auto_now=True)
     class Meta:
         verbose_name = 'Счет на оплату'
         verbose_name_plural = 'Счета на оплату'
