@@ -9,7 +9,7 @@
 {#    <a href="{% url 'object_detail' object.slug %}">{{ object.name }}</a>#}
 {#{% endfor %}#}
 {% for object in request.user.object.all %}
-    <a href="{% url 'object_detail' object.slug %}">{{ object.name }}</a>
+    <a href="{% url 'object_detail' slug=object.slug pk=1  %}">{{ object.name }}</a>
 {% endfor %}
 </body>
 </html>

@@ -13,10 +13,10 @@
                 </div>
 
                 <div class="card-body">
-                    <form class="forms-sample" action="{% url 'add_material' contract.slug %}" method="post"
+                    <form class="forms-sample" action="{% url 'add_material' invoice.id %}" method="post"
                           enctype="multipart/form-data">
 
-                        <input type="text" name="contract" value="{{ contract.id }}" style="display: none">
+                        <input type="text" name="id" value="{{ invoice.id }}" style="display: none">
 
                         <div class="form-group">
                             <label>Материалы</label>

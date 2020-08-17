@@ -63,7 +63,6 @@
 
 
 
-                                        {% if invoice.updated_at.hour|addition:6  == 10 %}11 {% endif %}
 
                                         <form action="{% url 'invoice_for_payment' object.slug %}" method="post">
                                             {% csrf_token %}
@@ -79,7 +78,7 @@
                                                             value="paid">Оплатил(а)
                                                     </button>
                                                 {% else %}
-                                                    {% if invoice.reset_date|date:"YmdHis" >  current_date.hour|date:"YmdHis" %}
+                                                    {% if invoice.reset_date|date:"YmdHis" >  current_date|date:"YmdHis" %}
                                                         <button type="submit" class="btn btn-danger" name="submit"
                                                                 value="cancel">Отменить
 

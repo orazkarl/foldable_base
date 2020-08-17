@@ -1,0 +1,105 @@
+{% extends 'appbase/base.html' %}
+{% load static %}
+{% block content %}
+    <div class="main-content">
+        <div class="container-fluid">
+            <div class="card">
+                <div class="card-header d-block">
+                    <div class="row">
+                        <div class="col-md-10">
+                            <h3>Оплаченные материалы</h3>
+                            <p>Работа: {{ invoice.request_mat.contract.name }}</p>
+                            <p>Название компании: {{ invoice.name_company }}</p>
+                            <p>БИН: {{ invoice.bin }}</p>
+                            <p>Счет на оплату: <a href="{{ invoice.file.url }}" target="_blank" style="color: #4da3ff">посмотреть</a>
+                            </p>
+                        </div>
+                    </div>
+
+
+                </div>
+                <div class="card-body p-0 table-border-style">
+                    <div class="table-responsive">
+                        <form action="{% url 'invoice_materials' invoice.id %}" method="post">
+                            <table class="table">
+                                <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Название</th>
+                                    <th>Количество</th>
+                                    <th>ед. изм.</th>
+                                    <th>Цена</th>
+                                    <th>Сумма</th>
+                                    <th>Статус</th>
+                                    {#                                    <th>Создан</th>#}
+                                    {#                                    <th>Изменен</th>#}
+                                    <th></th>
+                                </tr>
+                                </thead>
+                                <tbody>
+
+                                {% csrf_token %}
+                                {% for material in materials %}
+                                    <tr>
+                                        <th scope="row">{{ forloop.counter }}</th>
+                                        <td>{{ material.name }}</td>
+                                        <td>{{ material.quantity }}</td>
+                                        <td>{{ material.units }}</td>
+                                        <td>{{ material.price }}</td>
+                                        <td>{{ material.sum_price }}</td>
+                                        <td>{{ material.status }}</td>
+                                        {#                                        <td>{{ material.created_at }}</td>#}
+                                        {#                                        <td>{{ material.updated_at }}</td>#}
+                                        <td><input type="checkbox" name="materials" value="{{ material.id }}"></td>
+                                    </tr>
+                                {% endfor %}
+
+                                </tbody>
+                            </table>
+                            <br>
+                            <div class="row">
+                                <div style="margin: 10px 0 10px 10px" class="col-md-3">
+                                    <label for="">Ок</label>
+                                    <input type="text" class="form-control" name="subscribe" value="Подписал">
+                                    <br>
+                                    <button type="submit" name="submit" class="btn btn-primary" value="delivered">
+                                        Доставлено
+                                    </button>
+                                </div>
+                                <div style="margin: 10px 0 10px 10px" class="col-md-3">
+                                    {#                                    <label for="">Брак</label>#}
+
+                                    {#                                    <div class="form-group">#}
+                                    {#                                        <input type="checkbox" id="brak" class="radio" name="brak" value="1">#}
+                                    {#                                        <label for="brak">Брак</label>#}
+                                    {#                                        <br>#}
+                                    {#                                        <input type="checkbox" id="brak" class="radio" name="brak" value="2">#}
+                                    {#                                        <label for="brak">Нехватка</label>#}
+                                    {#                                        <br>#}
+                                    {#                                        <input type="checkbox" id="brak" class="radio" name="brak" value="3">#}
+                                    {#                                        <label for="brak">Несоответсвие</label>#}
+                                    {#                                    </div>#}
+
+                                    {#                                    <label for="">брак</label>#}
+                                    {#                                    <input type="radio">#}
+                                    <br>
+                                    <button type="submit" name="submit" class="btn btn-danger" value="marriage">
+                                        Брак
+                                    </button>
+                                </div>
+                                {#                                <div style="margin: 10px 0 10px 10px" class="col-md-3">#}
+                                {#                                    <label for="">Возврат</label>#}
+                                {#                                    <input type="text" class="form-control" name="subscribe" value="Подписал">#}
+                                {#                                    <br>#}
+                                {#                                    <button type="submit" name="delivered" class="btn btn-primary">Доставлено</button>#}
+                                {#                                </div>#}
+                            </div>
+
+                        </form>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

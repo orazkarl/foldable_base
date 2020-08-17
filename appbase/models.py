@@ -11,6 +11,7 @@ class Object(models.Model):
 
     created_at = models.DateTimeField('Создан', auto_now_add=True)
     updated_at = models.DateTimeField('Изменен', auto_now=True)
+
     def __str__(self):
         return self.name
 
@@ -36,44 +37,13 @@ class Contract(models.Model):
     status = models.CharField('Статус работы', max_length=100, choices=STATUS_WORK)
     created_at = models.DateTimeField('Создан', auto_now_add=True)
     updated_at = models.DateTimeField('Изменен', auto_now=True)
+
     def __str__(self):
         return self.name
 
     class Meta:
         verbose_name = 'Подярд'
         verbose_name_plural = 'Подярды'
-
-
-class Material(models.Model):
-    MATERIAL_CHOICES = [
-        ['-', '-'],
-        ['ок', 'ок'],
-        ['брак', 'брак'],
-        ['нехватка', 'нехватка'],
-        ['несоответствие', 'несоответствие'],
-    ]
-
-    contract = models.ForeignKey(Contract, on_delete=models.CASCADE, verbose_name='Подряд')
-    name = models.CharField('Название', max_length=250)
-    quantity = models.PositiveIntegerField('Количество', default=0)
-    units = models.CharField('Единицы измерения', max_length=20, null=True, blank=True)
-    price = models.DecimalField('Цена', max_digits=15, decimal_places=2)
-    sum_price = models.DecimalField('Сумма', max_digits=15, decimal_places=2, null=True, blank=True)
-    status = models.CharField('Статус', max_length=250, choices=MATERIAL_CHOICES, default='-')
-    is_delivery = models.BooleanField('Доставлен?', default=False)
-
-    created_at = models.DateTimeField('Создан', auto_now_add=True)
-    updated_at = models.DateTimeField('Изменен', auto_now=True)
-    def save(self, *args, **kwargs):
-        self.sum_price = self.quantity * self.price
-        return super(Material, self).save(*args, **kwargs)
-
-    def __str__(self):
-        return self.name
-
-    class Meta:
-        verbose_name = 'Материал'
-        verbose_name_plural = 'Материалы'
 
 
 class RequestForMaterial(models.Model):
@@ -83,12 +53,16 @@ class RequestForMaterial(models.Model):
 
     created_at = models.DateTimeField('Создан', auto_now_add=True)
     updated_at = models.DateTimeField('Изменен', auto_now=True)
+
     def __str__(self):
         return self.name
 
     class Meta:
         verbose_name = 'Заявка'
         verbose_name_plural = 'Заявки'
+
+
+
 
 
 class InvoiceForPayment(models.Model):
@@ -101,6 +75,9 @@ class InvoiceForPayment(models.Model):
     # contract = models.ForeignKey(Contract, on_delete=models.CASCADE, verbose_name='Подряд', related_name='invoice')
     request_mat = models.ForeignKey(RequestForMaterial, on_delete=models.CASCADE, verbose_name='Заявка',
                                     related_name='invoice')
+    bin = models.CharField('БИН', max_length=100)
+    name_company = models.CharField('Название компании', max_length=250)
+    comment = models.CharField('Примечение', max_length=1000, null=True, blank=True)
     file = models.FileField('Документ (счет на оплату)', upload_to='invoices/')
     status = models.CharField('Статус ответа', choices=STATUS_CHOICES, max_length=10, default='-')
     is_paid = models.BooleanField('Оплачен?', default=False)
@@ -108,6 +85,47 @@ class InvoiceForPayment(models.Model):
     created_at = models.DateTimeField('Создан', auto_now_add=True)
     updated_at = models.DateTimeField('Изменен', auto_now=True)
     reset_date = models.DateTimeField(null=True, blank=True)
+
     class Meta:
         verbose_name = 'Счет на оплату'
         verbose_name_plural = 'Счета на оплату'
+
+
+    def __str__(self):
+        return self.name_company
+
+
+
+class Material(models.Model):
+    MATERIAL_CHOICES = [
+        ['-', '-'],
+        ['ок', 'ок'],
+        ['брак', 'брак'],
+        ['нехватка', 'нехватка'],
+        ['несоответствие', 'несоответствие'],
+    ]
+
+    # request_mat = models.ForeignKey(RequestForMaterial, on_delete=models.CASCADE, verbose_name='Заявка',
+    #                                 related_name='material')
+    invoice = models.ForeignKey(InvoiceForPayment, on_delete=models.CASCADE, verbose_name='Счет на оплату', related_name='material')
+    name = models.CharField('Название', max_length=250)
+    quantity = models.PositiveIntegerField('Количество', default=0)
+    units = models.CharField('Единицы измерения', max_length=20, null=True, blank=True)
+    price = models.DecimalField('Цена', max_digits=15, decimal_places=2)
+    sum_price = models.DecimalField('Сумма', max_digits=15, decimal_places=2, null=True, blank=True)
+    status = models.CharField('Статус', max_length=250, choices=MATERIAL_CHOICES, default='-')
+    is_delivery = models.BooleanField('Доставлен?', default=False)
+
+    created_at = models.DateTimeField('Создан', auto_now_add=True)
+    updated_at = models.DateTimeField('Изменен', auto_now=True)
+
+    def save(self, *args, **kwargs):
+        self.sum_price = self.quantity * self.price
+        return super(Material, self).save(*args, **kwargs)
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name = 'Материал'
+        verbose_name_plural = 'Материалы'

@@ -23,10 +23,11 @@ urlpatterns = [
     path('send_telegram', views.send_telegram, name='send_telegram'),
 
     path('invoice_for_payment/<slug:slug>', views.InvoiceForPaymentView.as_view(), name='invoice_for_payment'),
-    path('add_materials/contract/<slug:slug>', views.AddMaterialView.as_view(), name='add_material'),
+    path('add_materials/invoice/<int:id>', views.AddMaterialView.as_view(), name='add_material'),
 
     path('objects/<slug:slug>/paid_materials', views.PaidMaterailsView.as_view(), name='paid_materials'),
     path('objects/<slug:slug>/materials', views.MaterialsView.as_view(), name='materials'),
+    path('objects/invoice/<int:id>/materials', views.InvoicePaidMaterialsView.as_view(), name='invoice_materials'),
 
     path('api/telegram/', views.api_telegram_response)
 
