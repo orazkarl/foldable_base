@@ -40,6 +40,7 @@ INSTALLED_APPS = [
 
     'appbase.apps.AppbaseConfig',
     'user_auth.apps.UserAuthConfig',
+    'material_app.apps.MaterialAppConfig',
 
     'allauth',
     'allauth.account',

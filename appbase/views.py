@@ -1,13 +1,14 @@
 from django.shortcuts import render, redirect, HttpResponse
 from django.views import generic
-from .models import Object, Contract, Material, RequestForMaterial, InvoiceForPayment
+from .models import Object, Contract, RequestForMaterial, InvoiceForPayment
 from transliterate import slugify
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
-from openpyxl import load_workbook
+import datetime
 import requests
 
 general_bot_token = '1270115367:AAGCRLBP1iSZhpTniwVYQ9p9fqLysY668ew'
+
 status_dict = {
     'в работе': 1,
     'невыполнено': 2,
@@ -281,9 +282,6 @@ def invoice_delete(request):
     return redirect(red)
 
 
-import datetime
-
-
 @method_decorator(login_required(login_url='/accounts/login/'), name='dispatch')
 class InvoiceForPaymentView(generic.TemplateView):
     template_name = 'appbase/invoices.html'
@@ -315,111 +313,6 @@ class InvoiceForPaymentView(generic.TemplateView):
             invoice.is_paid = False
             invoice.save()
         return redirect('/invoice_for_payment/' + invoice.request_mat.contract.contstruct_object.slug)
-
-
-@method_decorator(login_required(login_url='/accounts/login/'), name='dispatch')
-class AddMaterialView(generic.TemplateView):
-    template_name = 'appbase/contract/request/invoice/add_material.html'
-
-    def get(self, request, *args, **kwargs):
-        self.extra_context = {
-            'object': Object.objects.get(contract__request__invoice__id=self.kwargs['id']),
-            # 'contract': Contract.objects.get(slug=self.kwargs['slug']),
-            # 'request_mat': RequestForMaterial.objects.get(id=self.kwargs['id'])
-            'invoice': InvoiceForPayment.objects.get(id=self.kwargs['id'])
-        }
-        return super().get(request, *args, **kwargs)
-
-    def post(self, request, *args, **kwargs):
-        # contract = Contract.objects.get(id=int(request.POST['contract']))
-        invoice = InvoiceForPayment.objects.get(id=int(request.POST['id']))
-
-        file = request.FILES['file']
-        wb = load_workbook(file)
-        sheet_name = wb.sheetnames[0]
-        sheet = wb.get_sheet_by_name(sheet_name)
-        data = list(sheet.values)
-        for item in data:
-            name = item[0]
-            quantuty = item[1]
-            units = item[2]
-            price = item[3]
-            sum_price = item[4]
-            Material.objects.create(invoice=invoice, name=name, quantity=quantuty, units=units, price=price,
-                                    sum_price=sum_price)
-
-        return redirect('/request/detail/' + str(invoice.request_mat.id))
-        # return super().get(request, *args, **kwargs)
-
-
-class PaidMaterailsView(generic.TemplateView):
-    template_name = 'appbase/material/invoices.html'
-
-    def get(self, request, *args, **kwargs):
-        # materails = Material.objects.filter(request_mat__contract__contstruct_object__slug=self.kwargs['slug'],
-        #                                     is_delivery=False)
-        invoices = InvoiceForPayment.objects.filter(request_mat__contract__contstruct_object__slug=self.kwargs['slug'])
-
-        self.extra_context = {
-            'object': Object.objects.get(slug=self.kwargs['slug']),
-            'invoices': invoices,
-
-            # 'materials': materails
-        }
-        return super().get(request, *args, **kwargs)
-
-
-
-class InvoicePaidMaterialsView(generic.TemplateView):
-    template_name = 'appbase/material/paid_materials.html'
-
-    def get(self, request, *args, **kwargs):
-        materials = Material.objects.filter(invoice__id=int(self.kwargs['id']))
-        self.extra_context = {
-            'object': Object.objects.get(contract__request__invoice__id=self.kwargs['id']),
-            'materials': materials,
-            'invoice': InvoiceForPayment.objects.get(id=self.kwargs['id']),
-        }
-        return super().get(request, *args, **kwargs)
-
-
-    def post(self, request, *args, **kwargs):
-        materials = request.POST.getlist('materials')
-        if request.POST['submit'] == 'delivered':
-            for material_id in materials:
-                material = Material.objects.get(id=material_id)
-                material.is_delivery = True
-                material.status = 'ок'
-                # material.save()
-
-        elif request.POST['submit'] == 'marriage':
-            # status = request.POST['marriage']
-            materials = Material.objects.filter(id__in=materials)
-            context = {
-                'materials' : materials,
-                'object': Object.objects.get(contract__request__invoice__id=self.kwargs['id']),
-            }
-            return render(request, template_name='appbase/material/marriage_materials.html', context=context)
-            # for material_id in materials:
-            #     material = Material.objects.get(id=material_id)
-            #     material.status = status
-            #     material.save()
-
-
-            # requests.get("https://api.telegram.org/bot%s/sendMessage" % general_bot_token,
-            #              params={'chat_id': '-1001342160485', 'text': message})
-        return redirect('/objects/invoice/' + str(self.kwargs['id']) + '/materials')
-
-class MaterialsView(generic.TemplateView):
-    template_name = 'appbase/material/materials.html'
-
-    def get(self, request, *args, **kwargs):
-        self.extra_context = {
-            'object': Object.objects.get(slug=self.kwargs['slug']),
-            'materials': Material.objects.filter(request_mat__contract__contstruct_object__slug=self.kwargs['slug'],
-                                                 is_delivery=True)
-        }
-        return super().get(request, *args, **kwargs)
 
 
 import telebot

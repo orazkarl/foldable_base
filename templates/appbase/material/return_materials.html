@@ -1,5 +1,6 @@
 {% extends 'appbase/base.html' %}
 {% load static %}
+{% load mathfilters %}
 {% block content %}
     <div class="main-content">
         <div class="container-fluid">
@@ -7,28 +8,22 @@
                 <div class="card-header d-block">
                     <div class="row">
                         <div class="col-md-10">
-                            <h3>Бракованные материалы</h3>
-                            <p>{{ error }}</p>
+                            <h3>Возврат материалов</h3>
                         </div>
                     </div>
-
-
                 </div>
                 <div class="card-body p-0 table-border-style">
                     <div class="table-responsive">
-                        <form action="{% url 'marriage_materials' %}" method="post">
+                        <form action="{% url 'return_materials' %}" method="post">
                             <table class="table">
                                 <thead>
                                 <tr>
                                     <th>#</th>
-                                    <th>Название</th>
-                                    <th>брак</th>
-                                    <th>нехватка</th>
-                                    <th>несоответствие</th>
                                     <th>ок</th>
+                                    <th>возрат</th>
                                     <th>общий</th>
-                                                                        <th>Создан</th>
-                                                                        <th>Изменен</th>
+                                    {#                                    <th>Создан</th>#}
+                                    {#                                    <th>Изменен</th>#}
                                     <th></th>
                                 </tr>
                                 </thead>
@@ -40,20 +35,15 @@
                                     <tr>
                                         <th scope="row">{{ forloop.counter }}</th>
                                         <td>{{ material.name }}</td>
+                                        <td>{{ material.ok }}</td>
                                         <input type="text" style="display: none" name="material{{ forloop.counter }}"
                                                value="{{ material.id }}">
-                                        <td><input type="text" class="form-control" name="brak{{ forloop.counter }}"
-                                                   value="0"></td>
-                                        <td><input type="text" class="form-control" name="nexv{{ forloop.counter }}"
-                                                   value="0"></td>
-                                        <td><input type="text" class="form-control" name="neso{{ forloop.counter }}"
-                                                   value="0"></td>
-                                        <td><input type="text" class="form-control" name="ok{{ forloop.counter }}"
-                                                   value="{{ material.quantity }}"></td>
+                                        <td><input type="text" class="form-control" name="return{{ forloop.counter }}"
+                                                   value="{{ material.quantity|sub:material.ok }}"></td>
                                         <td>из {{ material.quantity }}</td>
-                                                                                <td>{{ material.created_at }}</td>
-                                                                                <td>{{ material.updated_at }}</td>
-{#                                                                                <td><input type="checkbox" name="materials" value="{{ material.id }}"></td>#}
+                                        {#                                        <td>{{ material.created_at }}</td>#}
+                                        {#                                        <td>{{ material.updated_at }}</td>#}
+                                        {#                                        <td><input type="checkbox" name="materials" value="{{ material.id }}"></td>#}
                                     </tr>
                                 {% endfor %}
 
@@ -81,4 +71,4 @@
             </div>
         </div>
     </div>
-{% endblock content %}
+{% endblock %}
