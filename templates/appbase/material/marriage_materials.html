@@ -1,7 +1,7 @@
 {% extends 'appbase/base.html' %}
 {% load static %}
 {% block content %}
-    <div class="main-content">
+
         <div class="container-fluid">
             <div class="card">
                 <div class="card-header d-block">
@@ -16,7 +16,8 @@
                 </div>
                 <div class="card-body p-0 table-border-style">
                     <div class="table-responsive">
-                        <form action="{% url 'marriage_materials' %}" method="post">
+                        <form action="{% url 'marriage_materials' %}" method="post" id="form"
+                              onsubmit="return mySubmit({{ materials.count }});">
                             <table class="table">
                                 <thead>
                                 <tr>
@@ -27,8 +28,8 @@
                                     <th>несоответствие</th>
                                     <th>ок</th>
                                     <th>общий</th>
-                                                                        <th>Создан</th>
-                                                                        <th>Изменен</th>
+                                    {#                                                                        <th>Создан</th>#}
+                                    {#                                                                        <th>Изменен</th>#}
                                     <th></th>
                                 </tr>
                                 </thead>
@@ -43,17 +44,23 @@
                                         <input type="text" style="display: none" name="material{{ forloop.counter }}"
                                                value="{{ material.id }}">
                                         <td><input type="text" class="form-control" name="brak{{ forloop.counter }}"
-                                                   value="0"></td>
+                                                   value="{{ material.brak }}" id="brak{{ forloop.counter }}"
+                                                   oninput="funcBrak({{ forloop.counter }})"></td>
                                         <td><input type="text" class="form-control" name="nexv{{ forloop.counter }}"
-                                                   value="0"></td>
+                                                   value="{{ material.nexvatka }}" id="nexv{{ forloop.counter }}"
+                                                   oninput="funcBrak({{ forloop.counter }})"></td>
                                         <td><input type="text" class="form-control" name="neso{{ forloop.counter }}"
-                                                   value="0"></td>
+                                                   value="{{ material.nesotvetsvie }}" id="neso{{ forloop.counter }}"
+                                                   oninput="funcBrak({{ forloop.counter }})"></td>
                                         <td><input type="text" class="form-control" name="ok{{ forloop.counter }}"
-                                                   value="{{ material.quantity }}"></td>
-                                        <td>из {{ material.quantity }}</td>
-                                                                                <td>{{ material.created_at }}</td>
-                                                                                <td>{{ material.updated_at }}</td>
-{#                                                                                <td><input type="checkbox" name="materials" value="{{ material.id }}"></td>#}
+                                                   value="{{ material.ok }}" id="ok{{ forloop.counter }}"
+                                                   oninput="funcBrak({{ forloop.counter }})"></td>
+
+                                        <td><input type="text" class="form-control" id="quantity{{ forloop.counter }}"
+                                                   value="{{ material.quantity }}" disabled></td>
+                                        {#                                                                                <td>{{ material.created_at }}</td>#}
+                                        {#                                                                                <td>{{ material.updated_at }}</td>#}
+                                        {#                                                                                <td><input type="checkbox" name="materials" value="{{ material.id }}"></td>#}
                                     </tr>
                                 {% endfor %}
 
@@ -69,7 +76,7 @@
                                 </div>
                                 <div class="col-md-8">
                                     <div class="form-group">
-                                        <button class="btn btn-primary">Подтвердить</button>
+                                        <button class="btn btn-primary" id="submit">Подтвердить</button>
                                     </div>
                                 </div>
                             </div>
@@ -80,5 +87,47 @@
                 </div>
             </div>
         </div>
-    </div>
-{% endblock content %}
+
+    {#    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>#}
+
+
+{% endblock %}
+
+{% block script %}
+    <script>
+
+        function funcBrak(id) {
+
+            var brak = document.getElementById("brak" + id);
+            var ok = document.getElementById("ok" + id);
+            var nexv = document.getElementById("nexv" + id);
+            var neso = document.getElementById("neso" + id);
+            var quantity = document.getElementById("quantity" + id);
+
+            var form = document.getElementById('form');
+
+            var temp = parseInt(quantity.value) - parseInt(brak.value) - parseInt(neso.value) - parseInt(nexv.value);
+            if (temp >= 0) {
+                {#$('form').onsubmit(true);#}
+                document.getElementById('submit').style.display = 'block';
+                ok.value = temp;
+            } else {
+                ok.value = 'Ошибка';
+                document.getElementById('submit').style.display = 'none';
+            }
+
+        }
+
+
+        function mySubmit(n) {
+            var i;
+            for (i = 1; i <= parseInt(n); i++) {
+                if (document.getElementById('ok' + n).value === 'Ошибка') {
+                    return false;
+                }
+            }
+            return true;
+
+        }
+    </script>
+{% endblock %}

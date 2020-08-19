@@ -6,9 +6,14 @@ from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 import datetime
 import requests
+from background_task import background
+
+import telebot
+from telebot import types
+
 
 general_bot_token = '1270115367:AAGCRLBP1iSZhpTniwVYQ9p9fqLysY668ew'
-
+bot1 = telebot.TeleBot(general_bot_token)
 status_dict = {
     'в работе': 1,
     'невыполнено': 2,
@@ -212,6 +217,10 @@ class RequestDetailView(generic.TemplateView):
     def get(self, request, *args, **kwargs):
         request_mat = RequestForMaterial.objects.get(id=self.kwargs['id'])
 
+        if all(invoice.is_done == True for invoice in request_mat.invoice.all()):
+            request_mat.is_done = True
+            request_mat.save()
+
         self.extra_context = {
             'request_mat': request_mat,
             'object': Object.objects.get(slug=request_mat.contract.contstruct_object.slug),
@@ -282,6 +291,7 @@ def invoice_delete(request):
     return redirect(red)
 
 
+
 @method_decorator(login_required(login_url='/accounts/login/'), name='dispatch')
 class InvoiceForPaymentView(generic.TemplateView):
     template_name = 'appbase/invoices.html'
@@ -289,7 +299,7 @@ class InvoiceForPaymentView(generic.TemplateView):
     def get(self, request, *args, **kwargs):
         con_object = Object.objects.get(slug=self.kwargs['slug'])
         invoices = InvoiceForPayment.objects.filter(status='да', request_mat__contract__contstruct_object=con_object)
-        print(datetime.datetime.now())
+
         self.extra_context = {
             'object': con_object,
             'invoices': invoices,
@@ -303,20 +313,31 @@ class InvoiceForPaymentView(generic.TemplateView):
 
         if request.POST['submit'] == 'paid':
             invoice.is_paid = True
-            invoice.reset_date = datetime.datetime.now() + datetime.timedelta(hours=1)
+            invoice.reset_date = datetime.datetime.now() + datetime.timedelta(minutes=30)
+            message = '🔔🔔🔔🔔🔔🔔🔔🔔🔔🔔🔔🔔🔔🔔🔔🔔\n'
+            message += 'Счет оплачен!\n'
+            message += 'БИН: ' + invoice.bin + '\n'
+            bot1.send_message(channel_id, message)
+            bot1.send_document(channel_id, invoice.file)
             invoice.save()
+
         elif request.POST['submit'] == 'looked':
             invoice.is_looked = True
             invoice.save()
         elif request.POST['submit'] == 'cancel':
             invoice.is_looked = False
             invoice.is_paid = False
+            message = '🔔🔔🔔🔔🔔🔔🔔🔔🔔🔔🔔🔔🔔🔔🔔🔔\n'
+            message += 'Оплаченный счет отменен!\n'
+            message += 'БИН: ' + invoice.bin + '\n'
+            bot1.send_message(channel_id, message)
+            bot1.send_document(channel_id, invoice.file)
+            invoice.save()
             invoice.save()
         return redirect('/invoice_for_payment/' + invoice.request_mat.contract.contstruct_object.slug)
 
 
-import telebot
-from telebot import types
+
 
 token = '1318683651:AAH_fhHdb-PGt9kGhSqEOrVXvak3-jFRljk'
 
@@ -355,7 +376,8 @@ def send_telegram(request):
 
 
 def api_telegram_response(request):
-    message = 'Счет на оплату!' + '\n'
+    message = '🔔🔔🔔🔔🔔🔔🔔🔔🔔🔔🔔🔔🔔🔔🔔🔔\n'
+    message += 'Счет на оплату!' + '\n'
     bot = telebot.TeleBot(general_bot_token)
 
     if request.GET['token'] == '123':

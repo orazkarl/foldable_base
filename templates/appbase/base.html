@@ -31,8 +31,24 @@
 </head>
 
 <body>
+<style>
+        .main-content {
+            background: url("{{ object.image.url }}");
+            background-repeat: no-repeat;
+            background-size: cover;
+            background-attachment: fixed;
 
+
+        }
+
+
+
+
+
+
+    </style>
 <div class="wrapper">
+
     <header class="header-top" header-theme="light">
         <div class="container-fluid">
             <div class="d-flex justify-content-between">
@@ -67,7 +83,8 @@
                     <div class="logo-img">
                         {#                        <img src="src/img/brand-white.svg" class="header-brand-img" alt="lavalite">#}
                     </div>
-                    <span class="text">{{ object.name }}</span>
+                    <span class="text">{{ object.name }}
+                    </span>
                 </a>
                 <button type="button" class="nav-toggle"><i data-toggle="expanded"
                                                             class="ik ik-toggle-right toggle-icon"></i></button>
@@ -110,8 +127,12 @@
                 </div>
             </div>
         </div>
-        {% block content %}
-        {% endblock %}
+
+        <div class="main-content">
+            {% block content %}
+            {% endblock %}
+        </div>
+
 
 
     </div>
@@ -129,14 +150,14 @@
 <script src="{% static 'plugins/datatables.net-responsive/js/dataTables.responsive.min.js' %}"></script>
 <script src="{% static 'plugins/datatables.net-responsive-bs4/js/responsive.bootstrap4.min.js' %}"></script>
 <script src="{% static 'plugins/jvectormap/jquery-jvectormap.min.js' %}"></script>
-<script src="{% static 'plugins/jvectormap/tests/assets/jquery-jvectormap-world-mill-en.js' %}"></script>
+{#<script src="{% static 'plugins/jvectormap/tests/assets/jquery-jvectormap-world-mill-en.js' %}"></script>#}
 <script src="{% static 'plugins/moment/moment.js' %}"></script>
 <script src="{% static 'plugins/tempusdominus-bootstrap-4/build/js/tempusdominus-bootstrap-4.min.js' %}"></script>
 <script src="{% static 'plugins/d3/dist/d3.min.js' %}"></script>
 <script src="{% static 'plugins/c3/c3.min.js' %}"></script>
 <script src="{% static 'js/tables.js' %}"></script>
 <script src="{% static 'js/widgets.js' %}"></script>
-<script src="{% static 'js/charts.js' %}js/charts.js"></script>
+{#<script src="{% static 'js/charts.js' %}js/charts.js"></script>#}
 <script src="{% static 'dist/js/theme.min.js' %}"></script>
 <script src="{% static 'js/form-components.js' %}"></script>
 <!-- Google Analytics: change UA-XXXXX-X to be your site's ID. -->
@@ -156,5 +177,7 @@
     ga('create', 'UA-XXXXX-X', 'auto');
     ga('send', 'pageview');
 </script>
+{% block script %}
+{% endblock %}
 </body>
 </html>

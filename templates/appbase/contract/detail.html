@@ -1,7 +1,7 @@
 {% extends 'appbase/base.html' %}
 {% load static %}
 {% block content %}
-    <div class="main-content">
+
         <div class="container-fluid">
             <div class="card">
                 <div class="card-header d-block">
@@ -53,8 +53,13 @@
                                     </td>
                                     <td>{{ request_mat.created_at }}</td>
                                     <td>{{ request_mat.updated_at }}</td>
-                                    <td><a href="{% url 'request_edit' request_mat.id %}"
-                                           class="btn btn-danger">Изменить</a></td>
+                                    <td>{% if request_mat.id_done %}
+                                        Заявка обработана
+                                    {% else %}
+                                        <a href="{% url 'request_edit' request_mat.id %}"
+                                           class="btn btn-danger">Изменить</a>
+                                    {% endif %}
+                                    </td>
                                 </tr>
                             {% endfor %}
                             </tbody>
@@ -63,5 +68,5 @@
                 </div>
             </div>
         </div>
-    </div>
+
 {% endblock %}

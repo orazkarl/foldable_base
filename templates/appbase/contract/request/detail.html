@@ -1,7 +1,7 @@
 {% extends 'appbase/base.html' %}
 {% load static %}
 {% block content %}
-    <div class="main-content">
+
         <div class="container-fluid">
             <div class="card">
                 <div class="card-header d-block">
@@ -35,7 +35,7 @@
                                 <th>Оплачено?</th>
                                 <th>Создан</th>
                                 <th></th>
-                                <th>Отправить в телеграм</th>
+                                <th></th>
                                 <th></th>
 
                             </tr>
@@ -44,8 +44,9 @@
                             {% for invoice in request_mat.invoice.all %}
                                 <tr>
                                     <th scope="row">{{ forloop.counter }}</th>
-                                    <td>{{ invoice.bin }}</td>
                                     <td>{{ invoice.name_company }}</td>
+                                    <td>{{ invoice.bin }}</td>
+
                                     <td><a href="{{ invoice.file.url }}" style="color: #4da3ff"
                                            target="_blank ">{{ invoice.file }}</a></td>
                                     <td>{{ invoice.status }}</td>
@@ -56,23 +57,28 @@
                                     {% endif %}
                                     </td>
                                     <td>{{ invoice.created_at }}</td>
-{#                                    <td>{{ invoice.updated_at }}</td>#}
-                                    <td>
-                                        <a href="{% url 'add_material' invoice.id %}" class="btn btn-success">Загрузить
-                                            материалы</a>
+                                    {#                                    <td>{{ invoice.updated_at }}</td>#}
+                                    {% if invoice.is_done %}
+                                        <td>Счет обработан</td>
+                                    {% else %}
+                                        <td>
+                                            <a href="{% url 'add_material' invoice.id %}" class="btn btn-success">Загрузить
+                                                материалы</a>
 
-                                    </td>
-                                    <td>
-                                        <form action="{% url 'send_telegram' %}" method="post">
-                                            {% csrf_token %}
-                                            <input type="text" name="id" value="{{ invoice.id }}" style="display: none">
-                                            <button type="submit" class="btn btn-primary">Отправить</button>
-                                        </form>
-                                    </td>
-                                    <td>
-                                        <a href="{% url 'invoice_edit' invoice.id %}"
-                                           class="btn btn-danger">Изменить</a>
-                                    </td>
+                                        </td>
+                                        <td>
+                                            <form action="{% url 'send_telegram' %}" method="post">
+                                                {% csrf_token %}
+                                                <input type="text" name="id" value="{{ invoice.id }}"
+                                                       style="display: none">
+                                                <button type="submit" class="btn btn-primary">Отправить в телеграм</button>
+                                            </form>
+                                        </td>
+                                        <td>
+                                            <a href="{% url 'invoice_edit' invoice.id %}"
+                                               class="btn btn-danger">Изменить</a>
+                                        </td>
+                                    {% endif %}
                                 </tr>
                             {% endfor %}
                             </tbody>
@@ -81,5 +87,5 @@
                 </div>
             </div>
         </div>
-    </div>
+
 {% endblock %}

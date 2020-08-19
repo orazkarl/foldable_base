@@ -8,7 +8,7 @@ class Object(models.Model):
     name = models.CharField('Название', max_length=250)
     slug = models.SlugField(max_length=250, null=True, blank=True, help_text=slug_help_text, db_index=True, unique=True)
     address = models.CharField('Адрес', max_length=250)
-
+    image = models.ImageField('Изображение', upload_to='images', null=True, blank=True)
     created_at = models.DateTimeField('Создан', auto_now_add=True)
     updated_at = models.DateTimeField('Изменен', auto_now=True)
 
@@ -50,7 +50,7 @@ class RequestForMaterial(models.Model):
     contract = models.ForeignKey(Contract, on_delete=models.CASCADE, verbose_name='Подряд', related_name='request')
     name = models.CharField('Название', max_length=100)
     file = models.FileField('Документ (заявка)', upload_to='request/')
-
+    is_done = models.BooleanField('Отработан?', default=False)
     created_at = models.DateTimeField('Создан', auto_now_add=True)
     updated_at = models.DateTimeField('Изменен', auto_now=True)
 
@@ -82,6 +82,7 @@ class InvoiceForPayment(models.Model):
     created_at = models.DateTimeField('Создан', auto_now_add=True)
     updated_at = models.DateTimeField('Изменен', auto_now=True)
     reset_date = models.DateTimeField(null=True, blank=True)
+    is_done = models.BooleanField('Отработан?', default=False)
 
     class Meta:
         verbose_name = 'Счет на оплату'
@@ -89,5 +90,3 @@ class InvoiceForPayment(models.Model):
 
     def __str__(self):
         return self.name_company
-
-

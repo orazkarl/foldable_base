@@ -1,7 +1,7 @@
 {% extends 'appbase/base.html' %}
 {% load static %}
 {% block content %}
-    <div class="main-content">
+
         <div class="container-fluid">
             <div class="card">
                 <div class="card-header d-block">
@@ -19,6 +19,11 @@
 
                 </div>
                 <div class="card-body p-0 table-border-style">
+                {% if invoice.is_done %}
+                    <h1 class="text-center">
+                        Счет отработан!
+                    </h1>
+                {% else %}
                     <div class="table-responsive">
                         <form action="{% url 'invoice_materials' invoice.id %}" method="post">
                             <table class="table">
@@ -78,8 +83,10 @@
                             <br>
                             <div class="row">
                                 <div style="margin: 10px 0 10px 10px" class="col-md-3">
-                                    <label for="">Ок</label>
-                                    <input type="text" class="form-control" name="subscribe" value="Подписал">
+
+                                    <input type="checkbox" class="form-radio">
+                                    <label for="">Подписал</label>
+{#                                    <input type="text" class="form-control" name="subscribe" value="Подписал">#}
                                     <br>
                                     <button type="submit" name="submit" class="btn btn-primary" value="delivered">
                                         Доставлено
@@ -115,8 +122,9 @@
                         </form>
 
                     </div>
+                {% endif %}
                 </div>
             </div>
         </div>
-    </div>
+
 {% endblock %}

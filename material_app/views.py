@@ -8,7 +8,10 @@ from openpyxl import load_workbook
 import requests
 from django.db.models import F, Q
 
+import telebot
+
 general_bot_token = '1270115367:AAGCRLBP1iSZhpTniwVYQ9p9fqLysY668ew'
+channel_id = '-1001342160485'
 
 
 @method_decorator(login_required(login_url='/accounts/login/'), name='dispatch')
@@ -68,10 +71,16 @@ class InvoicePaidMaterialsView(generic.TemplateView):
 
     def get(self, request, *args, **kwargs):
         materials = Material.objects.filter(invoice__id=int(self.kwargs['id'])).filter(~Q(ok=F('quantity')))
+        invoice = InvoiceForPayment.objects.get(id=self.kwargs['id'])
+
+        if list(materials) == [] and list(invoice.material.all())!=[]:
+            invoice.is_done =  True
+            invoice.save()
+
         self.extra_context = {
             'object': Object.objects.get(contract__request__invoice__id=self.kwargs['id']),
             'materials': materials,
-            'invoice': InvoiceForPayment.objects.get(id=self.kwargs['id']),
+            'invoice': invoice
         }
         return super().get(request, *args, **kwargs)
 
@@ -87,6 +96,7 @@ class InvoicePaidMaterialsView(generic.TemplateView):
                 material.is_delivery = True
                 material.status = 'ок'
                 material.ok = material.quantity
+                material.brak, material.nesotvetsvie, material.nexvatka = 0, 0, 0
                 material.save()
         elif request.POST['submit'] == 'marriage':
             return render(request, template_name='appbase/material/marriage_materials.html', context=context)
@@ -98,7 +108,8 @@ class InvoicePaidMaterialsView(generic.TemplateView):
 
 def marriage_materials(request):
     if request.POST:
-        message = 'Бракованные товары\n'
+        message = '🔔🔔🔔🔔🔔🔔🔔🔔🔔🔔🔔🔔🔔🔔🔔🔔\n'
+        message += 'Бракованные товары\n'
         for i in range(1, int(request.POST['count']) + 1):
             material = Material.objects.get(id=int(request.POST['material' + str(i)]))
             material.ok = request.POST['ok' + str(i)]
@@ -112,21 +123,28 @@ def marriage_materials(request):
             if int(material.ok) > 1:
                 material.is_delivery = True
             material.save()
+
             message += str(
                 i) + '. ' + material.name + '\n' + 'Ок: ' + material.ok + '\nБрак: ' + material.brak + '\nНехватка: ' + material.nexvatka + '\nНесоответсвие: ' + material.nesotvetsvie + '\n\n'
-        if 'comment' in request.POST:
-            message += 'Примечение: ' + request.POST['comment']
+            invoice = material.invoice
+        if request.POST['comment']:
+            message += 'Примечение: ' + request.POST['comment'] + '\n'
+        message += 'БИН: ' + invoice.bin + '\n'
+        message += 'Название компании: ' + invoice.name_company + '\n'
         requests.get("https://api.telegram.org/bot%s/sendMessage" % general_bot_token,
                      params={'chat_id': '-1001342160485', 'text': message})
+        bot = telebot.TeleBot(general_bot_token)
+        bot.send_document(channel_id, invoice.file)
     return redirect(request.META.get('HTTP_REFERER'))
 
 
 def return_materials(request):
     if request.POST:
-        message = 'Возврат товаров\n'
+        message = '🔔🔔🔔🔔🔔🔔🔔🔔🔔🔔🔔🔔🔔🔔🔔🔔\n'
+        message += 'Возврат товаров\n'
         for i in range(1, int(request.POST['count']) + 1):
             material = Material.objects.get(id=int(request.POST['material' + str(i)]))
-            return_mat_count = int(request.POST['return'+str(i)])
+            return_mat_count = int(request.POST['return' + str(i)])
             if return_mat_count > material.quantity:
                 return HttpResponse('Ошибка!')
             elif return_mat_count == material.quantity:
@@ -137,13 +155,20 @@ def return_materials(request):
                 material.ok = material.quantity
                 material.status = 'ок'
                 material.save()
+                invoice = material.invoice
+            message += str(i) + '. ' + material.name + '\n' + 'Количество: ' + str(
+                material.quantity) + '\nКоличество возвратных товаров: ' + str(return_mat_count) + '\n\n'
 
-            message += str(i) + '. ' + material.name + '\n' + 'Количество: ' + str(material.quantity) +  '\nКоличество возвратных товаров: '  + str(return_mat_count) + '\n\n'
-        if 'comment' in request.POST:
+        if request.POST['comment']:
             message += 'Примечение: ' + request.POST['comment']
+        message += 'БИН: ' + invoice.bin + '\n'
+        message += 'Название компании: ' + invoice.name_company + '\n'
         requests.get("https://api.telegram.org/bot%s/sendMessage" % general_bot_token,
                      params={'chat_id': '-1001342160485', 'text': message})
+        bot = telebot.TeleBot(general_bot_token)
+        bot.send_document(channel_id, invoice.file)
     return redirect(request.META.get('HTTP_REFERER'))
+
 
 class MaterialsView(generic.TemplateView):
     template_name = 'appbase/material/materials.html'
