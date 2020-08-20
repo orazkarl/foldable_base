@@ -2,30 +2,31 @@
 {% load static %}
 {% block content %}
 
-        <div class="container-fluid">
-            <div class="card">
-                <div class="card-header d-block">
-                    <div class="row">
-                        <div class="col-md-10">
-                            <h3>Оплаченные материалы</h3>
-                            <p>Работа: {{ invoice.request_mat.contract.name }}</p>
-                            <p>Название компании: {{ invoice.name_company }}</p>
-                            <p>БИН: {{ invoice.bin }}</p>
-                            <p>Счет на оплату: <a href="{{ invoice.file.url }}" target="_blank" style="color: #4da3ff">посмотреть</a>
-                            </p>
-                        </div>
+    <div class="container-fluid">
+        <div class="card">
+            <div class="card-header d-block">
+                <div class="row">
+                    <div class="col-md-10">
+                        <h2>Оплаченные материалы</h2>
+                        <p>Работа: {{ invoice.request_mat.contract.name }}</p>
+                        <p>Название компании: {{ invoice.name_company }}</p>
+                        <p>БИН: {{ invoice.bin }}</p>
+                        <p>Счет на оплату: <a href="{{ invoice.file.url }}" target="_blank" style="color: #4da3ff">посмотреть</a>
+                        </p>
                     </div>
-
-
                 </div>
-                <div class="card-body p-0 table-border-style">
+
+
+            </div>
+            <div class="card-body p-0 table-border-style">
                 {% if invoice.is_done %}
                     <h1 class="text-center">
                         Счет отработан!
                     </h1>
                 {% else %}
                     <div class="table-responsive">
-                        <form action="{% url 'invoice_materials' invoice.id %}" method="post">
+                        <form action="{% url 'invoice_materials' invoice.id %}" method="post" oninput="myFormInput();"
+                              id="myform">
                             <table class="table">
                                 <thead>
                                 <tr>
@@ -74,57 +75,79 @@
                                         </td>
                                         {#                                        <td>{{ material.created_at }}</td>#}
                                         {#                                        <td>{{ material.updated_at }}</td>#}
-                                        <td><input type="checkbox" name="materials" value="{{ material.id }}"></td>
+                                        <td><input type="checkbox" name="materials" value="{{ material.id }}"
+                                                   id="material_checkbox"></td>
                                     </tr>
                                 {% endfor %}
 
                                 </tbody>
                             </table>
                             <br>
-                            <div class="row">
-                                <div style="margin: 10px 0 10px 10px" class="col-md-3">
+                            <div style="display: none" id="action_div">
+                                <div class="row" >
+                                <div style="margin: 10px 0 10px 10px" class="col-md-5">
 
-                                    <input type="checkbox" class="form-radio">
-                                    <label for="">Подписал</label>
-{#                                    <input type="text" class="form-control" name="subscribe" value="Подписал">#}
-                                    <br>
-                                    <button type="submit" name="submit" class="btn btn-primary" value="delivered">
-                                        Доставлено
-                                    </button>
+                                    <input type="checkbox" class="form-radio" style="height: 18px; width: 18px;"
+                                           oninput="funcSubmit();" id="myCheckbox">
+                                    <label for="myCheckbox"><h3>Подписать/Принять</h3></label>
+                                    <div style="display:none " id="submit_delivery">
+                                        <h3>ФИО: <span style="text-decoration: underline">{{ request.user }}</span></h3>
+                                        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
+                                            tempor
+                                            incididunt ut labore et dolore magna aliqua.</p>
+                                        <button type="submit" name="submit" class="btn btn-primary" value="delivered">
+                                            Доставлено
+                                        </button>
+                                    </div>
+
                                 </div>
                                 <div style="margin: 10px 0 10px 10px" class="col-md-3">
-                                    {#                                    <label for="">Брак</label>#}
-
-                                    {#                                    <div class="form-group">#}
-                                    {#                                        <input type="checkbox" id="brak" class="radio" name="brak" value="1">#}
-                                    {#                                        <label for="brak">Брак</label>#}
-                                    {#                                        <br>#}
-                                    {#                                        <input type="checkbox" id="brak" class="radio" name="brak" value="2">#}
-                                    {#                                        <label for="brak">Нехватка</label>#}
-                                    {#                                        <br>#}
-                                    {#                                        <input type="checkbox" id="brak" class="radio" name="brak" value="3">#}
-                                    {#                                        <label for="brak">Несоответсвие</label>#}
-                                    {#                                    </div>#}
-
-                                    {#                                    <label for="">брак</label>#}
-                                    {#                                    <input type="radio">#}
-
                                     <button type="submit" name="submit" class="btn btn-danger" value="marriage">
                                         Брак
                                     </button>
                                 </div>
                                 <div style="margin: 10px 0 10px 10px" class="col-md-3">
 
-                                    <button type="submit" name="submit"  class="btn btn-success" value="return">Возврат</button>
+                                    <button type="submit" name="submit" class="btn btn-success" value="return">Возврат
+                                    </button>
                                 </div>
                             </div>
+                            </div>
+
 
                         </form>
 
                     </div>
                 {% endif %}
-                </div>
             </div>
         </div>
+    </div>
 
+{% endblock %}
+
+{% block script %}
+    <script>
+        function funcSubmit() {
+            var my_checkbox = document.getElementById('myCheckbox');
+            var submit_delivery = document.getElementById('submit_delivery');
+            {#submit_delivery.style.display = 'block';#}
+            if (my_checkbox.checked === true) {
+                submit_delivery.style.display = 'block';
+            } else {
+                submit_delivery.style.display = 'none';
+            }
+
+        }
+
+        function myFormInput() {
+            var action_div = document.getElementById('action_div');
+            var material_checkbox = document.getElementById('material_checkbox');
+            if (material_checkbox.checked === true) {
+                action_div.style.display = 'block';
+            } else {
+                action_div.style.display = 'none';
+            }
+
+        }
+    </script>
 {% endblock %}
