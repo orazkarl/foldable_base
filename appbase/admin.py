@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.models import Group
-from .models import Object, Contract, InvoiceForPayment
+from .models import Object, Contract, InvoiceForPayment, RequestForMaterial
 
 
 
@@ -30,6 +30,7 @@ class ContractAdmin(admin.ModelAdmin):
 
 
 admin.site.register(InvoiceForPayment)
+admin.site.register(RequestForMaterial)
 
 from allauth.socialaccount.admin import SocialApp, SocialAccount,SocialToken
 from allauth.account.admin import EmailAddress

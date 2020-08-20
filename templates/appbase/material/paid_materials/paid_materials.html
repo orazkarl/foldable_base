@@ -25,7 +25,8 @@
                     </h1>
                 {% else %}
                     <div class="table-responsive">
-                        <form action="{% url 'invoice_materials' invoice.id %}" method="post" oninput="myFormInput();"
+                        <form action="{% url 'invoice_materials' invoice.id %}" method="post"
+                              oninput="myFormInput({{ materials.count }});"
                               id="myform">
                             <table class="table">
                                 <thead>
@@ -41,10 +42,11 @@
                                     <th>Количество</th>
                                     <th>ед. изм.</th>
                                     <th>Цена</th>
-                                    {#                                    <th>Сумма</th>#}
+                                    <th>Код инструмента</th>
                                     <th>Статус</th>
                                     <th>Доставлен?</th>
-                                    {#                                    <th>Создан</th>#}
+                                    <th><input type="checkbox" id="checked_all"
+                                               oninput="checkAll({{ materials.count }});"></th>
                                     {#                                    <th>Изменен</th>#}
                                     <th></th>
                                 </tr>
@@ -65,7 +67,12 @@
                                         <td>{{ material.quantity }}</td>
                                         <td>{{ material.units }}</td>
                                         <td>{{ material.price }}</td>
-                                        {#                                        <td>{{ material.sum_price }}</td>#}
+                                        <td>{% if material.instrument_code != None %}
+                                            {{ material.instrument_code }}
+                                        {% else %}
+                                            Нет
+                                        {% endif %}
+                                        </td>
                                         <td>{{ material.status }}</td>
                                         <td>{% if material.is_delivery %}
                                             Да
@@ -76,7 +83,7 @@
                                         {#                                        <td>{{ material.created_at }}</td>#}
                                         {#                                        <td>{{ material.updated_at }}</td>#}
                                         <td><input type="checkbox" name="materials" value="{{ material.id }}"
-                                                   id="material_checkbox"></td>
+                                                   id="material_checkbox{{ forloop.counter }}"></td>
                                     </tr>
                                 {% endfor %}
 
@@ -84,34 +91,37 @@
                             </table>
                             <br>
                             <div style="display: none" id="action_div">
-                                <div class="row" >
-                                <div style="margin: 10px 0 10px 10px" class="col-md-5">
+                                <div class="row">
+                                    <div style="margin: 10px 0 10px 10px" class="col-md-5">
 
-                                    <input type="checkbox" class="form-radio" style="height: 18px; width: 18px;"
-                                           oninput="funcSubmit();" id="myCheckbox">
-                                    <label for="myCheckbox"><h3>Подписать/Принять</h3></label>
-                                    <div style="display:none " id="submit_delivery">
-                                        <h3>ФИО: <span style="text-decoration: underline">{{ request.user }}</span></h3>
-                                        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
-                                            tempor
-                                            incididunt ut labore et dolore magna aliqua.</p>
-                                        <button type="submit" name="submit" class="btn btn-primary" value="delivered">
-                                            Доставлено
+                                        <input type="checkbox" class="form-radio" style="height: 18px; width: 18px;"
+                                               oninput="funcSubmit();" id="myCheckbox">
+                                        <label for="myCheckbox"><h3>Подписать/Принять</h3></label>
+                                        <div style="display:none " id="submit_delivery">
+                                            <h3>ФИО: <span style="text-decoration: underline">{{ request.user }}</span>
+                                            </h3>
+                                            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
+                                                tempor
+                                                incididunt ut labore et dolore magna aliqua.</p>
+                                            <button type="submit" name="submit" class="btn btn-primary"
+                                                    value="delivered">
+                                                Доставлено
+                                            </button>
+                                        </div>
+
+                                    </div>
+                                    <div style="margin: 10px 0 10px 10px" class="col-md-3">
+                                        <button type="submit" name="submit" class="btn btn-danger" value="marriage">
+                                            Брак
                                         </button>
                                     </div>
+                                    <div style="margin: 10px 0 10px 10px" class="col-md-3">
 
+                                        <button type="submit" name="submit" class="btn btn-success" value="return">
+                                            Возврат
+                                        </button>
+                                    </div>
                                 </div>
-                                <div style="margin: 10px 0 10px 10px" class="col-md-3">
-                                    <button type="submit" name="submit" class="btn btn-danger" value="marriage">
-                                        Брак
-                                    </button>
-                                </div>
-                                <div style="margin: 10px 0 10px 10px" class="col-md-3">
-
-                                    <button type="submit" name="submit" class="btn btn-success" value="return">Возврат
-                                    </button>
-                                </div>
-                            </div>
                             </div>
 
 
@@ -139,15 +149,32 @@
 
         }
 
-        function myFormInput() {
+        function myFormInput(n) {
             var action_div = document.getElementById('action_div');
-            var material_checkbox = document.getElementById('material_checkbox');
-            if (material_checkbox.checked === true) {
-                action_div.style.display = 'block';
-            } else {
-                action_div.style.display = 'none';
+            for (i = 1; i <= n; i++) {
+                var mat_checbox = document.getElementById('material_checkbox' + i);
+                console.log(mat_checbox.checked)
+                if (mat_checbox.checked === true) {
+                    action_div.style.display = 'block';
+                    return;
+                } else {
+                    action_div.style.display = 'none';
+                }
             }
 
+        }
+
+        function checkAll(n) {
+            for (i = 1; i <= n; i++) {
+                var mat_checbox = document.getElementById('material_checkbox' + i);
+                console.log(mat_checbox.checked)
+                if (mat_checbox.checked === true) {
+                    mat_checbox.checked = false;
+
+                } else {
+                    mat_checbox.checked = true;
+                }
+            }
         }
     </script>
 {% endblock %}

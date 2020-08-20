@@ -2,71 +2,72 @@
 {% load static %}
 {% block content %}
 
-        <div class="container-fluid">
-            <div class="card">
-                <div class="card-header d-block">
-                    <a href="javascript:history.go(-1)" class="btn btn-light"><i
-                            class="ik ik-arrow-left"></i>Назад</a>
-                    <div class="row">
+    <div class="container-fluid">
+        <div class="card">
+            <div class="card-header d-block">
+                <a href="javascript:history.go(-1)" class="btn btn-light"><i
+                        class="ik ik-arrow-left"></i>Назад</a>
+                <div class="row">
 
-                        <div class="col-md-8">
-                            <h3>{{ contract.name }}</h3>
-                            <p>Подрядчик: {{ contract.contractor }}</p>
-                            <p>
-                                Номер договора: {{ contract.number_contract }}
-                                <br>
-                                <a href="{{ contract.contract.url }}" target="_blank" style="color: #4da3ff">Договор</a>
+                    <div class="col-md-8">
+                        <h3>{{ contract.name }}</h3>
+                        <p>Подрядчик: {{ contract.contractor }}</p>
+                        <p>
+                            Номер договора: {{ contract.number_contract }}
+                            <br>
+                            <a href="{{ contract.contract.url }}" target="_blank" style="color: #4da3ff">Договор</a>
 
-                            </p>
-                            <p>
-                                Статус: {{ contract.status }}
-                            </p>
-                        </div>
-                        <div class="col-md-2">
-
-                            <a href="{% url 'request_add' contract.slug %}" class="btn btn-primary">Новая заявка</a>
-
-                        </div>
+                        </p>
+                        <p>
+                            Статус: {{ contract.status }}
+                        </p>
                     </div>
+                    <div class="col-md-2">
 
+                        <a href="{% url 'request_add' contract.slug %}" class="btn btn-primary">Новая заявка</a>
+
+                    </div>
                 </div>
-                <div class="card-body p-0 ">
-                    <div class="table-responsive">
-                        <table class="table">
-                            <thead>
+
+            </div>
+            <div class="card-body p-0 ">
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Название</th>
+                            <th>Договор</th>
+                            <th>Создан</th>
+                            <th>Изменен</th>
+                            <th></th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for request_mat in requests %}
                             <tr>
-                                <th>#</th>
-                                <th>Название</th>
-                                <th>Договор</th>
-                                <th>Создан</th>
-                                <th>Изменен</th>
-                                <th></th>
+                                <th scope="row">{{ forloop.counter }}</th>
+                                <td><a href="{% url 'request_detail'  request_mat.id %}"
+                                       style="color: #4da3ff">{{ request_mat.name }}</a></td>
+                                <td><a href="{{ request_mat.file.url }}" target="_blank" style="color: #4da3ff">посмотреть</a>
+                                </td>
+                                <td>{{ request_mat.created_at }}</td>
+                                <td>{{ request_mat.updated_at }}</td>
+{#                                <td>{{ request_mat.is }}</td>#}
+                                <td>{% if request_mat.is_done %}
+                                    Заявка обработана
+                                {% else %}
+                                    <a href="{% url 'request_edit' request_mat.id %}"
+                                       class="btn btn-danger">Изменить</a>
+                                {% endif %}
+                                </td>
                             </tr>
-                            </thead>
-                            <tbody>
-                            {% for request_mat in requests %}
-                                <tr>
-                                    <th scope="row">{{ forloop.counter }}</th>
-                                    <td><a href="{% url 'request_detail'  request_mat.id %}"
-                                           style="color: #4da3ff">{{ request_mat.name }}</a></td>
-                                    <td><a href="{{ request_mat.file.url }}" target="_blank" style="color: #4da3ff">посмотреть</a>
-                                    </td>
-                                    <td>{{ request_mat.created_at }}</td>
-                                    <td>{{ request_mat.updated_at }}</td>
-                                    <td>{% if request_mat.id_done %}
-                                        Заявка обработана
-                                    {% else %}
-                                        <a href="{% url 'request_edit' request_mat.id %}"
-                                           class="btn btn-danger">Изменить</a>
-                                    {% endif %}
-                                    </td>
-                                </tr>
-                            {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
+                        {% endfor %}
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
+    </div>
 
 {% endblock %}

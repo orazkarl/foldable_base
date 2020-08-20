@@ -5,7 +5,7 @@ slug_help_text = "Слаг - это короткая метка для пред�
 
 
 class Object(models.Model):
-    name = models.CharField('Название', max_length=250)
+    name = models.CharField('Название', max_length=250, unique=True)
     slug = models.SlugField(max_length=250, null=True, blank=True, help_text=slug_help_text, db_index=True, unique=True)
     address = models.CharField('Адрес', max_length=250)
     image = models.ImageField('Изображение', upload_to='images', null=True, blank=True)
@@ -29,7 +29,7 @@ class Contract(models.Model):
     ]
 
     contstruct_object = models.ForeignKey(Object, on_delete=models.CASCADE, verbose_name='Строительный объект')
-    name = models.CharField('Название', max_length=250)
+    name = models.CharField('Название', max_length=250, unique=True)
     slug = models.SlugField(max_length=250, null=True, blank=True, help_text=slug_help_text, db_index=True, unique=True)
     contractor = models.CharField('Подрядчик', max_length=250, null=True, blank=True)
     contract = models.FileField('Договор', upload_to='contracts/')
@@ -83,7 +83,7 @@ class InvoiceForPayment(models.Model):
     updated_at = models.DateTimeField('Изменен', auto_now=True)
     reset_date = models.DateTimeField(null=True, blank=True)
     is_done = models.BooleanField('Отработан?', default=False)
-
+    is_cash = models.BooleanField('Наличный?', default=False)
     class Meta:
         verbose_name = 'Счет на оплату'
         verbose_name_plural = 'Счета на оплату'

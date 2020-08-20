@@ -1,14 +1,15 @@
 from django.shortcuts import render, redirect, HttpResponse
 from django.views import generic
-from appbase.models import Object, InvoiceForPayment
+from appbase.models import Object, InvoiceForPayment, Contract
 from .models import Material
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from openpyxl import load_workbook
 import requests
 from django.db.models import F, Q
-
+from transliterate import slugify
 import telebot
+import datetime
 
 general_bot_token = '1270115367:AAGCRLBP1iSZhpTniwVYQ9p9fqLysY668ew'
 channel_id = '-1001342160485'
@@ -30,7 +31,17 @@ class AddMaterialView(generic.TemplateView):
     def post(self, request, *args, **kwargs):
         # contract = Contract.objects.get(id=int(request.POST['contract']))
         invoice = InvoiceForPayment.objects.get(id=int(request.POST['id']))
+        object_name = invoice.request_mat.contract.contstruct_object.name
+        # object_name = slugify(object_name)
+        object_name = object_name.split(' ')
+        object_slug = ''
 
+        for i in object_name:
+            if slugify(i) != None:
+                i = slugify(i)
+            object_slug += i[0]
+        #
+        object_slug = object_slug.upper()
         file = request.FILES['file']
         wb = load_workbook(file)
         sheet_name = wb.sheetnames[0]
@@ -42,15 +53,22 @@ class AddMaterialView(generic.TemplateView):
             units = item[2]
             price = item[3]
             sum_price = item[4]
-            Material.objects.create(invoice=invoice, name=name, quantity=quantuty, units=units, price=price,
-                                    sum_price=sum_price)
+            instriment_code = item[5]
+
+            material = Material.objects.create(invoice=invoice, name=name, quantity=quantuty, units=units, price=price,
+                                               sum_price=sum_price)
+
+            if instriment_code == 1:
+                instriment_code = 'I' + object_slug + '-' + str(datetime.datetime.now().year) + '-'
+                material.instrument_code = instriment_code + str(material.id)
+                material.save()
 
         return redirect('/request/detail/' + str(invoice.request_mat.id))
         # return super().get(request, *args, **kwargs)
 
 
 class PaidMaterailsView(generic.TemplateView):
-    template_name = 'appbase/material/invoices.html'
+    template_name = 'appbase/material/paid_materials/invoices.html'
 
     def get(self, request, *args, **kwargs):
         # materails = Material.objects.filter(request_mat__contract__contstruct_object__slug=self.kwargs['slug'],
@@ -67,14 +85,14 @@ class PaidMaterailsView(generic.TemplateView):
 
 
 class InvoicePaidMaterialsView(generic.TemplateView):
-    template_name = 'appbase/material/paid_materials.html'
+    template_name = 'appbase/material/paid_materials/paid_materials.html'
 
     def get(self, request, *args, **kwargs):
         materials = Material.objects.filter(invoice__id=int(self.kwargs['id'])).filter(~Q(ok=F('quantity')))
         invoice = InvoiceForPayment.objects.get(id=self.kwargs['id'])
 
-        if list(materials) == [] and list(invoice.material.all())!=[]:
-            invoice.is_done =  True
+        if list(materials) == [] and list(invoice.material.all()) != []:
+            invoice.is_done = True
             invoice.save()
 
         self.extra_context = {
@@ -99,10 +117,12 @@ class InvoicePaidMaterialsView(generic.TemplateView):
                 material.brak, material.nesotvetsvie, material.nexvatka = 0, 0, 0
                 material.save()
         elif request.POST['submit'] == 'marriage':
-            return render(request, template_name='appbase/material/marriage_materials.html', context=context)
+            return render(request, template_name='appbase/material/paid_materials/marriage_materials.html',
+                          context=context)
 
         elif request.POST['submit'] == 'return':
-            return render(request, template_name='appbase/material/return_materials.html', context=context)
+            return render(request, template_name='appbase/material/paid_materials/return_materials.html',
+                          context=context)
         return redirect('/objects/invoice/' + str(self.kwargs['id']) + '/materials')
 
 
@@ -170,13 +190,27 @@ def return_materials(request):
     return redirect(request.META.get('HTTP_REFERER'))
 
 
-class MaterialsView(generic.TemplateView):
-    template_name = 'appbase/material/materials.html'
+class ContractMaterialsView(generic.TemplateView):
+    template_name = 'appbase/material/store_mateials/contracts.html'
 
     def get(self, request, *args, **kwargs):
+        contracts = Contract.objects.filter(contstruct_object__slug=self.kwargs['slug'])
         self.extra_context = {
             'object': Object.objects.get(slug=self.kwargs['slug']),
-            'materials': Material.objects.filter(
-                invoice__request_mat__contract__contstruct_object__slug=self.kwargs['slug'], is_delivery=True)
+            'contracts': contracts
+            # 'materials': Material.objects.filter(invoice__request_mat__contract__contstruct_object__slug=self.kwargs['slug'], is_delivery=True)
+        }
+        return super().get(request, *args, **kwargs)
+
+
+class MaterialsView(generic.TemplateView):
+    template_name = 'appbase/material/store_mateials/materials.html'
+
+    def get(self, request, *args, **kwargs):
+        materials = Material.objects.filter(invoice__request_mat__contract__slug=self.kwargs['slug'], is_delivery=True,
+                                            invoice__is_done=True)
+        self.extra_context = {
+            'object': Object.objects.get(contract__slug=self.kwargs['slug']),
+            'materials': materials
         }
         return super().get(request, *args, **kwargs)

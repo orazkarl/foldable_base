@@ -26,7 +26,7 @@ class Material(models.Model):
     sum_price = models.DecimalField('Сумма', max_digits=15, decimal_places=2, null=True, blank=True)
     status = models.CharField('Статус', max_length=250, choices=MATERIAL_CHOICES, default='-')
     is_delivery = models.BooleanField('Доставлен?', default=False)
-
+    instrument_code = models.CharField('Код инструмента', max_length=250, null=True, blank=True)
     created_at = models.DateTimeField('Создан', auto_now_add=True)
     updated_at = models.DateTimeField('Изменен', auto_now=True)
 

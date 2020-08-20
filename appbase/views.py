@@ -11,7 +11,6 @@ from background_task import background
 import telebot
 from telebot import types
 
-
 general_bot_token = '1270115367:AAGCRLBP1iSZhpTniwVYQ9p9fqLysY668ew'
 bot1 = telebot.TeleBot(general_bot_token)
 status_dict = {
@@ -114,7 +113,6 @@ class ContractEditView(generic.TemplateView):
     template_name = 'appbase/contract/edit.html'
 
     def get(self, request, *args, **kwargs):
-
         contract_slug = self.kwargs['slug']
 
         contract = Contract.objects.get(slug=contract_slug)
@@ -129,10 +127,7 @@ class ContractEditView(generic.TemplateView):
         contract = Contract.objects.get(slug=contract_slug)
         object_id = request.POST['object']
         name = request.POST['name']
-        if request.FILES:
-            contract_file = request.FILES['contract']
-        else:
-            contract_file = contract.contract
+
         contractor = request.POST['contractor']
 
         number_contract = request.POST['number_contract']
@@ -174,7 +169,8 @@ class RequestAddView(generic.TemplateView):
         contract = Contract.objects.get(id=request.POST['contract'])
         name = request.POST['name']
         file = request.FILES['request']
-        RequestForMaterial.objects.create(contract=contract, name=name, file=file)
+
+        RequestForMaterial.objects.create(contract=contract, name=name, file=file, is_done=False)
         return redirect('/contract/detail/' + contract.slug)
 
 
@@ -217,7 +213,8 @@ class RequestDetailView(generic.TemplateView):
     def get(self, request, *args, **kwargs):
         request_mat = RequestForMaterial.objects.get(id=self.kwargs['id'])
 
-        if all(invoice.is_done == True for invoice in request_mat.invoice.all()):
+        if all(invoice.is_done == True for invoice in request_mat.invoice.all()) and list(
+                request_mat.invoice.all()) != []:
             request_mat.is_done = True
             request_mat.save()
 
@@ -255,9 +252,16 @@ class InvoiceAddView(generic.TemplateView):
         bin = request.POST['bin']
         name_company = request.POST['name']
         comment = request.POST['comment']
-
+        is_cash = request.POST['is_cash']
+        is_paid, is_looked = False, False
+        status = '-'
+        if is_cash == 'on':
+            is_cash, is_paid, is_looked = True, True, True
+            status = 'да'
+        else:
+            is_cash = False
         InvoiceForPayment.objects.create(request_mat=request_mat, file=file, bin=bin, name_company=name_company,
-                                         comment=comment)
+                                         comment=comment, is_cash=is_cash, is_paid=is_paid, is_looked=is_looked, status=status)
         return redirect('/request/detail/' + str(request_mat.id))
 
 
@@ -276,8 +280,19 @@ class InvoiceEditView(generic.TemplateView):
 
     def post(self, request, *args, **kwargs):
         invoice = InvoiceForPayment.objects.get(id=int(request.POST['id']))
-        file = request.FILES['invoice']
+        if request.FILES:
+            file = request.FILES['file']
+        else:
+            file = invoice.file
         invoice.file = file
+        invoice.bin = request.POST['bin']
+        invoice.name_company = request.POST['name']
+        invoice.comment = request.POST['comment']
+        is_cash = request.POST['is_cash']
+        if is_cash == 'on':
+            invoice.is_cash = True
+        else:
+            invoice.is_cash = False
         invoice.save()
         return redirect('/request/detail/' + str(invoice.request_mat.id))
 
@@ -289,7 +304,6 @@ def invoice_delete(request):
     invoice.delete()
 
     return redirect(red)
-
 
 
 @method_decorator(login_required(login_url='/accounts/login/'), name='dispatch')
@@ -335,8 +349,6 @@ class InvoiceForPaymentView(generic.TemplateView):
             invoice.save()
             invoice.save()
         return redirect('/invoice_for_payment/' + invoice.request_mat.contract.contstruct_object.slug)
-
-
 
 
 token = '1318683651:AAH_fhHdb-PGt9kGhSqEOrVXvak3-jFRljk'

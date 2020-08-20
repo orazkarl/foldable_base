@@ -32,24 +32,21 @@
 
 <body>
 <style>
-        .main-content {
-            background: url("{{ object.image.url }}");
-            background-repeat: no-repeat;
-            background-size: cover;
-            background-attachment: fixed;
+    .main-content {
+        background: url("{{ object.image.url }}");
+        background-repeat: no-repeat;
+        background-size: cover;
+        background-attachment: fixed;
 
 
-        }
+    }
 
     p {
         font-size: 18px;
     }
 
 
-
-
-
-    </style>
+</style>
 <div class="wrapper">
 
     <header class="header-top" header-theme="light">
@@ -99,7 +96,7 @@
                     <nav id="main-menu-navigation" class="navigation-main">
 
                         <div class="nav-item">
-{#                            <a href="/objects/{{ object.slug }}"><i class="ik ik-share-2"></i><span>Работы</span></a>#}
+                            {#                            <a href="/objects/{{ object.slug }}"><i class="ik ik-share-2"></i><span>Работы</span></a>#}
                         </div>
                         <div class="nav-item has-sub">
                             <a href="javascript:void(0)"><i class="ik ik-layers"></i><span>Работы</span></a>
@@ -111,7 +108,7 @@
                             </div>
                         </div>
                         <div class="nav-item">
-                            <a href="/objects/{{ object.slug }}/materials"><i
+                            <a href="/objects/{{ object.slug }}/contract/materials"><i
                                     class="ik ik-menu"></i><span>Материалы</span></a>
                         </div>
                         <div class="nav-item">
@@ -136,6 +133,13 @@
             {% endblock %}
         </div>
 
+        <footer class="footer" style="background-color: #404E67; color: white; padding-bottom: 70px">
+            <div class="w-100 clearfix">
+{#                <span class="text-center text-sm-left d-md-inline-block ">Copyright © 2018 ThemeKit v2.0. All Rights Reserved.</span>#}
+{#                <span class="float-none float-sm-right mt-1 mt-sm-0 text-center">Crafted with <i#}
+{#                        class="fa fa-heart text-danger"></i> by <a href="http://lavalite.org/" target="_blank" style="color: white">Lavalite</a></span>#}
+            </div>
+        </footer>
 
 
     </div>
