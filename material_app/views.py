@@ -53,7 +53,9 @@ class AddMaterialView(generic.TemplateView):
             units = item[2]
             price = item[3]
             sum_price = item[4]
-            instriment_code = item[5]
+            instriment_code = None
+            if len(item) > 5:
+                instriment_code = item[5]
 
             material = Material.objects.create(invoice=invoice, name=name, quantity=quantuty, units=units, price=price,
                                                sum_price=sum_price)
@@ -61,7 +63,7 @@ class AddMaterialView(generic.TemplateView):
             if instriment_code == 1:
                 instriment_code = 'I' + object_slug + '-' + str(datetime.datetime.now().year) + '-'
                 material.instrument_code = instriment_code + str(material.id)
-                material.save()
+            material.save()
 
         return redirect('/request/detail/' + str(invoice.request_mat.id))
         # return super().get(request, *args, **kwargs)
@@ -165,6 +167,7 @@ def return_materials(request):
         for i in range(1, int(request.POST['count']) + 1):
             material = Material.objects.get(id=int(request.POST['material' + str(i)]))
             return_mat_count = int(request.POST['return' + str(i)])
+            invoice = material.invoice
             if return_mat_count > material.quantity:
                 return HttpResponse('Ошибка!')
             elif return_mat_count == material.quantity:
@@ -175,13 +178,11 @@ def return_materials(request):
                 material.ok = material.quantity
                 material.status = 'ок'
                 material.save()
-                invoice = material.invoice
             message += str(i) + '. ' + material.name + '\n' + 'Количество: ' + str(
                 material.quantity) + '\nКоличество возвратных товаров: ' + str(return_mat_count) + '\n\n'
-
         if request.POST['comment']:
             message += 'Примечение: ' + request.POST['comment']
-        message += 'БИН: ' + invoice.bin + '\n'
+        message += 'БИН: ' + str(invoice.bin) + '\n'
         message += 'Название компании: ' + invoice.name_company + '\n'
         requests.get("https://api.telegram.org/bot%s/sendMessage" % general_bot_token,
                      params={'chat_id': '-1001342160485', 'text': message})
@@ -214,3 +215,10 @@ class MaterialsView(generic.TemplateView):
             'materials': materials
         }
         return super().get(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        materials = request.POST.getlist('materials')
+        materials = Material.objects.filter(id__in=materials)
+        for material in materials:
+            print(material)
+        return redirect(request.META.get('HTTP_REFERER'))

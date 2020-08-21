@@ -252,7 +252,9 @@ class InvoiceAddView(generic.TemplateView):
         bin = request.POST['bin']
         name_company = request.POST['name']
         comment = request.POST['comment']
-        is_cash = request.POST['is_cash']
+        is_cash = 'off'
+        if 'is_cash' in request.POST:
+            is_cash = request.POST['is_cash']
         is_paid, is_looked = False, False
         status = '-'
         if is_cash == 'on':
@@ -261,7 +263,8 @@ class InvoiceAddView(generic.TemplateView):
         else:
             is_cash = False
         InvoiceForPayment.objects.create(request_mat=request_mat, file=file, bin=bin, name_company=name_company,
-                                         comment=comment, is_cash=is_cash, is_paid=is_paid, is_looked=is_looked, status=status)
+                                         comment=comment, is_cash=is_cash, is_paid=is_paid, is_looked=is_looked,
+                                         status=status)
         return redirect('/request/detail/' + str(request_mat.id))
 
 

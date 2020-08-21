@@ -1,5 +1,6 @@
 from django.db import models
-from appbase.models import InvoiceForPayment
+from appbase.models import InvoiceForPayment, Contract
+from django.conf import settings
 
 
 class Material(models.Model):
@@ -40,3 +41,27 @@ class Material(models.Model):
     class Meta:
         verbose_name = 'Материал'
         verbose_name_plural = 'Материалы'
+
+
+class ReleaseMaterial(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, verbose_name='Пользователь')
+    realese_date = models.DateTimeField('Когда отпустил?', auto_now_add=True)
+    # return_date = models.DateTimeField('Когда принял обратно?', null=True, blank=True)
+    contract = models.ForeignKey(Contract, on_delete=models.CASCADE, related_name='realeas_material', verbose_name='Работа')
+
+    class Meta:
+        verbose_name = 'Отпускаемые материалы'
+        verbose_name_plural = 'Отпускаемые материалы'
+    def __str__(self):
+        return 'Отпускаемые материалы {}'.format(self.id)
+
+
+class ReleaseMaterialItem(models.Model):
+    realease_material = models.ForeignKey(ReleaseMaterial, related_name='items', on_delete=models.CASCADE, verbose_name='Отпускаемый материал')
+    material = models.ForeignKey(Material, related_name='realease_material_items', on_delete=models.CASCADE,verbose_name='Материал')
+    realease_count = models.PositiveIntegerField('Сколько отпустил?')
+
+    def __str__(self):
+        return self.material
+
+

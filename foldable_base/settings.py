@@ -47,7 +47,6 @@ INSTALLED_APPS = [
     'allauth.socialaccount',
 
     'mathfilters',
-    'background_task',
 ]
 
 MIDDLEWARE = [
