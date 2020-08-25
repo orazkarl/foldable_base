@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, HttpResponse
 from django.views import generic
 from appbase.models import Object, InvoiceForPayment, Contract
-from .models import Material
+from .models import Material, ReleaseMaterial, ReleaseMaterialItem
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from openpyxl import load_workbook
@@ -69,6 +69,7 @@ class AddMaterialView(generic.TemplateView):
         # return super().get(request, *args, **kwargs)
 
 
+@method_decorator(login_required(login_url='/accounts/login/'), name='dispatch')
 class PaidMaterailsView(generic.TemplateView):
     template_name = 'appbase/material/paid_materials/invoices.html'
 
@@ -86,6 +87,7 @@ class PaidMaterailsView(generic.TemplateView):
         return super().get(request, *args, **kwargs)
 
 
+@method_decorator(login_required(login_url='/accounts/login/'), name='dispatch')
 class InvoicePaidMaterialsView(generic.TemplateView):
     template_name = 'appbase/material/paid_materials/paid_materials.html'
 
@@ -191,6 +193,7 @@ def return_materials(request):
     return redirect(request.META.get('HTTP_REFERER'))
 
 
+@method_decorator(login_required(login_url='/accounts/login/'), name='dispatch')
 class ContractMaterialsView(generic.TemplateView):
     template_name = 'appbase/material/store_mateials/contracts.html'
 
@@ -204,6 +207,7 @@ class ContractMaterialsView(generic.TemplateView):
         return super().get(request, *args, **kwargs)
 
 
+@method_decorator(login_required(login_url='/accounts/login/'), name='dispatch')
 class MaterialsView(generic.TemplateView):
     template_name = 'appbase/material/store_mateials/materials.html'
 
@@ -221,4 +225,65 @@ class MaterialsView(generic.TemplateView):
         materials = Material.objects.filter(id__in=materials)
         for material in materials:
             print(material)
-        return redirect(request.META.get('HTTP_REFERER'))
+        context = {
+            'materials': materials,
+            'object': Object.objects.get(contract__slug=self.kwargs['slug']),
+        }
+        return render(request, template_name='appbase/material/store_mateials/release_materials.html',
+                      context=context)
+
+        # return redirect(request.META.get('HTTP_REFERER'))
+
+
+def release_materials(request):
+    if request.POST:
+        print('asd')
+        contract = Material.objects.get(id=int(request.POST['material1'])).invoice.request_mat.contract
+        release_mat = ReleaseMaterial.objects.create(user=request.user, realese_date=datetime.datetime.now(),
+                                                     contract=contract)
+        for i in range(1, int(request.POST['count']) + 1):
+            material = Material.objects.get(id=int(request.POST['material' + str(i)]))
+            release_mat_count = int(request.POST['release' + str(i)])
+            material.release_count = release_mat_count
+            material.save()
+            ReleaseMaterialItem.objects.create(release_material=release_mat, material=material,
+                                               release_count=release_mat_count)
+    return redirect(request.META.get('HTTP_REFERER'))
+
+
+@method_decorator(login_required(login_url='/accounts/login/'), name='dispatch')
+class ReleaseMaterialsView(generic.TemplateView):
+    template_name = 'appbase/material/store_mateials/relesed_materials_list.html'
+
+    def get(self, request, *args, **kwargs):
+        self.extra_context = {
+            'object': Object.objects.get(contract__slug=self.kwargs['slug']),
+            'relesed_materials': ReleaseMaterial.objects.filter(contract__slug=self.kwargs['slug'])
+        }
+        return super().get(request, *args, **kwargs)
+
+
+@method_decorator(login_required(login_url='/accounts/login/'), name='dispatch')
+class DetailReleaseMaterialsView(generic.TemplateView):
+    template_name = 'appbase/material/store_mateials/detail_release_mat.html'
+
+    def get(self, request, *args, **kwargs):
+        release_mat = ReleaseMaterial.objects.get(id=int(self.kwargs['id']))
+
+        self.extra_context = {
+            'object': release_mat.contract.contstruct_object,
+            'release_mat' : release_mat,
+        }
+        return super().get(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        contract = Contract.objects.get(realeas_material__id=int(self.kwargs['id']))
+        for i in range(1, int(request.POST['count']) + 1):
+            material = Material.objects.get(id=int(request.POST['material' + str(i)]))
+
+            return_mat = request.POST['return_mat' + str(i)]
+            material.release_count = material.release_count - int(return_mat)
+            material.save()
+        # return redirect('/contract/' + contract.slug+ '/materials')
+        return redirect('/detail/relesed_materials/' + str(self.kwargs['id']))
+

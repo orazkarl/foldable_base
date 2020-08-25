@@ -1,5 +1,6 @@
 {% extends 'appbase/base.html' %}
 {% load static %}
+{% load mathfilters %}
 {% block content %}
 
     <div class="container-fluid">
@@ -11,11 +12,12 @@
                 <br>
                 <div class="row">
 
-                    <div class="col-md-10">
+                    <div class="col-md-9">
                         <h2>Материалы</h2>
                         <p>Работа: {{ materials.first.invoice.request_mat.contract }}</p>
                     </div>
-                    {#                        <div class="col-md-2"><a type="button" href="{% url 'contract_add' object.slug %}" class="btn btn-primary">Добавить работу</a></div>#}
+                    <div class="col-md-3"><a type="button" href="{% url 'relesed_materials' materials.first.invoice.request_mat.contract.slug  %}"
+                                             class="btn btn-primary">Отпущенные материалы</a></div>
                 </div>
 
 
@@ -48,8 +50,8 @@
                                     <th scope="row">{{ forloop.counter }}</th>
                                     <td>{{ material.name }}</td>
                                     <td>{{ material.quantity }}</td>
-                                    <td></td>
-                                    <td></td>
+                                    <td>{{ material.release_count }}</td>
+                                    <td>{{ material.quantity|sub:material.release_count }}</td>
                                     <td>{{ material.units }}</td>
                                     <td>
                                         {% if material.instrument_code == None %}

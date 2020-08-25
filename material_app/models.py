@@ -30,7 +30,7 @@ class Material(models.Model):
     instrument_code = models.CharField('Код инструмента', max_length=250, null=True, blank=True)
     created_at = models.DateTimeField('Создан', auto_now_add=True)
     updated_at = models.DateTimeField('Изменен', auto_now=True)
-
+    release_count = models.PositiveIntegerField('Ушли', default=0)
     def save(self, *args, **kwargs):
         self.sum_price = self.quantity * self.price
         return super(Material, self).save(*args, **kwargs)
@@ -47,21 +47,23 @@ class ReleaseMaterial(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, verbose_name='Пользователь')
     realese_date = models.DateTimeField('Когда отпустил?', auto_now_add=True)
     # return_date = models.DateTimeField('Когда принял обратно?', null=True, blank=True)
-    contract = models.ForeignKey(Contract, on_delete=models.CASCADE, related_name='realeas_material', verbose_name='Работа')
+    contract = models.ForeignKey(Contract, on_delete=models.CASCADE, related_name='realeas_material',
+                                 verbose_name='Работа')
 
     class Meta:
         verbose_name = 'Отпускаемые материалы'
         verbose_name_plural = 'Отпускаемые материалы'
+
     def __str__(self):
-        return 'Отпускаемые материалы {}'.format(self.id)
+        return (str(self.id))
 
 
 class ReleaseMaterialItem(models.Model):
-    realease_material = models.ForeignKey(ReleaseMaterial, related_name='items', on_delete=models.CASCADE, verbose_name='Отпускаемый материал')
-    material = models.ForeignKey(Material, related_name='realease_material_items', on_delete=models.CASCADE,verbose_name='Материал')
-    realease_count = models.PositiveIntegerField('Сколько отпустил?')
+    release_material = models.ForeignKey(ReleaseMaterial, related_name='items', on_delete=models.CASCADE,
+                                          verbose_name='Отпускаемый материал')
+    material = models.ForeignKey(Material, related_name='realease_material_items', on_delete=models.CASCADE,
+                                 verbose_name='Материал')
+    release_count = models.PositiveIntegerField('Сколько отпустил?')
 
     def __str__(self):
-        return self.material
-
-
+        return self.material.name
