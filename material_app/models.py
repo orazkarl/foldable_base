@@ -31,6 +31,7 @@ class Material(models.Model):
     created_at = models.DateTimeField('Создан', auto_now_add=True)
     updated_at = models.DateTimeField('Изменен', auto_now=True)
     release_count = models.PositiveIntegerField('Ушли', default=0)
+
     def save(self, *args, **kwargs):
         self.sum_price = self.quantity * self.price
         return super(Material, self).save(*args, **kwargs)
@@ -45,10 +46,12 @@ class Material(models.Model):
 
 class ReleaseMaterial(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, verbose_name='Пользователь')
-    realese_date = models.DateTimeField('Когда отпустил?', auto_now_add=True)
+    release_date = models.DateTimeField('Когда отпустил?', auto_now_add=True)
     # return_date = models.DateTimeField('Когда принял обратно?', null=True, blank=True)
     contract = models.ForeignKey(Contract, on_delete=models.CASCADE, related_name='realeas_material',
                                  verbose_name='Работа')
+    release_waybill = models.FileField(upload_to='waybill/', null=True, blank=True)
+    final_waybill = models.FileField(upload_to='waybill/', null=True, blank=True)
 
     class Meta:
         verbose_name = 'Отпускаемые материалы'
@@ -60,7 +63,7 @@ class ReleaseMaterial(models.Model):
 
 class ReleaseMaterialItem(models.Model):
     release_material = models.ForeignKey(ReleaseMaterial, related_name='items', on_delete=models.CASCADE,
-                                          verbose_name='Отпускаемый материал')
+                                         verbose_name='Отпускаемый материал')
     material = models.ForeignKey(Material, related_name='realease_material_items', on_delete=models.CASCADE,
                                  verbose_name='Материал')
     release_count = models.PositiveIntegerField('Сколько отпустил?')

@@ -33,6 +33,8 @@ class Contract(models.Model):
     slug = models.SlugField(max_length=250, null=True, blank=True, help_text=slug_help_text, db_index=True, unique=True)
     contractor = models.CharField('Подрядчик', max_length=250, null=True, blank=True)
     contract = models.FileField('Договор', upload_to='contracts/')
+    bin = models.CharField('БИН', max_length=100)
+    date_contract = models.DateField('Дата договора', null=True, blank=True)
     number_contract = models.CharField('Номер договора', max_length=250)
     status = models.CharField('Статус работы', max_length=100, choices=STATUS_WORK)
     created_at = models.DateTimeField('Создан', auto_now_add=True)

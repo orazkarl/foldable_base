@@ -6,6 +6,8 @@
     <div class="container-fluid">
         <div class="card">
             <div class="card-header d-block">
+                <a href="javascript:history.go(-1)" class="btn btn-light"><i
+                        class="ik ik-arrow-left"></i>Назад</a>
                 <div class="row">
                     <div class="col-md-10">
                         <h2>Возврат материалов</h2>
@@ -51,7 +53,7 @@
                                     </td>
                                     <td>{{ material.material.quantity|sub:material.material.release_count }}</td>
                                     <td><input type="text" id="release_mat{{ forloop.counter }}" class="form-control" name="release_mat{{ forloop.counter }}"
-                                               value="{{ material.material.release_count }}"
+                                               value="{{ material.release_count }}"
                                                disabled></td>
                                     <td><input type="text" class="form-control" name="return_mat{{ forloop.counter }}"
                                                value="0" id="return_mat{{ forloop.counter }}"></td>

@@ -2,72 +2,82 @@
 {% load static %}
 {% block content %}
 
-        <div class="container-fluid">
-            <div class="card">
-                <a href="javascript:history.go(-1)" class="btn btn-light"><i
-                            class="ik ik-arrow-left"></i>Назад</a>
+    <div class="container-fluid">
+        <div class="card">
+            <a href="javascript:history.go(-1)" class="btn btn-light"><i
+                    class="ik ik-arrow-left"></i>Назад</a>
 
-                <div class="card-body">
-                    <form class="forms-sample" action="{% url 'contract_edit' contract.slug %}"
-                          method="post"
-                          enctype="multipart/form-data">
+            <div class="card-body">
+                <form class="forms-sample" action="{% url 'contract_edit' contract.slug %}"
+                      method="post"
+                      enctype="multipart/form-data">
 
-                        <input type="text" name="object" value="{{ object.id }}" style="display:none;">
-                        <div class="form-group">
-                            <label for="name">Название</label>
-                            <input type="text" class="form-control" id="name" placeholder="Название" name="name"
-                                   value="{{ contract.name }}">
-                        </div>
-                        <div class="form-group">
-                            <label for="contractor">Подрядчик</label>
-                            <input type="text" class="form-control" id="contractor" placeholder="Подрядчик"
-                                   name="contractor" value="{{ contract.contractor }}">
-                        </div>
-                        <div class="form-group">
-                            <label>Договор</label>
-                            <br>
-                            На данный момент: <a href="{{ contract.contract.url }}" download>{{ contract.contract }}</a>
-                            <br>
-                            Изменить:
-                            <input type="file" name="contract" class="form-control">
-                        </div>
-                        <div class="form-group">
-                            <label for="number_contract">Номер договора</label>
-                            <input type="text" class="form-control" id="number_contract"
-                                   placeholder="Номер договора" name="number_contract"
-                                   value="{{ contract.number_contract }}">
-                        </div>
-                        <div class="form-group">
-                            <label for="status">Статус работы</label>
+                    <input type="text" name="object" value="{{ object.id }}" style="display:none;">
+                    <div class="form-group">
+                        <label for="name">Название</label>
+                        <input type="text" class="form-control" id="name" placeholder="Название" name="name"
+                               value="{{ contract.name }}">
+                    </div>
+                    <div class="form-group">
+                        <label for="contractor">Подрядчик</label>
+                        <input type="text" class="form-control" id="contractor" placeholder="Подрядчик"
+                               name="contractor" value="{{ contract.contractor }}">
+                    </div>
+                    <div class="form-group">
+                        <label>Договор</label>
+                        <br>
+                        На данный момент: <a href="{{ contract.contract.url }}" download>{{ contract.contract }}</a>
+                        <br>
+                        Изменить:
+                        <input type="file" name="contract" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label for="number_contract">Номер договора</label>
+                        <input type="text" class="form-control" id="number_contract"
+                               placeholder="Номер договора" name="number_contract"
+                               value="{{ contract.number_contract }}">
+                    </div>
+                    <div class="form-group">
+                        <label for="bin">БИН</label>
+                        <input type="text" class="form-control" id="bin"
+                               placeholder="БИН" name="bin" value="{{ contract.bin }}">
+                    </div>
+                    <div class="form-group">
+                        <label for="date_contract">Дата договора</label>
+                        <input type="date" class="form-control" id="date_contract"
+                               placeholder="Дата договора" name="date_contract" value="{{ contract.date_contract }}">
+                    </div>
+                    <div class="form-group">
+                        <label for="status">Статус работы</label>
 
-                            <select class="form-control" id="status" name="status">
-                                <option value="в работе" {% if contract.status == 'в работе' %}selected {% endif %}>
-                                    в работе
-                                </option>
-                                <option value="выполнено" {% if contract.status == 'выполнено' %}selected {% endif %}>
-                                    выполнено
-                                </option>
-                                <option value="проверка" {% if contract.status == 'проверка' %}selected {% endif %}>
-                                    проверка
-                                </option>
-                                <option value="невыполнено"
-                                        {% if contract.status == 'невыполнено' %}selected {% endif %}>невыполнено
-                                </option>
-                            </select>
-                        </div>
-                        {% csrf_token %}
-                        <button type="submit" class="btn btn-primary mr-2">Сохранить</button>
-                        {#                        <button class="btn btn-light">Cancel</button>#}
+                        <select class="form-control" id="status" name="status">
+                            <option value="в работе" {% if contract.status == 'в работе' %}selected {% endif %}>
+                                в работе
+                            </option>
+                            <option value="выполнено" {% if contract.status == 'выполнено' %}selected {% endif %}>
+                                выполнено
+                            </option>
+                            <option value="проверка" {% if contract.status == 'проверка' %}selected {% endif %}>
+                                проверка
+                            </option>
+                            <option value="невыполнено"
+                                    {% if contract.status == 'невыполнено' %}selected {% endif %}>невыполнено
+                            </option>
+                        </select>
+                    </div>
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-primary mr-2">Сохранить</button>
+                    {#                        <button class="btn btn-light">Cancel</button>#}
 
-                    </form>
-                    <br>
-                    <form action="{% url 'contract_delete' %}" method="post">
-                        {% csrf_token %}
-                        <input type="text" name="contract" value="{{ contract.id }}" style="display: none">
-                        <button class="btn btn-danger" type="submit">Удалить</button>
-                    </form>
-                </div>
+                </form>
+                <br>
+                <form action="{% url 'contract_delete' %}" method="post">
+                    {% csrf_token %}
+                    <input type="text" name="contract" value="{{ contract.id }}" style="display: none">
+                    <button class="btn btn-danger" type="submit">Удалить</button>
+                </form>
             </div>
         </div>
+    </div>
 
 {% endblock %}

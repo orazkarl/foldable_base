@@ -1,4 +1,5 @@
 from django.shortcuts import render, redirect, HttpResponse
+from django.http import JsonResponse, HttpResponse, FileResponse
 from django.views import generic
 from appbase.models import Object, InvoiceForPayment, Contract
 from .models import Material, ReleaseMaterial, ReleaseMaterialItem
@@ -234,20 +235,51 @@ class MaterialsView(generic.TemplateView):
 
         # return redirect(request.META.get('HTTP_REFERER'))
 
+import os
+import io
+from foldable_base.settings import BASE_DIR
+from docxtpl import DocxTemplate
+
+
 
 def release_materials(request):
     if request.POST:
-        print('asd')
         contract = Material.objects.get(id=int(request.POST['material1'])).invoice.request_mat.contract
-        release_mat = ReleaseMaterial.objects.create(user=request.user, realese_date=datetime.datetime.now(),
+        release_mat = ReleaseMaterial.objects.create(user=request.user, release_date=datetime.datetime.now(),
                                                      contract=contract)
         for i in range(1, int(request.POST['count']) + 1):
             material = Material.objects.get(id=int(request.POST['material' + str(i)]))
             release_mat_count = int(request.POST['release' + str(i)])
-            material.release_count = release_mat_count
+            material.release_count = material.release_count + release_mat_count
             material.save()
             ReleaseMaterialItem.objects.create(release_material=release_mat, material=material,
                                                release_count=release_mat_count)
+        indexs = list(range(1, ReleaseMaterialItem.objects.filter(release_material=release_mat).count() + 1))
+        context = {
+            'object_name': Object.objects.get(contract=contract).name,
+            'object_address': Object.objects.get(contract=contract).address,
+            'number_contract': contract.number_contract,
+            'date_contract': contract.date_contract,
+            'date_doc': datetime.datetime.now().date(),
+            'role': request.user.role,
+            'name': request.user.first_name + ' ' + request.user.last_name,
+            'contract_contractor': contract.contractor,
+            'materials': ReleaseMaterialItem.objects.filter(release_material=release_mat),
+            'indexs': indexs
+
+        }
+
+        byte_io = io.BytesIO()
+        tpl = DocxTemplate(os.path.join(BASE_DIR, 'mediafiles/nakladnaya1.docx'))
+        tpl.render(context)
+        tpl.save(byte_io)
+        byte_io.seek(0)
+        return FileResponse(byte_io, as_attachment=True,
+                            filename=f'nakladnaya1{contract.name}{str(release_mat.id)}.docx')
+
+        # except:
+        #     return HttpResponse('Ошибка')
+
     return redirect(request.META.get('HTTP_REFERER'))
 
 
@@ -284,6 +316,6 @@ class DetailReleaseMaterialsView(generic.TemplateView):
             return_mat = request.POST['return_mat' + str(i)]
             material.release_count = material.release_count - int(return_mat)
             material.save()
-        # return redirect('/contract/' + contract.slug+ '/materials')
-        return redirect('/detail/relesed_materials/' + str(self.kwargs['id']))
+        return redirect('/contract/' + contract.slug+ '/materials')
+        # return redirect('/detail/relesed_materials/' + str(self.kwargs['id']))
 

@@ -83,7 +83,6 @@ class ContractAddView(generic.TemplateView):
     template_name = 'appbase/contract/add.html'
 
     def get(self, request, *args, **kwargs):
-        print('asd')
         self.extra_context = {
             'object': Object.objects.get(slug=self.kwargs['slug']),
         }
@@ -97,13 +96,15 @@ class ContractAddView(generic.TemplateView):
         contract = request.FILES['contract']
         number_contract = request.POST['number_contract']
         status = request.POST['status']
+        bin = request.POST['bin']
+        date_contract = request.POST['date_contract']
         if slugify(name) == None:
             slug = name
         else:
             slug = slugify(name)
 
         Contract.objects.create(contstruct_object_id=object_id, name=name, slug=slug, contract=contract,
-                                contractor=contractor, number_contract=number_contract, status=status)
+                                contractor=contractor, number_contract=number_contract, status=status, date_contract=date_contract, bin=bin)
 
         return redirect('/objects/' + Object.objects.get(id=object_id).slug + '/' + str(status_dict[status]))
 
@@ -132,13 +133,21 @@ class ContractEditView(generic.TemplateView):
 
         number_contract = request.POST['number_contract']
         status = request.POST['status']
+        bin = request.POST['bin']
+        date_contract = request.POST['date_contract']
         slug = slugify(name)
+        if request.FILES:
+            contract_file = request.FILES['contract']
+        else:
+            contract_file = contract.contract
 
         contract.name = name
         contract.contract = contractor
         contract.contract = contract_file
         contract.number_contract = number_contract
         contract.status = status
+        contract.bin = bin
+        contract.date_contract = date_contract
         contract.save()
 
         return redirect('/objects/' + Object.objects.get(id=object_id).slug + '/' + str(status_dict[status]))
