@@ -30,6 +30,8 @@
                             <th></th>
                             <th>Когда отпустил?</th>
                             <th></th>
+                            <th>Накладная отпуск</th>
+                            <th>Накладная возрат</th>
                             {#                                <th>Осталось</th>#}
                             {#                                <th>ед. изм.</th>#}
                             {#                                <th>Код инструмента</th>#}
@@ -39,8 +41,11 @@
                         {% for material in relesed_materials.all %}
                             <tr>
                                 <th scope="row">{{ forloop.counter }}</th>
-                                <td><a href="{% url 'detail_relesed_materials' material.id %}" style="color: #4da3ff">Посмотреть</a></td>
+                                <td><a href="{% url 'detail_relesed_materials' material.id %}" style="color: #4da3ff">Отпущенные материалы №{{ material.id }}</a></td>
                                 <td>{{ material.release_date }}</td>
+                                <td>{% if material.is_done == False %}<a href="{% url 'return_relesed_materials' material.id %}" style="color: #4da3ff">Возврат</a>{% endif %}</td>
+                                <td><a href="/media/waybill/nakladnaya-{{ material.contract.name }}{{ material.id }}.docx" style="color: #4da3ff" download>Скачать</a></td>
+                                <td>{% if material.is_done %}<a href="/media/waybill/nakladnaya_final-{{ material.contract.name }}{{ material.id }}.docx" style="color: #4da3ff" download>Скачать</a>{% endif %}</td>
                                 {#                                    <td>{{ material.release_count }}</td>#}
                                 {#                                    <td>{{ material.quantity|sub:material.release_count }}</td>#}
                                 {#                                    <td>{{ material.units }}</td>#}

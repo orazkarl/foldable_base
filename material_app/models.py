@@ -31,6 +31,7 @@ class Material(models.Model):
     created_at = models.DateTimeField('Создан', auto_now_add=True)
     updated_at = models.DateTimeField('Изменен', auto_now=True)
     release_count = models.PositiveIntegerField('Ушли', default=0)
+    remainder_count = models.PositiveIntegerField('Остаток', default=0)
 
     def save(self, *args, **kwargs):
         self.sum_price = self.quantity * self.price
@@ -52,6 +53,7 @@ class ReleaseMaterial(models.Model):
                                  verbose_name='Работа')
     release_waybill = models.FileField(upload_to='waybill/', null=True, blank=True)
     final_waybill = models.FileField(upload_to='waybill/', null=True, blank=True)
+    is_done = models.BooleanField('Обработан?', default=False)
 
     class Meta:
         verbose_name = 'Отпускаемые материалы'
@@ -67,6 +69,7 @@ class ReleaseMaterialItem(models.Model):
     material = models.ForeignKey(Material, related_name='realease_material_items', on_delete=models.CASCADE,
                                  verbose_name='Материал')
     release_count = models.PositiveIntegerField('Сколько отпустил?')
+    return_count = models.PositiveIntegerField('Возвращено', default=0)
 
     def __str__(self):
         return self.material.name

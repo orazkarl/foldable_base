@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect, HttpResponse
-from django.http import JsonResponse, HttpResponse, FileResponse
+from django.http import JsonResponse, HttpResponse, FileResponse, HttpResponseRedirect
 from django.views import generic
 from appbase.models import Object, InvoiceForPayment, Contract
 from .models import Material, ReleaseMaterial, ReleaseMaterialItem
@@ -11,6 +11,11 @@ from django.db.models import F, Q
 from transliterate import slugify
 import telebot
 import datetime
+
+import os
+import io
+from foldable_base.settings import BASE_DIR
+from docxtpl import DocxTemplate
 
 general_bot_token = '1270115367:AAGCRLBP1iSZhpTniwVYQ9p9fqLysY668ew'
 channel_id = '-1001342160485'
@@ -217,7 +222,7 @@ class MaterialsView(generic.TemplateView):
                                             invoice__is_done=True)
         self.extra_context = {
             'object': Object.objects.get(contract__slug=self.kwargs['slug']),
-            'materials': materials
+            'materials': materials,
         }
         return super().get(request, *args, **kwargs)
 
@@ -235,12 +240,6 @@ class MaterialsView(generic.TemplateView):
 
         # return redirect(request.META.get('HTTP_REFERER'))
 
-import os
-import io
-from foldable_base.settings import BASE_DIR
-from docxtpl import DocxTemplate
-
-
 
 def release_materials(request):
     if request.POST:
@@ -250,35 +249,40 @@ def release_materials(request):
         for i in range(1, int(request.POST['count']) + 1):
             material = Material.objects.get(id=int(request.POST['material' + str(i)]))
             release_mat_count = int(request.POST['release' + str(i)])
+            material.remainder_count = material.quantity - material.release_count
             material.release_count = material.release_count + release_mat_count
+            print(material.remainder_count)
             material.save()
             ReleaseMaterialItem.objects.create(release_material=release_mat, material=material,
                                                release_count=release_mat_count)
-        indexs = list(range(1, ReleaseMaterialItem.objects.filter(release_material=release_mat).count() + 1))
-        context = {
-            'object_name': Object.objects.get(contract=contract).name,
-            'object_address': Object.objects.get(contract=contract).address,
-            'number_contract': contract.number_contract,
-            'date_contract': contract.date_contract,
-            'date_doc': datetime.datetime.now().date(),
-            'role': request.user.role,
-            'name': request.user.first_name + ' ' + request.user.last_name,
-            'contract_contractor': contract.contractor,
-            'materials': ReleaseMaterialItem.objects.filter(release_material=release_mat),
-            'indexs': indexs
+        try:
+            indexs = list(range(1, ReleaseMaterialItem.objects.filter(release_material=release_mat).count() + 1))
+            context = {
+                'object_name': Object.objects.get(contract=contract).name,
+                'object_address': Object.objects.get(contract=contract).address,
+                'number_contract': contract.number_contract,
+                'date_contract': contract.date_contract,
+                'date_doc': datetime.datetime.now().date(),
+                'number_doc': release_mat.id,
+                'role': request.user.role,
+                'name': request.user.first_name + ' ' + request.user.last_name,
+                'contract_contractor': contract.contractor,
+                'materials': ReleaseMaterialItem.objects.filter(release_material=release_mat),
+                'indexs': indexs,
+                'contract_name': contract.name,
 
-        }
+            }
 
-        byte_io = io.BytesIO()
-        tpl = DocxTemplate(os.path.join(BASE_DIR, 'mediafiles/nakladnaya1.docx'))
-        tpl.render(context)
-        tpl.save(byte_io)
-        byte_io.seek(0)
-        return FileResponse(byte_io, as_attachment=True,
-                            filename=f'nakladnaya1{contract.name}{str(release_mat.id)}.docx')
+            tpl = DocxTemplate(os.path.join(BASE_DIR, 'mediafiles/nakladnaya.docx'))
+            tpl.render(context)
+            tpl.save('mediafiles/waybill/nakladnaya-' + contract.name + str(release_mat.id) + '.docx')
 
-        # except:
-        #     return HttpResponse('Ошибка')
+            # return FileResponse(byte_io, as_attachment=True,
+            #                     filename=f'nakladnaya1-{contract.name}{str(release_mat.id)}.docx')
+
+
+        except:
+            return HttpResponse('Ошибка')
 
     return redirect(request.META.get('HTTP_REFERER'))
 
@@ -296,26 +300,118 @@ class ReleaseMaterialsView(generic.TemplateView):
 
 
 @method_decorator(login_required(login_url='/accounts/login/'), name='dispatch')
-class DetailReleaseMaterialsView(generic.TemplateView):
-    template_name = 'appbase/material/store_mateials/detail_release_mat.html'
+class ReturnReleaseMaterialsView(generic.TemplateView):
+    template_name = 'appbase/material/store_mateials/return_release_mat.html'
 
     def get(self, request, *args, **kwargs):
         release_mat = ReleaseMaterial.objects.get(id=int(self.kwargs['id']))
 
         self.extra_context = {
             'object': release_mat.contract.contstruct_object,
-            'release_mat' : release_mat,
+            'release_mat': release_mat,
         }
         return super().get(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
         contract = Contract.objects.get(realeas_material__id=int(self.kwargs['id']))
+        release_mat = ReleaseMaterial.objects.get(id=int(self.kwargs['id']))
+        release_mat.is_done = True
+        release_mat.save()
         for i in range(1, int(request.POST['count']) + 1):
             material = Material.objects.get(id=int(request.POST['material' + str(i)]))
-
+            rel_mat = ReleaseMaterialItem.objects.get(material=material, release_material=release_mat)
             return_mat = request.POST['return_mat' + str(i)]
             material.release_count = material.release_count - int(return_mat)
             material.save()
-        return redirect('/contract/' + contract.slug+ '/materials')
+            rel_mat.return_count = return_mat
+            rel_mat.save()
+
+        try:
+            indexs = list(range(1, ReleaseMaterialItem.objects.filter(release_material=release_mat).count() + 1))
+            context = {
+                'object_name': Object.objects.get(contract=contract).name,
+                'object_address': Object.objects.get(contract=contract).address,
+                'number_contract': contract.number_contract,
+                'date_contract': contract.date_contract,
+                'date_doc': datetime.datetime.now().date(),
+                'number_doc': release_mat.id,
+                'role': request.user.role,
+                'name': request.user.first_name + ' ' + request.user.last_name,
+                'contract_contractor': contract.contractor,
+                'materials': ReleaseMaterialItem.objects.filter(release_material=release_mat),
+                'indexs': indexs,
+                'contract_name': contract.name,
+
+            }
+
+            tpl = DocxTemplate(os.path.join(BASE_DIR, 'mediafiles/nakladnaya_final.docx'))
+            tpl.render(context)
+            tpl.save('mediafiles/waybill/nakladnaya_final-' + contract.name + str(release_mat.id) + '.docx')
+
+            # return FileResponse(byte_io, as_attachment=True,
+            #                     filename=f'nakladnaya_final-{contract.name}{str(release_mat.id)}.docx')
+
+        except:
+            return HttpResponse('Ошибка')
+
+        return redirect('/contract/' + contract.slug + '/relesed_materials')
         # return redirect('/detail/relesed_materials/' + str(self.kwargs['id']))
 
+
+@method_decorator(login_required(login_url='/accounts/login/'), name='dispatch')
+class DetailReleaseMaterialsView(generic.TemplateView):
+    template_name = 'appbase/material/store_mateials/detial_released_mat.html'
+
+    def get(self, request, *args, **kwargs):
+        released_mat = ReleaseMaterial.objects.get(id=int(self.kwargs['id']))
+
+        self.extra_context = {
+            'object': released_mat.contract.contstruct_object,
+            'released_mat': released_mat,
+
+        }
+        return super().get(request, *args, **kwargs)
+
+
+@method_decorator(login_required(login_url='/accounts/login/'), name='dispatch')
+class AddReleaseWaybillView(generic.TemplateView):
+    template_name = 'appbase/material/store_mateials/waybill/add_release_waybill.html'
+
+    def get(self, request, *args, **kwargs):
+        released_mat = ReleaseMaterial.objects.get(id=int(self.kwargs['id']))
+
+        self.extra_context = {
+            'object': released_mat.contract.contstruct_object,
+            'released_mat': released_mat,
+
+        }
+        return super().get(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        released_mat = ReleaseMaterial.objects.get(id=int(self.kwargs['id']))
+        release_waybill = request.FILES['waybill']
+        released_mat.release_waybill = release_waybill
+        released_mat.save()
+        return redirect('/detail/relesed_materials/' + str(self.kwargs['id']))
+
+
+@method_decorator(login_required(login_url='/accounts/login/'), name='dispatch')
+class AddFinalWaybillView(generic.TemplateView):
+    template_name = 'appbase/material/store_mateials/waybill/add_final_waybill.html'
+
+    def get(self, request, *args, **kwargs):
+        released_mat = ReleaseMaterial.objects.get(id=int(self.kwargs['id']))
+
+        self.extra_context = {
+            'object': released_mat.contract.contstruct_object,
+            'released_mat': released_mat,
+
+        }
+        return super().get(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        released_mat = ReleaseMaterial.objects.get(id=int(self.kwargs['id']))
+        final_waybill = request.FILES['waybill']
+        released_mat.final_waybill = final_waybill
+        released_mat.save()
+        return redirect('/detail/relesed_materials/' + str(self.kwargs['id']))

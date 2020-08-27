@@ -11,5 +11,8 @@ urlpatterns = [
     path('contract/<slug:slug>/materials', views.MaterialsView.as_view(), name='contract_list_materials'),
     path('release_materials/', views.release_materials, name='release_materials'),
     path('contract/<slug:slug>/relesed_materials', views.ReleaseMaterialsView.as_view(), name='relesed_materials'),
+    path('return/relesed_materials/<int:id>', views.ReturnReleaseMaterialsView.as_view(), name='return_relesed_materials'),
     path('detail/relesed_materials/<int:id>', views.DetailReleaseMaterialsView.as_view(), name='detail_relesed_materials'),
+    path('release_waybill/relesed_materials/<int:id>', views.AddReleaseWaybillView.as_view(), name='add_release_waybill'),
+    path('final_waybill/relesed_materials/<int:id>', views.AddFinalWaybillView.as_view(), name='add_final_waybill'),
 ]
