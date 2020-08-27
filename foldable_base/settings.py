@@ -85,8 +85,12 @@ WSGI_APPLICATION = 'foldable_base.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'foldable_base',
+        'USER': 'admin',
+        'PASSWORD': '123admin',
+        'HOST': 'localhost',
+        'PORT': '',
     }
 }
 
@@ -136,7 +140,6 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'mediafiles')
 
 SITE_ID = 1
 AUTH_USER_MODEL = 'user_auth.User'
-
 
 AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
