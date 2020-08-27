@@ -9,6 +9,7 @@ urlpatterns = [
     path('return_materials/', views.return_materials, name='return_materials'),
     path('objects/<slug:slug>/contract/materials', views.ContractMaterialsView.as_view(), name='contract_materials'),
     path('contract/<slug:slug>/materials', views.MaterialsView.as_view(), name='contract_list_materials'),
+    # path('contract/<slug:slug>/search_materials', views.search_materials, name='search_materials'),
     path('release_materials/', views.release_materials, name='release_materials'),
     path('contract/<slug:slug>/relesed_materials', views.ReleaseMaterialsView.as_view(), name='relesed_materials'),
     path('return/relesed_materials/<int:id>', views.ReturnReleaseMaterialsView.as_view(), name='return_relesed_materials'),

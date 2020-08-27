@@ -217,9 +217,38 @@ class ContractMaterialsView(generic.TemplateView):
 class MaterialsView(generic.TemplateView):
     template_name = 'appbase/material/store_mateials/materials.html'
 
+    def get_context_data(self, **kwargs):
+        query = self.request.GET.get('search')
+        context = super(MaterialsView, self).get_context_data(**kwargs)
+        if not query:
+            return context
+
+        materials = Material.objects.filter(invoice__request_mat__contract__slug=self.kwargs['slug'],
+                                            is_delivery=True, invoice__is_done=True, name__icontains=query)
+        context.update({
+            'materials': materials
+        })
+        return context
+
     def get(self, request, *args, **kwargs):
-        materials = Material.objects.filter(invoice__request_mat__contract__slug=self.kwargs['slug'], is_delivery=True,
-                                            invoice__is_done=True)
+        materials = Material.objects.filter(invoice__request_mat__contract__slug=self.kwargs['slug'],
+                                            is_delivery=True, invoice__is_done=True)
+
+        if 'q' in request.GET:
+            print('asd')
+            query = request.GET['q']
+            if not query:
+                materials = Material.objects.filter(invoice__request_mat__contract__slug=self.kwargs['slug'],
+                                                    is_delivery=True, invoice__is_done=True)
+            else:
+                materials = Material.objects.filter(invoice__request_mat__contract__slug=self.kwargs['slug'],
+                                                    is_delivery=True, invoice__is_done=True).filter(Q(name__contains=query))
+            context = {
+                'object': Object.objects.get(contract__slug=self.kwargs['slug']),
+                'materials': materials,
+                'query':query
+            }
+            return render(request, 'appbase/material/store_mateials/ajax_search_mat.html', context=context)
         self.extra_context = {
             'object': Object.objects.get(contract__slug=self.kwargs['slug']),
             'materials': materials,
@@ -237,8 +266,6 @@ class MaterialsView(generic.TemplateView):
         }
         return render(request, template_name='appbase/material/store_mateials/release_materials.html',
                       context=context)
-
-        # return redirect(request.META.get('HTTP_REFERER'))
 
 
 def release_materials(request):
