@@ -6,15 +6,20 @@
     <div class="container-fluid">
         <div class="card">
             <div class="card-header d-block">
+
+            {% if released_mat.items.all.first.material.instrument_code == None %}
                 <a href="/contract/{{ released_mat.contract.slug }}/relesed_materials" class="btn btn-light"><i
                         class="ik ik-arrow-left"></i>Назад</a>
+            {% else %}
+                <a href="/objects/{{ object.slug }}/released_instruments" class="btn btn-light"><i
+                        class="ik ik-arrow-left"></i>Назад</a>
+            {% endif %}
                 <div class="row">
                     <div class="col-md-10">
                         <h2>Отпущенные материалы №{{ released_mat.id }}</h2>
                         <p>Накладная отпуск (с подписью): </p>
                         <p>{% if released_mat.release_waybill %}
-                            <a href="{{ released_mat.release_waybill.url }}" style="color: #4da3ff"
-                               download>скачать</a>
+                            <a href="{{ released_mat.release_waybill.url }}" style="color: #4da3ff" download>скачать</a>
                         {% else %}
                             <a href="{% url 'add_release_waybill' released_mat %}"
                                class="btn btn-primary">Загрузить</a>{% endif %}</p>
@@ -22,10 +27,10 @@
                         <p>Накладная возврат (с подписью): </p>
                         <p>
                             {% if released_mat.final_waybill %}
-                            <a href="{{ released_mat.final_waybill.url }}" style="color: #4da3ff"
-                               download>скачать</a>{% else %}
-                            <a href="{% url 'add_final_waybill' released_mat %}"
-                               class="btn btn-primary">Загрузить</a>{% endif %}
+                                <a href="{{ released_mat.final_waybill.url }}" style="color: #4da3ff"
+                                   download>скачать</a>{% else %}
+                                <a href="{% url 'add_final_waybill' released_mat %}"
+                                   class="btn btn-primary">Загрузить</a>{% endif %}
                         </p>
 
                     </div>

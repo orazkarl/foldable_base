@@ -6,7 +6,7 @@
     <div class="container-fluid">
         <div class="card">
             <div class="card-header d-block">
-                <a href="javascript:history.go(-1)" class="btn btn-light"><i
+                <a href="/objects/{{ object.slug }}/contract/materials" class="btn btn-light"><i
                         class="ik ik-arrow-left"></i>Назад</a>
                 <br>
                 <br>
@@ -16,9 +16,7 @@
                         <h2>Инструменты</h2>
 
                     </div>
-{#                    <div class="col-md-3"><a type="button"#}
-{#                                             href="{% url 'relesed_materials' materials.first.invoice.request_mat.contract.slug %}"#}
-{#                                             class="btn btn-primary">Отпущенные инструменты</a></div>#}
+                    <div class="col-md-3"><a type="button" href="{% url 'released_instruments' object.slug %}" class="btn btn-primary">Отпущенные инструменты</a></div>
                 </div>
 
 

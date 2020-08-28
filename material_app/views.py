@@ -353,8 +353,11 @@ class ReturnReleaseMaterialsView(generic.TemplateView):
 
         except:
             return HttpResponse('Ошибка')
-
-        return redirect('/contract/' + contract.slug + '/relesed_materials')
+        print(release_mat.items.all()[0].material.instrument_code)
+        if release_mat.items.all()[0].material.instrument_code == None:
+            return redirect('/contract/' + contract.slug + '/relesed_materials')
+        else:
+            return redirect('/objects/' + contract.contstruct_object.slug+ '/released_instruments')
         # return redirect('/detail/relesed_materials/' + str(self.kwargs['id']))
 
 
@@ -444,6 +447,18 @@ class InstrumentMateriralView(generic.TemplateView):
 
 
 @method_decorator(login_required(login_url='/accounts/login/'), name='dispatch')
+class ReleasedInstruments(generic.TemplateView):
+    template_name = 'appbase/material/store_mateials/instruments/released_instruments.html'
+
+    def get(self, request, *args, **kwargs):
+        self.extra_context = {
+            'object': Object.objects.get(slug=self.kwargs['slug']),
+            'relesed_materials': ReleaseMaterial.objects.filter(contract__contstruct_object__slug=self.kwargs['slug']).filter(~Q(items__material__instrument_code=None))
+        }
+        return super().get(request, *args, **kwargs)
+
+
+@method_decorator(login_required(login_url='/accounts/login/'), name='dispatch')
 class GeneralBaseView(generic.TemplateView):
     template_name = 'appbase/material/store_mateials/general_base.html'
 
@@ -463,7 +478,8 @@ class RemainderMaterialsView(generic.TemplateView):
 
     def get(self, request, *args, **kwargs):
         contstruct_object = Object.objects.get(slug=self.kwargs['slug'])
-        materials = Material.objects.filter(is_delivery=True, invoice__is_done=True, invoice__request_mat__contract__status='2')
+        materials = Material.objects.filter(is_delivery=True, invoice__is_done=True,
+                                            invoice__request_mat__contract__status='2')
         self.extra_context = {
             'object': contstruct_object,
             'materials': materials,
