@@ -140,13 +140,6 @@ class ContractEditView(generic.TemplateView):
         return redirect('/objects/' + Object.objects.get(id=object_id).slug + '/' + str(status_dict[status]))
 
 
-@login_required(login_url='/accounts/login/')
-def contract_delete(request):
-    contract = Contract.objects.get(id=int(request.POST['contract']))
-    red = contract.contstruct_object.slug + '/' + str(status_dict[contract.status])
-    contract.delete()
-
-    return redirect(red)
 
 
 @method_decorator(login_required(login_url='/accounts/login/'), name='dispatch')
@@ -219,15 +212,6 @@ class RequestDetailView(generic.TemplateView):
             'object': Object.objects.get(slug=request_mat.contract.contstruct_object.slug),
         }
         return super().get(request, *args, **kwargs)
-
-
-@login_required(login_url='/accounts/login/')
-def request_delete(request):
-    request_mat = RequestForMaterial.objects.get(id=request.POST['id'])
-    red = '/contract/detail/' + request_mat.contract.slug
-    request_mat.delete()
-
-    return redirect(red)
 
 
 @method_decorator(login_required(login_url='/accounts/login/'), name='dispatch')

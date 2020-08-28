@@ -98,31 +98,41 @@
                         <div class="nav-item">
                             {#                            <a href="/objects/{{ object.slug }}"><i class="ik ik-share-2"></i><span>Работы</span></a>#}
                         </div>
-                        <div class="nav-item has-sub">
-                            <a href="javascript:void(0)"><i class="ik ik-layers"></i><span>Работы</span></a>
-                            <div class="submenu-content">
-                                <a href="/objects/{{ object.slug }}/1" class="menu-item">в работе</a>
-                                <a href="/objects/{{ object.slug }}/2" class="menu-item">не выполнено</a>
-                                <a href="/objects/{{ object.slug }}/3" class="menu-item">проверка</a>
-                                <a href="/objects/{{ object.slug }}/4" class="menu-item">выполнено</a>
+                        {% if request.user.role == 'admin' or request.user.role == 'purchaser' or request.user.role == 'manager' %}
+                            <div class="nav-item has-sub">
+                                <a href="javascript:void(0)"><i class="ik ik-layers"></i><span>Работы</span></a>
+                                <div class="submenu-content">
+                                    <a href="/objects/{{ object.slug }}/1" class="menu-item">в работе</a>
+                                    <a href="/objects/{{ object.slug }}/2" class="menu-item">не выполнено</a>
+                                    <a href="/objects/{{ object.slug }}/3" class="menu-item">проверка</a>
+                                    <a href="/objects/{{ object.slug }}/4" class="menu-item">выполнено</a>
+                                </div>
                             </div>
-                        </div>
-                        <div class="nav-item">
-                            <a href="/objects/{{ object.slug }}/contract/materials"><i
-                                    class="ik ik-menu"></i><span>Материалы</span></a>
-                        </div>
-                        <div class="nav-item">
-                            <a href="/objects/{{ object.slug }}/paid_materials"><i class="ik ik-inbox"></i><span>Оплаченные материалы</span></a>
-                        </div>
-                        <div class="nav-item">
-                            <a href="/invoice_for_payment/{{ object.slug }}"><i class="ik ik-credit-card"></i><span>Счета на оплату</span></a>
-                        </div>
-                        <div class="nav-item">
-                            <a href=""><i class="ik ik-bar-chart-2"></i><span>Аналитика</span></a>
-                        </div>
-                        <div class="nav-item">
-                            <a href=""><i class="ik ik-clock"></i><span>История</span></a>
-                        </div>
+                        {% endif %}
+                        {% if request.user.role == 'admin' or request.user.role == 'manager' %}
+                            <div class="nav-item">
+                                <a href="/objects/{{ object.slug }}/contract/materials"><i
+                                        class="ik ik-menu"></i><span>Материалы</span></a>
+                            </div>
+                            <div class="nav-item">
+                                <a href="/objects/{{ object.slug }}/paid_materials"><i class="ik ik-inbox"></i><span>Оплаченные материалы</span></a>
+                            </div>
+                        {% endif %}
+                        {% if request.user.role == 'admin' or request.user.role == 'accountant' %}
+                            <div class="nav-item">
+                                <a href="/invoice_for_payment/{{ object.slug }}"><i class="ik ik-credit-card"></i><span>Счета на оплату</span></a>
+                            </div>
+                        {% endif %}
+                        {% if request.user.role == 'admin' %}
+                            <div class="nav-item">
+                                <a href=""><i class="ik ik-bar-chart-2"></i><span>Аналитика</span></a>
+                            </div>
+                        {% endif %}
+                        {% if request.user.role == 'admin' or request.user.role == 'purchaser' %}
+                            <div class="nav-item">
+                                <a href=""><i class="ik ik-clock"></i><span>История</span></a>
+                            </div>
+                        {% endif %}
                     </nav>
                 </div>
             </div>
@@ -135,9 +145,9 @@
 
         <footer class="footer" style="background-color: #404E67; color: white; padding-bottom: 70px">
             <div class="w-100 clearfix">
-{#                <span class="text-center text-sm-left d-md-inline-block ">Copyright © 2018 ThemeKit v2.0. All Rights Reserved.</span>#}
-{#                <span class="float-none float-sm-right mt-1 mt-sm-0 text-center">Crafted with <i#}
-{#                        class="fa fa-heart text-danger"></i> by <a href="http://lavalite.org/" target="_blank" style="color: white">Lavalite</a></span>#}
+                {#                <span class="text-center text-sm-left d-md-inline-block ">Copyright © 2018 ThemeKit v2.0. All Rights Reserved.</span>#}
+                {#                <span class="float-none float-sm-right mt-1 mt-sm-0 text-center">Crafted with <i#}
+                {#                        class="fa fa-heart text-danger"></i> by <a href="http://lavalite.org/" target="_blank" style="color: white">Lavalite</a></span>#}
             </div>
         </footer>
 

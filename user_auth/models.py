@@ -7,7 +7,7 @@ class User(AbstractUser):
     USER_ROLES = [
         ['admin', 'админ'],  # админ
         ['purchaser', 'закупщик'],  # закупщик
-        ['purchaser', 'бухгалтер'],  # бухгалтер
+        ['accountant', 'бухгалтер'],  # бухгалтер
         ['manager', 'завсклад']  # завсклад
 
     ]

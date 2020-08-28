@@ -263,7 +263,7 @@ def release_materials(request):
                 'date_contract': contract.date_contract,
                 'date_doc': datetime.datetime.now().date(),
                 'number_doc': release_mat.id,
-                'role': request.user.role,
+                'role': request.user.get_role_display(),
                 'name': request.user.first_name + ' ' + request.user.last_name,
                 'contract_contractor': contract.contractor,
                 'materials': ReleaseMaterialItem.objects.filter(release_material=release_mat),
@@ -294,7 +294,7 @@ class ReleaseMaterialsView(generic.TemplateView):
         self.extra_context = {
             'object': Object.objects.get(contract__slug=self.kwargs['slug']),
             'relesed_materials': ReleaseMaterial.objects.filter(contract__slug=self.kwargs['slug'],
-                                                                items__material__instrument_code=None)
+                                                                items__material__instrument_code=None).distinct('id')
         }
         return super().get(request, *args, **kwargs)
 
@@ -335,7 +335,7 @@ class ReturnReleaseMaterialsView(generic.TemplateView):
                 'date_contract': contract.date_contract,
                 'date_doc': datetime.datetime.now().date(),
                 'number_doc': release_mat.id,
-                'role': request.user.role,
+                'role': request.user.get_role_display(),
                 'name': request.user.first_name + ' ' + request.user.last_name,
                 'contract_contractor': contract.contractor,
                 'materials': ReleaseMaterialItem.objects.filter(release_material=release_mat),
