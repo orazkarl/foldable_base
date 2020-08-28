@@ -234,21 +234,6 @@ class MaterialsView(generic.TemplateView):
         materials = Material.objects.filter(invoice__request_mat__contract__slug=self.kwargs['slug'],
                                             is_delivery=True, invoice__is_done=True)
 
-        if 'q' in request.GET:
-            print('asd')
-            query = request.GET['q']
-            if not query:
-                materials = Material.objects.filter(invoice__request_mat__contract__slug=self.kwargs['slug'],
-                                                    is_delivery=True, invoice__is_done=True)
-            else:
-                materials = Material.objects.filter(invoice__request_mat__contract__slug=self.kwargs['slug'],
-                                                    is_delivery=True, invoice__is_done=True).filter(Q(name__contains=query))
-            context = {
-                'object': Object.objects.get(contract__slug=self.kwargs['slug']),
-                'materials': materials,
-                'query':query
-            }
-            return render(request, 'appbase/material/store_mateials/ajax_search_mat.html', context=context)
         self.extra_context = {
             'object': Object.objects.get(contract__slug=self.kwargs['slug']),
             'materials': materials,

@@ -26,40 +26,40 @@
             <div class="card-body p-0 table-border-style">
                 <div class="table-responsive">
                     <div style="margin: 10px" class="col-md-6">
-                        <form action="/contract/{{ materials.first.invoice.request_mat.contract.slug }}/materials"
-                              method="get">
-                            <div class="" style="display: inline-flex">
-                                <input type="search" id="search" class="form-control" placeholder="Поиск"
-                                       style="border-radius: 0">
-                                <button class="btn-lg btn-success" style="border-radius: 0"><i class="ik ik-search"></i>
-                                </button>
-                            </div>
+                        {#                        <form action="/contract/{{ materials.first.invoice.request_mat.contract.slug }}/materials"#}
+                        {#                              method="get">#}
+                        <div class="" style="display: inline-flex">
+                            <input type="search" id="search" class="form-control" placeholder="Поиск"
+                                   style="border-radius: 0" onkeyup="searchFunc()">
+                            <button class="btn-lg btn-success" style="border-radius: 0"><i class="ik ik-search"></i>
+                            </button>
+                        </div>
 
-                        </form>
+                        {#                        </form>#}
                     </div>
-                    <div id="results_mat"></div>
-                    <div id="materials_list" style="">
-                        <form action="/contract/{{ materials.first.invoice.request_mat.contract.slug }}/materials"
-                              method="post" oninput="myFormInput({{ materials.count }});">
-                            {% csrf_token %}
-                            <table class="table">
-                                <thead>
-                                <tr>
-                                    <th>#</th>
-                                    <th>Название</th>
-                                    <th>Количество</th>
-                                    <th>Ушли</th>
-                                    <th>Остаток</th>
-                                    <th>ед. изм.</th>
-                                    <th>Код инструмента</th>
-                                    <th>
-                                        <input type="checkbox" oninput="checkAll({{ materials.count }});">
-                                    </th>
-                                </tr>
-                                </thead>
-                                <tbody>
 
 
+                    <form action="/contract/{{ materials.first.invoice.request_mat.contract.slug }}/materials"
+                          method="post" oninput="myFormInput({{ materials.count }});">
+                        {% csrf_token %}
+                        <table class="table">
+                            <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Название</th>
+                                <th>Количество</th>
+                                <th>Ушли</th>
+                                <th>Остаток</th>
+                                <th>ед. изм.</th>
+                                <th>Код инструмента</th>
+                                <th>
+                                    <input type="checkbox" oninput="checkAll({{ materials.count }});">
+                                </th>
+                            </tr>
+                            </thead>
+                            <tbody id="materials_list">
+
+                            <div>
                                 {% for material in materials %}
                                     <tr>
                                         <th scope="row">{{ forloop.counter }}</th>
@@ -81,46 +81,46 @@
 
 
                                 {% endfor %}
-
-                                </tbody>
-                            </table>
-                            <br>
-                            <div style="display: none" id="action_div">
-                                <div class="row">
-
-                                    <div style="margin: 10px 0 10px 10px" class="col-md-12">
-                                        <input type="checkbox" class="form-radio" style="height: 18px; width: 18px;"
-                                               oninput="funcSubmit();" id="myCheckbox">
-                                        <label for="myCheckbox"><h3>Отпустить</h3></label>
-                                        <div style="display:none " id="submit_release">
-                                            <h3>ФИО: <span style="text-decoration: underline">{{ request.user }}</span>
-                                            </h3>
-                                            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
-                                                tempor
-                                                incididunt ut labore et dolore magna aliqua.</p>
-                                            <button type="submit" name="submit" class="btn btn-primary"
-                                                    value="delivered">
-                                                Подтвердить
-                                            </button>
-                                        </div>
-
-                                    </div>
-                                    {#                                <div style="margin: 10px 0 10px 10px" class="col-md-3">#}
-                                    {#                                    <button type="submit" name="submit" class="btn btn-danger" value="marriage">#}
-                                    {#                                        Брак#}
-                                    {#                                    </button>#}
-                                    {#                                </div>#}
-                                    {#                                <div style="margin: 10px 0 10px 10px" class="col-md-3">#}
-                                    {##}
-                                    {#                                    <button type="submit" name="submit" class="btn btn-success" value="return">#}
-                                    {#                                        Возврат#}
-                                    {#                                    </button>#}
-                                    {#                                </div>#}
-                                </div>
                             </div>
+                            </tbody>
+                        </table>
+                        <br>
+                        <div style="display: none" id="action_div">
+                            <div class="row">
 
-                        </form>
-                    </div>
+                                <div style="margin: 10px 0 10px 10px" class="col-md-12">
+                                    <input type="checkbox" class="form-radio" style="height: 18px; width: 18px;"
+                                           oninput="funcSubmit();" id="myCheckbox">
+                                    <label for="myCheckbox"><h3>Отпустить</h3></label>
+                                    <div style="display:none " id="submit_release">
+                                        <h3>ФИО: <span style="text-decoration: underline">{{ request.user }}</span>
+                                        </h3>
+                                        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
+                                            tempor
+                                            incididunt ut labore et dolore magna aliqua.</p>
+                                        <button type="submit" name="submit" class="btn btn-primary"
+                                                value="delivered">
+                                            Подтвердить
+                                        </button>
+                                    </div>
+
+                                </div>
+                                {#                                <div style="margin: 10px 0 10px 10px" class="col-md-3">#}
+                                {#                                    <button type="submit" name="submit" class="btn btn-danger" value="marriage">#}
+                                {#                                        Брак#}
+                                {#                                    </button>#}
+                                {#                                </div>#}
+                                {#                                <div style="margin: 10px 0 10px 10px" class="col-md-3">#}
+                                {##}
+                                {#                                    <button type="submit" name="submit" class="btn btn-success" value="return">#}
+                                {#                                        Возврат#}
+                                {#                                    </button>#}
+                                {#                                </div>#}
+                            </div>
+                        </div>
+
+                    </form>
+
                 </div>
             </div>
         </div>
@@ -175,35 +175,56 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js"></script>
 
     <script>
-        $(function () {
+        function searchFunc() {
 
-            $('#search').keyup(function () {
-                console.log($('#search').val());
-                var materials_list = document.getElementById('materials_list').style.display = 'none';
-                for (i = 1; i <= {{ materials.count }}; i++) {
-                    var mat_checbox = document.getElementById('material_checkbox' + i);
-                    if (mat_checbox.checked === true) {
-                        mat_checbox.checked = false;
+            input = document.getElementById("search");
+            filter = input.value.toUpperCase();
 
-                    }
+            materials_list = document.getElementById('materials_list');
+            tr = materials_list.getElementsByTagName('tr');
+
+            for (i = 0; i < tr.length; i++) {
+                td = tr[i].getElementsByTagName("td")[0];
+                txtValue = td.textContent || td.innerText;
+                if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                    tr[i].style.display = "";
+                } else {
+                    tr[i].style.display = "none";
                 }
-                $.ajax({
-                    type: "GET",
-                    url: "/contract/{{ materials.first.invoice.request_mat.contract.slug }}/materials",
-                    data: {
-                        'q': $('#search').val(),
-                        'csrfmiddlewaretoken': $("input[name=csrfmiddlewaretoken]").val()
-                    },
-                    success: searchMatSuccess,
-                    dataType: 'html'
 
-                });
-            });
-        });
-
-        function searchMatSuccess(data, textStatus, jqXHR) {
-            console.log(data);
-            $('#results_mat').html(data)
+            }
         }
+
+        {#$(function () {#}
+        {##}
+        {#    $('#search').keyup(function () {#}
+        {#        console.log($('#search').val());#}
+        {#        var materials_list = document.getElementById('materials_list').style.display = 'none';#}
+        {#        document#}
+        {#        for (i = 1; i <= {{ materials.count }}; i++) {#}
+        {#            var mat_checbox = document.getElementById('material_checkbox' + i);#}
+        {#            if (mat_checbox.checked === true) {#}
+        {#                mat_checbox.checked = false;#}
+        {##}
+        {#            }#}
+        {#        }#}
+        {#        $.ajax({ #}
+        {#            type: "GET",#}
+        {#            url: "/contract/{{ materials.first.invoice.request_mat.contract.slug }}/materials",#}
+        {#            data: {#}
+        {#                'q': $('#search').val(),#}
+        {#                'csrfmiddlewaretoken': $("input[name=csrfmiddlewaretoken]").val()#}
+        {#            },#}
+        {#            success: searchMatSuccess,#}
+        {#            dataType: 'html'#}
+        {##}
+        {#        });#}
+        {#    });#}
+        {# });#}
+        {##}
+        {#function searchMatSuccess(data, textStatus, jqXHR) {#}
+        {#    console.log(data);#}
+        {#    $('#results_mat').html(data)#}
+        {# } #}
     </script>
 {% endblock %}
