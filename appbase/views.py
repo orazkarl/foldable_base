@@ -36,23 +36,10 @@ class ObjectDetailView(generic.TemplateView):
     def get(self, request, *args, **kwargs):
         object_slug = self.kwargs['slug']
         pk = self.kwargs['pk']
-        status = ''
-        if pk == 1:
-            contracts = Contract.objects.filter(contstruct_object__slug=object_slug, status='в работе')
-            status = 'в работе'
-        elif pk == 2:
-            contracts = Contract.objects.filter(contstruct_object__slug=object_slug, status='невыполнено')
-            status = 'невыполнено'
-        elif pk == 3:
-            contracts = Contract.objects.filter(contstruct_object__slug=object_slug, status='проверка')
-            status = 'проверка'
-        elif pk == 4:
-            contracts = Contract.objects.filter(contstruct_object__slug=object_slug, status='выполнено')
-            status = 'выполнено'
+        contracts = Contract.objects.filter(contstruct_object__slug=object_slug, status=str(pk))
 
         self.extra_context = {
             'contracts': contracts,
-            'status': status,
             'object': Object.objects.get(slug=object_slug)
         }
         return super().get(request, *args, **kwargs)
@@ -106,7 +93,7 @@ class ContractAddView(generic.TemplateView):
         Contract.objects.create(contstruct_object_id=object_id, name=name, slug=slug, contract=contract,
                                 contractor=contractor, number_contract=number_contract, status=status, date_contract=date_contract, bin=bin)
 
-        return redirect('/objects/' + Object.objects.get(id=object_id).slug + '/' + str(status_dict[status]))
+        return redirect('/objects/' + Object.objects.get(id=object_id).slug + '/' + str(status))
 
 
 @method_decorator(login_required(login_url='/accounts/login/'), name='dispatch')

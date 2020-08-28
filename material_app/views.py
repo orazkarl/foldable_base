@@ -217,22 +217,9 @@ class ContractMaterialsView(generic.TemplateView):
 class MaterialsView(generic.TemplateView):
     template_name = 'appbase/material/store_mateials/materials.html'
 
-    def get_context_data(self, **kwargs):
-        query = self.request.GET.get('search')
-        context = super(MaterialsView, self).get_context_data(**kwargs)
-        if not query:
-            return context
-
-        materials = Material.objects.filter(invoice__request_mat__contract__slug=self.kwargs['slug'],
-                                            is_delivery=True, invoice__is_done=True, name__icontains=query)
-        context.update({
-            'materials': materials
-        })
-        return context
-
     def get(self, request, *args, **kwargs):
         materials = Material.objects.filter(invoice__request_mat__contract__slug=self.kwargs['slug'],
-                                            is_delivery=True, invoice__is_done=True)
+                                            is_delivery=True, invoice__is_done=True, instrument_code=None)
 
         self.extra_context = {
             'object': Object.objects.get(contract__slug=self.kwargs['slug']),
@@ -306,7 +293,7 @@ class ReleaseMaterialsView(generic.TemplateView):
     def get(self, request, *args, **kwargs):
         self.extra_context = {
             'object': Object.objects.get(contract__slug=self.kwargs['slug']),
-            'relesed_materials': ReleaseMaterial.objects.filter(contract__slug=self.kwargs['slug'])
+            'relesed_materials': ReleaseMaterial.objects.filter(contract__slug=self.kwargs['slug'], items__material__instrument_code=None)
         }
         return super().get(request, *args, **kwargs)
 
@@ -427,3 +414,27 @@ class AddFinalWaybillView(generic.TemplateView):
         released_mat.final_waybill = final_waybill
         released_mat.save()
         return redirect('/detail/relesed_materials/' + str(self.kwargs['id']))
+
+
+@method_decorator(login_required(login_url='/accounts/login/'), name='dispatch')
+class InstrumentMateriralView(generic.TemplateView):
+    template_name = 'appbase/material/store_mateials/instruments/instruments.html'
+
+    def get(self, request, *args, **kwargs):
+        contstruct_object = Object.objects.get(slug=self.kwargs['slug'])
+        materials = Material.objects.filter(is_delivery=True, invoice__is_done=True, invoice__request_mat__contract__contstruct_object=contstruct_object).filter(~Q(instrument_code=None))
+        self.extra_context = {
+            'object': contstruct_object,
+            'materials': materials,
+        }
+        return super().get(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        materials = request.POST.getlist('materials')
+        materials = Material.objects.filter(id__in=materials)
+        context = {
+            'materials': materials,
+            'object': Object.objects.get(slug=self.kwargs['slug']),
+        }
+        return render(request, template_name='appbase/material/store_mateials/release_materials.html',
+                      context=context)

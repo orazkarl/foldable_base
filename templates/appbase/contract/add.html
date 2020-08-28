@@ -6,7 +6,7 @@
             <div class="card">
 
                 <div class="card-header d-block">
-                    <a href="javascript:history.go(-1)" class="btn btn-light"><i
+                    <a href="/objects/{{ object.slug }}/1" class="btn btn-light"><i
                             class="ik ik-arrow-left"></i>Назад</a>
 
                     <h2>Добавить работу</h2>
@@ -49,10 +49,10 @@
                         <div class="form-group">
                             <label for="status">Статус работы</label>
                             <select class="form-control" id="status" name="status">
-                                <option value="в работе">в работе</option>
-                                <option value="выполнено">выполнено</option>
-                                <option value="проверка">проверка</option>
-                                <option value="невыполнено">невыполнено</option>
+                                <option value="1">в работе</option>
+                                <option value="2">выполнено</option>
+                                <option value="3">проверка</option>
+                                <option value="4">невыполнено</option>
                             </select>
                         </div>
                         {% csrf_token %}

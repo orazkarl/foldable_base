@@ -44,7 +44,7 @@
                                 <td><a href="{{ contract.contract.url }}" style="color: #4da3ff; " target="_blank">посмотреть</a>
                                 <td>{{ contract.bin }}</td>
                                 <td>{{ contract.date_contract }}</td>
-                                <td>{{ contract.status }}</td>
+                                <td>{{ contract.get_status_display }}</td>
                                 <td>{{ contract.created_at }}</td>
                                 <td>{{ contract.updated_at }}</td>
                                 {#                                <td>#}

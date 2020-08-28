@@ -22,10 +22,12 @@ class Object(models.Model):
 
 class Contract(models.Model):
     STATUS_WORK = [
-        ['в работе', 'в работе'],
-        ['невыполнено', 'невыполнено'],
-        ['проверка', 'проверка'],
-        ['выполнено', 'выполнено']
+        ['1', 'в работе'],
+        ['2', 'выполнено'],
+        ['3', 'проверка'],
+        ['4', 'невыполнено'],
+
+
     ]
 
     contstruct_object = models.ForeignKey(Object, on_delete=models.CASCADE, verbose_name='Строительный объект')

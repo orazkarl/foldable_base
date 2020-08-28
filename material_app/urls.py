@@ -16,4 +16,5 @@ urlpatterns = [
     path('detail/relesed_materials/<int:id>', views.DetailReleaseMaterialsView.as_view(), name='detail_relesed_materials'),
     path('release_waybill/relesed_materials/<int:id>', views.AddReleaseWaybillView.as_view(), name='add_release_waybill'),
     path('final_waybill/relesed_materials/<int:id>', views.AddFinalWaybillView.as_view(), name='add_final_waybill'),
+    path('objects/<slug:slug>/instruments', views.InstrumentMateriralView.as_view(), name='instruments'),
 ]

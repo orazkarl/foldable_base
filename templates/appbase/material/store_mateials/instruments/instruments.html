@@ -6,19 +6,19 @@
     <div class="container-fluid">
         <div class="card">
             <div class="card-header d-block">
-                <a href="/objects/{{ object.slug }}/contract/materials" class="btn btn-light"><i
+                <a href="javascript:history.go(-1)" class="btn btn-light"><i
                         class="ik ik-arrow-left"></i>Назад</a>
                 <br>
                 <br>
                 <div class="row">
 
                     <div class="col-md-9">
-                        <h2>Материалы</h2>
-                        <p>Работа: {{ materials.first.invoice.request_mat.contract }}</p>
+                        <h2>Инструменты</h2>
+
                     </div>
-                    <div class="col-md-3"><a type="button"
-                                             href="{% url 'relesed_materials' materials.first.invoice.request_mat.contract.slug %}"
-                                             class="btn btn-primary">Отпущенные материалы</a></div>
+{#                    <div class="col-md-3"><a type="button"#}
+{#                                             href="{% url 'relesed_materials' materials.first.invoice.request_mat.contract.slug %}"#}
+{#                                             class="btn btn-primary">Отпущенные инструменты</a></div>#}
                 </div>
 
 
@@ -26,21 +26,16 @@
             <div class="card-body p-0 table-border-style">
                 <div class="table-responsive">
                     <div style="margin: 10px" class="col-md-6">
-                        {#                        <form action="/contract/{{ materials.first.invoice.request_mat.contract.slug }}/materials"#}
-                        {#                              method="get">#}
                         <div class="" style="display: inline-flex">
                             <input type="search" id="search" class="form-control" placeholder="Поиск"
                                    style="border-radius: 0" onkeyup="searchFunc()">
                             <button class="btn-lg btn-success" style="border-radius: 0"><i class="ik ik-search"></i>
                             </button>
                         </div>
-
-                        {#                        </form>#}
                     </div>
 
 
-                    <form action="/contract/{{ materials.first.invoice.request_mat.contract.slug }}/materials"
-                          method="post" oninput="myFormInput({{ materials.count }});">
+                    <form action="/objects/{{ object.slug }}/instruments" method="post" oninput="myFormInput({{ materials.count }});">
                         {% csrf_token %}
                         <table class="table">
                             <thead>
@@ -106,17 +101,6 @@
                                     </div>
 
                                 </div>
-                                {#                                <div style="margin: 10px 0 10px 10px" class="col-md-3">#}
-                                {#                                    <button type="submit" name="submit" class="btn btn-danger" value="marriage">#}
-                                {#                                        Брак#}
-                                {#                                    </button>#}
-                                {#                                </div>#}
-                                {#                                <div style="margin: 10px 0 10px 10px" class="col-md-3">#}
-                                {##}
-                                {#                                    <button type="submit" name="submit" class="btn btn-success" value="return">#}
-                                {#                                        Возврат#}
-                                {#                                    </button>#}
-                                {#                                </div>#}
                             </div>
                         </div>
 
@@ -196,36 +180,5 @@
             }
         }
 
-        {#$(function () {#}
-        {##}
-        {#    $('#search').keyup(function () {#}
-        {#        console.log($('#search').val());#}
-        {#        var materials_list = document.getElementById('materials_list').style.display = 'none';#}
-        {#        document#}
-        {#        for (i = 1; i <= {{ materials.count }}; i++) {#}
-        {#            var mat_checbox = document.getElementById('material_checkbox' + i);#}
-        {#            if (mat_checbox.checked === true) {#}
-        {#                mat_checbox.checked = false;#}
-        {##}
-        {#            }#}
-        {#        }#}
-        {#        $.ajax({ #}
-        {#            type: "GET",#}
-        {#            url: "/contract/{{ materials.first.invoice.request_mat.contract.slug }}/materials",#}
-        {#            data: {#}
-        {#                'q': $('#search').val(),#}
-        {#                'csrfmiddlewaretoken': $("input[name=csrfmiddlewaretoken]").val()#}
-        {#            },#}
-        {#            success: searchMatSuccess,#}
-        {#            dataType: 'html'#}
-        {##}
-        {#        });#}
-        {#    });#}
-        {# });#}
-        {##}
-        {#function searchMatSuccess(data, textStatus, jqXHR) {#}
-        {#    console.log(data);#}
-        {#    $('#results_mat').html(data)#}
-        {# } #}
     </script>
 {% endblock %}

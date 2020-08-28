@@ -18,7 +18,7 @@
                 <div class="table-responsive">
 
                     {% if release_mat.is_done == False %}
-                        <form action="{% url 'detail_relesed_materials' release_mat.id %}"
+                        <form action="{% url 'return_relesed_materials' release_mat.id %}"
                               onsubmit="return mySubmit({{ release_mat.items.count }});" method="post">
                             <table class="table">
                                 <thead>

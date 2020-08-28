@@ -4,8 +4,12 @@
 
     <div class="container-fluid">
         <div class="card">
-            <a href="javascript:history.go(-1)" class="btn btn-light"><i
-                    class="ik ik-arrow-left"></i>Назад</a>
+            <div class="card-header d-block">
+                <a href="/objects/{{ object.slug }}/{{ contract.status }}" class="btn btn-light"><i
+                        class="ik ik-arrow-left"></i>Назад</a>
+
+                <h2>Изменить</h2>
+            </div>
 
             <div class="card-body">
                 <form class="forms-sample" action="{% url 'contract_edit' contract.slug %}"
