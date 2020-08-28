@@ -26,10 +26,10 @@
                                                                        href="{% url 'instruments' object.slug %}">Инструменты</a>
                     </div>
                     <div class="col-md-2 " style="margin-top: 25px"><a class="btn-lg btn-primary " style="color: #fff; "
-                                                                       href="">Общий склад</a>
+                                                                       href="{% url 'general_base' object.slug %}">Общий склад</a>
                     </div>
                     <div class="col-md-2 " style="margin-top: 25px"><a class="btn-lg btn-primary " style="color: #fff; "
-                                                                       href="">Остаток</a>
+                                                                       href="{% url 'remainder_materials' object.slug %}">Остаток</a>
                     </div>
                 </div>
 

@@ -1,0 +1,108 @@
+{% extends 'appbase/base.html' %}
+{% load static %}
+{% load mathfilters %}
+{% block content %}
+
+    <div class="container-fluid">
+        <div class="card">
+            <div class="card-header d-block">
+                <a href="/objects/{{ object.slug }}/contract/materials" class="btn btn-light"><i
+                        class="ik ik-arrow-left"></i>Назад</a>
+                <br>
+                <br>
+                <div class="row">
+
+                    <div class="col-md-9">
+                        <h2>Общий склад</h2>
+
+                    </div>
+
+                </div>
+
+
+            </div>
+            <div class="card-body p-0 table-border-style">
+                <div class="table-responsive">
+                    <div style="margin: 10px" class="col-md-6">
+                        <div class="" style="display: inline-flex">
+                            <input type="search" id="search" class="form-control" placeholder="Поиск"
+                                   style="border-radius: 0" onkeyup="searchFunc()">
+                            <button class="btn-lg btn-success" style="border-radius: 0"><i class="ik ik-search"></i>
+                            </button>
+                        </div>
+
+                    </div>
+
+
+                    <table class="table">
+                        <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Название</th>
+                            <th>Количество</th>
+                            <th>Ушли</th>
+                            <th>Остаток</th>
+                            <th>ед. изм.</th>
+                            <th>Код инструмента</th>
+
+                        </tr>
+                        </thead>
+                        <tbody id="materials_list">
+
+                        <div>
+                            {% for material in materials %}
+                                <tr>
+                                    <th scope="row">{{ forloop.counter }}</th>
+                                    <td>{{ material.name }}</td>
+                                    <td>{{ material.quantity }}</td>
+                                    <td>{{ material.release_count }}</td>
+                                    <td>{{ material.quantity|sub:material.release_count }}</td>
+                                    <td>{{ material.units }}</td>
+                                    <td>
+                                        {% if material.instrument_code == None %}
+                                            Нет
+                                        {% else %}
+                                            {{ material.instrument_code }}
+                                        {% endif %}
+                                    </td>
+
+                                </tr>
+
+
+                            {% endfor %}
+                        </div>
+                        </tbody>
+                    </table>
+                    <br>
+
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block script %}
+    <script>
+        function searchFunc() {
+
+            input = document.getElementById("search");
+            filter = input.value.toUpperCase();
+
+            materials_list = document.getElementById('materials_list');
+            tr = materials_list.getElementsByTagName('tr');
+
+            for (i = 0; i < tr.length; i++) {
+                td = tr[i].getElementsByTagName("td")[0];
+                txtValue = td.textContent || td.innerText;
+                if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                    tr[i].style.display = "";
+                } else {
+                    tr[i].style.display = "none";
+                }
+
+            }
+        }
+    </script>
+{% endblock %}

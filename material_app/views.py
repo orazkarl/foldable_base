@@ -293,7 +293,8 @@ class ReleaseMaterialsView(generic.TemplateView):
     def get(self, request, *args, **kwargs):
         self.extra_context = {
             'object': Object.objects.get(contract__slug=self.kwargs['slug']),
-            'relesed_materials': ReleaseMaterial.objects.filter(contract__slug=self.kwargs['slug'], items__material__instrument_code=None)
+            'relesed_materials': ReleaseMaterial.objects.filter(contract__slug=self.kwargs['slug'],
+                                                                items__material__instrument_code=None)
         }
         return super().get(request, *args, **kwargs)
 
@@ -422,7 +423,9 @@ class InstrumentMateriralView(generic.TemplateView):
 
     def get(self, request, *args, **kwargs):
         contstruct_object = Object.objects.get(slug=self.kwargs['slug'])
-        materials = Material.objects.filter(is_delivery=True, invoice__is_done=True, invoice__request_mat__contract__contstruct_object=contstruct_object).filter(~Q(instrument_code=None))
+        materials = Material.objects.filter(is_delivery=True, invoice__is_done=True,
+                                            invoice__request_mat__contract__contstruct_object=contstruct_object).filter(
+            ~Q(instrument_code=None))
         self.extra_context = {
             'object': contstruct_object,
             'materials': materials,
@@ -438,3 +441,31 @@ class InstrumentMateriralView(generic.TemplateView):
         }
         return render(request, template_name='appbase/material/store_mateials/release_materials.html',
                       context=context)
+
+
+@method_decorator(login_required(login_url='/accounts/login/'), name='dispatch')
+class GeneralBaseView(generic.TemplateView):
+    template_name = 'appbase/material/store_mateials/general_base.html'
+
+    def get(self, request, *args, **kwargs):
+        contstruct_object = Object.objects.get(slug=self.kwargs['slug'])
+        materials = Material.objects.filter(is_delivery=True, invoice__is_done=True)
+        self.extra_context = {
+            'object': contstruct_object,
+            'materials': materials,
+        }
+        return super().get(request, *args, **kwargs)
+
+
+@method_decorator(login_required(login_url='/accounts/login/'), name='dispatch')
+class RemainderMaterialsView(generic.TemplateView):
+    template_name = 'appbase/material/store_mateials/remainder_materials.html'
+
+    def get(self, request, *args, **kwargs):
+        contstruct_object = Object.objects.get(slug=self.kwargs['slug'])
+        materials = Material.objects.filter(is_delivery=True, invoice__is_done=True, invoice__request_mat__contract__status='2')
+        self.extra_context = {
+            'object': contstruct_object,
+            'materials': materials,
+        }
+        return super().get(request, *args, **kwargs)
