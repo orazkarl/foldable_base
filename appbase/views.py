@@ -418,7 +418,6 @@ def api_telegram_response(request):
             status = 'нет'
         elif response == 'then':
             status = 'потом'
-        print(status)
         invoice.status = status
         invoice.save()
         message += 'Ответ: ' + status

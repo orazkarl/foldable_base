@@ -41,12 +41,14 @@ INSTALLED_APPS = [
     'appbase.apps.AppbaseConfig',
     'user_auth.apps.UserAuthConfig',
     'material_app.apps.MaterialAppConfig',
-
+    'analytics_app.apps.AnalyticsAppConfig',
+    
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
 
     'mathfilters',
+    'django_filters',
 ]
 
 MIDDLEWARE = [
