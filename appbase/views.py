@@ -35,6 +35,9 @@ class ObjectDetailView(generic.TemplateView):
 
     def get(self, request, *args, **kwargs):
         object_slug = self.kwargs['slug']
+        if request.user.role == 'accountant':
+            return redirect('/invoice_for_payment/' + object_slug)
+
         pk = self.kwargs['pk']
         contracts = Contract.objects.filter(contstruct_object__slug=object_slug, status=str(pk))
 
@@ -53,6 +56,8 @@ class ContractDetailView(generic.TemplateView):
     # queryset = Material.objects.all()
 
     def get(self, request, *args, **kwargs):
+        if request.user.role == 'accountant':
+            return render(request, template_name='404.html')
         contract_slug = self.kwargs['slug']
         contract = Contract.objects.get(slug=contract_slug)
 
@@ -70,13 +75,14 @@ class ContractAddView(generic.TemplateView):
     template_name = 'appbase/contract/add.html'
 
     def get(self, request, *args, **kwargs):
+        if request.user.role == 'accountant' or request.user.role == 'manager':
+            return render(request, template_name='404.html')
         self.extra_context = {
             'object': Object.objects.get(slug=self.kwargs['slug']),
         }
         return super().get(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
-
         object_id = request.POST['object']
         name = request.POST['name']
         contractor = request.POST['contractor']
@@ -101,6 +107,8 @@ class ContractEditView(generic.TemplateView):
     template_name = 'appbase/contract/edit.html'
 
     def get(self, request, *args, **kwargs):
+        if request.user.role == 'accountant' or request.user.role == 'manager':
+            return render(request, template_name='404.html')
         contract_slug = self.kwargs['slug']
 
         contract = Contract.objects.get(slug=contract_slug)
@@ -147,6 +155,8 @@ class RequestAddView(generic.TemplateView):
     template_name = 'appbase/contract/request/add.html'
 
     def get(self, request, *args, **kwargs):
+        if request.user.role == 'accountant':
+            return render(request, template_name='404.html')
         contract = Contract.objects.get(slug=self.kwargs['slug'])
         self.extra_context = {
             'contract': contract,
@@ -158,8 +168,14 @@ class RequestAddView(generic.TemplateView):
         contract = Contract.objects.get(id=request.POST['contract'])
         name = request.POST['name']
         file = request.FILES['request']
-
+        message = '🔔🔔🔔🔔🔔🔔🔔🔔🔔🔔🔔🔔🔔🔔🔔🔔\n'
+        message += 'Новая заявка!\n'
+        message += 'Работа: ' + contract.name + '\n'
+        bot1.send_message(channel_id, text=message)
+        bot1.send_document(channel_id, file)
         RequestForMaterial.objects.create(contract=contract, name=name, file=file, is_done=False)
+
+
         return redirect('/contract/detail/' + contract.slug)
 
 
@@ -168,6 +184,8 @@ class RequestEditView(generic.TemplateView):
     template_name = 'appbase/contract/request/edit.html'
 
     def get(self, request, *args, **kwargs):
+        if request.user.role == 'accountant':
+            return render(request, template_name='404.html')
         request_mat = RequestForMaterial.objects.get(id=self.kwargs['id'])
         self.extra_context = {
             'request_mat': request_mat,
@@ -200,6 +218,8 @@ class RequestDetailView(generic.TemplateView):
     template_name = 'appbase/contract/request/detail.html'
 
     def get(self, request, *args, **kwargs):
+        if request.user.role == 'accountant':
+            return render(request, template_name='404.html')
         request_mat = RequestForMaterial.objects.get(id=self.kwargs['id'])
 
         if all(invoice.is_done == True for invoice in request_mat.invoice.all()) and list(
@@ -219,6 +239,8 @@ class InvoiceAddView(generic.TemplateView):
     template_name = 'appbase/contract/request/invoice/add.html'
 
     def get(self, request, *args, **kwargs):
+        if request.user.role == 'accountant' or request.user.role == 'manager':
+            return render(request, template_name='404.html')
         request_mat = RequestForMaterial.objects.get(id=self.kwargs['id'])
         self.extra_context = {
             'request_mat': request_mat,
@@ -253,6 +275,8 @@ class InvoiceEditView(generic.TemplateView):
     template_name = 'appbase/contract/request/invoice/edit.html'
 
     def get(self, request, *args, **kwargs):
+        if request.user.role == 'accountant' or request.user.role == 'manager':
+            return render(request, template_name='404.html')
         invoice = InvoiceForPayment.objects.get(id=int(self.kwargs['id']))
 
         self.extra_context = {
@@ -282,6 +306,8 @@ class InvoiceEditView(generic.TemplateView):
 
 @login_required(login_url='/accounts/login/')
 def invoice_delete(request):
+    if request.user.role == 'accountant' or request.user.role == 'manager':
+        return render(request, template_name='404.html')
     invoice = InvoiceForPayment.objects.get(id=request.POST['id'])
     red = '/request/detail/' + str(invoice.request_mat.id)
     invoice.delete()
@@ -294,6 +320,8 @@ class InvoiceForPaymentView(generic.TemplateView):
     template_name = 'appbase/invoices.html'
 
     def get(self, request, *args, **kwargs):
+        if request.user.role == 'manager' or request.user.role == 'purchaser':
+            return render(request, template_name='404.html')
         con_object = Object.objects.get(slug=self.kwargs['slug'])
         invoices = InvoiceForPayment.objects.filter(status='да', request_mat__contract__contstruct_object=con_object)
 
@@ -342,6 +370,8 @@ bot = telebot.TeleBot(token)
 
 
 def send_telegram(request):
+    if request.user.role == 'accountant' or request.user.role == 'manager':
+        return render(request, template_name='404.html')
     keyboard = types.InlineKeyboardMarkup()  # наша клавиатура
     key_yes = types.InlineKeyboardButton(text='Да', callback_data='yes')  # кнопка «Да»
     keyboard.add(key_yes)  # добавляем кнопку в клавиатуру
@@ -371,6 +401,8 @@ def send_telegram(request):
 
 
 def api_telegram_response(request):
+    if request.user.role == 'accountant' or request.user.role == 'manager':
+        return render(request, template_name='404.html')
     message = '🔔🔔🔔🔔🔔🔔🔔🔔🔔🔔🔔🔔🔔🔔🔔🔔\n'
     message += 'Счет на оплату!' + '\n'
     bot = telebot.TeleBot(general_bot_token)

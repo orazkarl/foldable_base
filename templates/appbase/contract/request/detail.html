@@ -66,7 +66,7 @@
                                     <td>Счет обработан</td>
                                 {% else %}
                                     {% if request.user.role == 'admin' or request.user.role == 'purchaser' %}
-                                        {% if invoice.status == 'да' %}
+                                        {% if invoice.status == 'да' and invoice.is_paid %}
                                             <td>
                                                 <a href="{% url 'add_material' invoice.id %}" class="btn btn-success">Загрузить
                                                     материалы</a>
