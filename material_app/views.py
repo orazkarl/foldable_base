@@ -71,6 +71,7 @@ class AddMaterialView(generic.TemplateView):
             if instriment_code == 1:
                 instriment_code = 'I' + object_slug + '-' + str(datetime.datetime.now().year) + '-'
                 material.instrument_code = instriment_code + str(material.id)
+                material.is_instrument = True
             material.save()
 
         return redirect('/request/detail/' + str(invoice.request_mat.id))
@@ -373,7 +374,6 @@ class ReturnReleaseMaterialsView(generic.TemplateView):
 
         except:
             return HttpResponse('Ошибка')
-        print(release_mat.items.all()[0].material.instrument_code)
         if release_mat.items.all()[0].material.instrument_code == None:
             return redirect('/contract/' + contract.slug + '/relesed_materials')
         else:

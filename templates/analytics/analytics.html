@@ -20,12 +20,22 @@
             </div>
             <div class="card-body p-0 table-border-style">
                 <div class="table-responsive">
-                    <div style="margin: 10px" class="col-md-6">
+                    <div style="margin: 20px">
                         <div class="" style="display: inline-flex">
-                            Фильтр
-                            <form method="get">
-                                {{ filter.form.as_p }}
-                                <input type="submit">
+
+                            <form method="get" style="">
+                                {#                                {{ filter.form.as_p }}#}
+                                <div class="row">
+
+                                    {% for field in filter.form %}
+                                        <div class="col-sm-4">
+                                            <label for="{{ field.id }}">{{ field.label_tag }}</label> {{ field }}
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                                <br>
+                                <input type="submit" value="Фильтр" class="btn btn-primary">
+                                <a href="{% url 'analytics' object.slug %}" class="btn btn-danger">Сброс</a>
                             </form>
                         </div>
                     </div>
@@ -38,7 +48,7 @@
                             <th>Статус работы</th>
                             <th>Заявка обработана?</th>
                             <th>Количество</th>
-                            <th>Ушли</th>
+                            <th>Отпущено</th>
                             <th>Остаток</th>
                             <th>ед. изм.</th>
                             <th>Код инструмента</th>
@@ -73,51 +83,30 @@
                                             {{ material.instrument_code }}
                                         {% endif %}
                                     </td>
-                                        <td>{{ material.price }}</td>
-                                <td>{{ material.sum_price }}</td>
+                                    <td>{{ material.price }}</td>
+                                    <td>{{ material.sum_price }}</td>
                                 </tr>
 
 
                             {% endfor %}
+                            <tr>
+                                <th scope="row">Итого:</th>
+                                <td>{{ filter.qs.count }}</td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td>Сумма</td>
+                            </tr>
                         </div>
                         </tbody>
                     </table>
-                    <br>
-                    <div style="display: none" id="action_div">
-                        <div class="row">
 
-                            <div style="margin: 10px 0 10px 10px" class="col-md-12">
-                                <input type="checkbox" class="form-radio" style="height: 18px; width: 18px;"
-                                       oninput="funcSubmit();" id="myCheckbox">
-                                <label for="myCheckbox"><h3>Отпустить</h3></label>
-                                <div style="display:none " id="submit_release">
-                                    <h3>ФИО: <span style="text-decoration: underline">{{ request.user }}</span>
-                                    </h3>
-                                    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
-                                        tempor
-                                        incididunt ut labore et dolore magna aliqua.</p>
-                                    <button type="submit" name="submit" class="btn btn-primary"
-                                            value="delivered">
-                                        Подтвердить
-                                    </button>
-                                </div>
-
-                            </div>
-                            {#                                <div style="margin: 10px 0 10px 10px" class="col-md-3">#}
-                            {#                                    <button type="submit" name="submit" class="btn btn-danger" value="marriage">#}
-                            {#                                        Брак#}
-                            {#                                    </button>#}
-                            {#                                </div>#}
-                            {#                                <div style="margin: 10px 0 10px 10px" class="col-md-3">#}
-                            {##}
-                            {#                                    <button type="submit" name="submit" class="btn btn-success" value="return">#}
-                            {#                                        Возврат#}
-                            {#                                    </button>#}
-                            {#                                </div>#}
-                        </div>
-                    </div>
-
-                    </form>
 
                 </div>
             </div>
