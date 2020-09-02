@@ -1,0 +1,177 @@
+{% extends 'appbase/base.html' %}
+{% load static %}
+{% load mathfilters %}
+{% block content %}
+
+    {#    <div class="container-fluid">#}
+    {#        <div class="card">#}
+    {#            <div class="card-header d-block">#}
+    {#                <br>#}
+    {#                <br>#}
+    {#                    <div class="row">#}
+    {#                        <div class="col-md-9">#}
+    {#                            <h2>Общая статистика</h2>#}
+    {#                            <p>Объект: {{ object.name }}</p>#}
+    {#                        </div>#}
+    {#                    </div>#}
+    {##}
+    {##}
+    {#            </div>#}
+    {#            <div class="card-body p-0 table-border-style">#}
+    {#                <div class="table-responsive">#}
+    {#                    <div style="margin: 20px">#}
+    {#                        <div>#}
+    {#                            <form method="get" style="">#}
+    {#                                {{ filter.form.as_p }}#}
+    {#                                <div class="row">#}
+    {##}
+    {#                                    {% for field in filter.form %}#}
+    {#                                        <div class="col-sm-4">#}
+    {#                                            <label for="{{ field.id }}">{{ field.label_tag }}</label> {{ field }}#}
+    {#                                        </div>#}
+    {#                                    {% endfor %}#}
+    {#                                </div>#}
+    {#                                <br>#}
+    {#                                <input type="submit" value="Фильтр" class="btn btn-primary">#}
+    {#                                <a href="{% url 'analytics' object.slug %}" class="btn btn-danger">Сброс</a>#}
+    {#                            </form>#}
+    {##}
+    {#                        </div>#}
+    {#                        <br>#}
+    {#                        <div class="" style="display: inline-flex">#}
+    {#                            <input type="search" id="search" class="form-control" placeholder="Поиск"#}
+    {#                                   style="border-radius: 0; width: 230px" onkeyup="searchFunc()">#}
+    {#                            <button class="btn-lg btn-success" style="border-radius: 0"><i class="ik ik-search"></i>#}
+    {#                            </button>#}
+    {#                        </div>#}
+    {##}
+    {#                    </div>#}
+    {##}
+    {#                    <table class="table" style="font-size:15px">#}
+    {#                        <thead>#}
+    {#                        <tr>#}
+    {#                            <th>#</th>#}
+    {#                            <th>Название</th>#}
+    {#                            <th>Работа</th>#}
+    {#                            <th>Статус работы</th>#}
+    {#                            <th>Заявка обработана?</th>#}
+    {#                            <th>Количество</th>#}
+    {#                            <th>Отпущено</th>#}
+    {#                            <th>Отпущено (период)</th>#}
+    {#                            <th>Остаток</th>#}
+    {#                            <th>ед. изм.</th>#}
+    {#                            <th>Код инструмента</th>#}
+    {#                            <th>Наличный?</th>#}
+    {#                            <th>Цена</th>#}
+    {#                            <th>Сумма</th>#}
+    {##}
+    {#                        </tr>#}
+    {#                        </thead>#}
+    {#                        <tbody id="materials_list">#}
+    {##}
+    {#                        <div>#}
+    {##}
+    {#                            {% for material in filter.qs %}#}
+    {#                                <tr>#}
+    {#                                    <th scope="row">{{ forloop.counter }}</th>#}
+    {#                                    <td>{{ material.name }}</td>#}
+    {#                                    <td>{{ material.invoice.request_mat.contract.name }}</td>#}
+    {#                                    <td>{{ material.invoice.request_mat.contract.get_status_display }}</td>#}
+    {#                                    <td>{% if material.invoice.request_mat.is_done %}#}
+    {#                                        Да#}
+    {#                                    {% else %}#}
+    {#                                        Нет#}
+    {#                                    {% endif %}#}
+    {#                                    </td>#}
+    {#                                    <td>{{ material.quantity }}</td>#}
+    {#                                    <td>{{ material.release_count }}</td>#}
+    {#                                    <td></td>#}
+    {#                                    <td>{{ material.quantity|sub:material.release_count }}</td>#}
+    {#                                    <td>{{ material.units }}</td>#}
+    {#                                    <td>#}
+    {#                                        {% if material.instrument_code == None %}#}
+    {#                                            Нет#}
+    {#                                        {% else %}#}
+    {#                                            {{ material.instrument_code }}#}
+    {#                                        {% endif %}#}
+    {#                                    </td>#}
+    {#                                    <td>{% if material.invoice.is_cash %}Да {% else %}Нет{% endif %}</td>#}
+    {#                                    <td>{{ material.price }}</td>#}
+    {#                                    <td>{{ material.sum_price }}</td>#}
+    {#                                </tr>#}
+    {##}
+    {##}
+    {#                            {% endfor %}#}
+    {#                            <tr>#}
+    {#                                <th scope="row">Итого:</th>#}
+    {#                                <th>{{ filter.qs.count }}</th>#}
+    {#                                <td></td>#}
+    {#                                <td></td>#}
+    {#                                <td></td>#}
+    {#                                <td></td>#}
+    {#                                <td></td>#}
+    {#                                <td></td>#}
+    {#                                <td></td>#}
+    {#                                <td></td>#}
+    {#                                <td></td>#}
+    {#                                <td></td>#}
+    {#                                <th scope="row">{{ total_sum_price }}</th>#}
+    {#                            </tr>#}
+    {#                        </div>#}
+    {#                        </tbody>#}
+    {#                    </table>#}
+    {##}
+    {##}
+    {#                </div>#}
+    {#            </div>#}
+    {#        </div>#}
+    {#    </div>#}
+    <div class="container-fluid">
+        <div class="card">
+            <div class="card-header">
+                <div class="row">
+                    <div class="col-md-9">
+                        <h2>Общая статистика</h2>
+                        <p>Объект: {{ object.name }}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body p-0">
+                <div class="row">
+                    <div class="col-lg-3 col-md-6 col-sm-12">
+                        <div class="widget">
+                            <div class="widget-body">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div class="state">
+                                        <h6>Работы</h6>
+                                        <h2>47</h2>
+                                    </div>
+                                    <div class="icon">
+                                        <i class="ik ik-layers"></i>
+                                    </div>
+                                </div>
+                                <br>
+                                <h6>
+                                    <div class="list-group">
+                                        <div class="list-group-item">В работе: 35 </div>
+                                        <div class="list-group-item">Выполнено: 7 </div>
+                                        <div class="list-group-item">Невыполнено: 2 </div>
+                                        <div class="list-group-item">Проверка: 3 </div>
+                                    </div>
+                                </h6>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+
+        </div>
+
+    </div>
+{% endblock %}
+
+<div class="page-wrap">
+
+

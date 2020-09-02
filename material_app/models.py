@@ -50,8 +50,7 @@ class ReleaseMaterial(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, verbose_name='Пользователь')
     release_date = models.DateTimeField('Когда отпустил?', auto_now_add=True)
     # return_date = models.DateTimeField('Когда принял обратно?', null=True, blank=True)
-    contract = models.ForeignKey(Contract, on_delete=models.CASCADE, related_name='realeas_material',
-                                 verbose_name='Работа')
+    contract = models.ForeignKey(Contract, on_delete=models.CASCADE, related_name='realeas_material',verbose_name='Работа')
     release_waybill = models.FileField(upload_to='waybill/', null=True, blank=True)
     final_waybill = models.FileField(upload_to='waybill/', null=True, blank=True)
     is_done = models.BooleanField('Обработан?', default=False)

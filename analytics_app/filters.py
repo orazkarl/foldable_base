@@ -18,8 +18,10 @@ class MaterialFilter(django_filters.FilterSet):
     units = django_filters.ChoiceFilter('units', label='ед. изм.', choices=[],
                                         widget=forms.Select(attrs={'class': 'form-control', 'placeholder': 'ед. изм.'}))
     instrument = django_filters.BooleanFilter('is_instrument', label='Инструмент?', widget=forms.NullBooleanSelect(
-        attrs={'class': 'form-control', 'placeholder': 'Инструмен?'}))
+        attrs={'class': 'form-control', 'placeholder': 'Инструмент?'}))
 
+    is_cash = django_filters.BooleanFilter('invoice__is_cash', label='Наличный?', widget=forms.NullBooleanSelect(
+        attrs={'class': 'form-control', 'placeholder': 'Наличный?'}))
     def __init__(self, *args, **kwargs):
         super(MaterialFilter, self).__init__(*args, **kwargs)
         con_object = self.queryset[0].invoice.request_mat.contract.contstruct_object

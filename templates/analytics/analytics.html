@@ -13,7 +13,10 @@
                         <h2>Аналитика</h2>
                         <p>Объект: {{ object.name }}</p>
                     </div>
-
+                    <div class="col-md-3 inline-group">
+                        <a href="{% url 'total_stats' object.slug %}" class="btn btn-primary">Общая статистика</a>
+                        <a href="" class="btn btn-success">Ход движении</a>
+                    </div>
                 </div>
 
 
@@ -21,8 +24,7 @@
             <div class="card-body p-0 table-border-style">
                 <div class="table-responsive">
                     <div style="margin: 20px">
-                        <div class="" style="display: inline-flex">
-
+                        <div>
                             <form method="get" style="">
                                 {#                                {{ filter.form.as_p }}#}
                                 <div class="row">
@@ -37,9 +39,19 @@
                                 <input type="submit" value="Фильтр" class="btn btn-primary">
                                 <a href="{% url 'analytics' object.slug %}" class="btn btn-danger">Сброс</a>
                             </form>
+
                         </div>
+                        <br>
+                        <div class="" style="display: inline-flex">
+                            <input type="search" id="search" class="form-control" placeholder="Поиск"
+                                   style="border-radius: 0; width: 230px" onkeyup="searchFunc()">
+                            <button class="btn-lg btn-success" style="border-radius: 0"><i class="ik ik-search"></i>
+                            </button>
+                        </div>
+
                     </div>
-                    <table class="table">
+
+                    <table class="table" style="font-size:15px">
                         <thead>
                         <tr>
                             <th>#</th>
@@ -48,10 +60,12 @@
                             <th>Статус работы</th>
                             <th>Заявка обработана?</th>
                             <th>Количество</th>
-                            <th>Отпущено</th>
+                            <th>Отпущено </th>
+{#                            <th>Отпущено (период)</th>#}
                             <th>Остаток</th>
                             <th>ед. изм.</th>
                             <th>Код инструмента</th>
+                            <th>Наличный?</th>
                             <th>Цена</th>
                             <th>Сумма</th>
 
@@ -60,6 +74,7 @@
                         <tbody id="materials_list">
 
                         <div>
+
                             {% for material in filter.qs %}
                                 <tr>
                                     <th scope="row">{{ forloop.counter }}</th>
@@ -74,6 +89,7 @@
                                     </td>
                                     <td>{{ material.quantity }}</td>
                                     <td>{{ material.release_count }}</td>
+{#                                    <td></td>#}
                                     <td>{{ material.quantity|sub:material.release_count }}</td>
                                     <td>{{ material.units }}</td>
                                     <td>
@@ -83,6 +99,7 @@
                                             {{ material.instrument_code }}
                                         {% endif %}
                                     </td>
+                                    <td>{% if material.invoice.is_cash %}Да {% else %}Нет{% endif %}</td>
                                     <td>{{ material.price }}</td>
                                     <td>{{ material.sum_price }}</td>
                                 </tr>
@@ -91,7 +108,7 @@
                             {% endfor %}
                             <tr>
                                 <th scope="row">Итого:</th>
-                                <td>{{ filter.qs.count }}</td>
+                                <th>{{ filter.qs.count }}</th>
                                 <td></td>
                                 <td></td>
                                 <td></td>
@@ -101,7 +118,8 @@
                                 <td></td>
                                 <td></td>
                                 <td></td>
-                                <td>Сумма</td>
+                                <td></td>
+                                <th scope="row">{{ total_sum_price }}</th>
                             </tr>
                         </div>
                         </tbody>
@@ -116,51 +134,6 @@
 {% endblock %}
 
 {% block script %}
-    <script>
-        function myFormInput(n) {
-            var action_div = document.getElementById('action_div');
-            for (i = 1; i <= n; i++) {
-                var mat_checbox = document.getElementById('material_checkbox' + i);
-                console.log(mat_checbox.checked)
-                if (mat_checbox.checked === true) {
-                    action_div.style.display = 'block';
-                    return;
-                } else {
-                    action_div.style.display = 'none';
-                }
-            }
-
-        }
-
-        function checkAll(n) {
-            for (i = 1; i <= n; i++) {
-                var mat_checbox = document.getElementById('material_checkbox' + i);
-                if (mat_checbox.checked === true) {
-                    mat_checbox.checked = false;
-
-                } else {
-                    mat_checbox.checked = true;
-                }
-            }
-        }
-
-        function funcSubmit() {
-            var my_checkbox = document.getElementById('myCheckbox');
-            var submit_release = document.getElementById('submit_release');
-            {#submit_delivery.style.display = 'block';#}
-            if (my_checkbox.checked === true) {
-                submit_release.style.display = 'block';
-            } else {
-                submit_release.style.display = 'none';
-            }
-
-
-        }
-
-
-    </script>
-    <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js"></script>
-
     <script>
         function searchFunc() {
 
@@ -182,36 +155,6 @@
             }
         }
 
-        {#$(function () {#}
-        {##}
-        {#    $('#search').keyup(function () {#}
-        {#        console.log($('#search').val());#}
-        {#        var materials_list = document.getElementById('materials_list').style.display = 'none';#}
-        {#        document#}
-        {#        for (i = 1; i <= {{ materials.count }}; i++) {#}
-        {#            var mat_checbox = document.getElementById('material_checkbox' + i);#}
-        {#            if (mat_checbox.checked === true) {#}
-        {#                mat_checbox.checked = false;#}
-        {##}
-        {#            }#}
-        {#        }#}
-        {#        $.ajax({ #}
-        {#            type: "GET",#}
-        {#            url: "/contract/{{ materials.first.invoice.request_mat.contract.slug }}/materials",#}
-        {#            data: {#}
-        {#                'q': $('#search').val(),#}
-        {#                'csrfmiddlewaretoken': $("input[name=csrfmiddlewaretoken]").val()#}
-        {#            },#}
-        {#            success: searchMatSuccess,#}
-        {#            dataType: 'html'#}
-        {##}
-        {#        });#}
-        {#    });#}
-        {# });#}
-        {##}
-        {#function searchMatSuccess(data, textStatus, jqXHR) {#}
-        {#    console.log(data);#}
-        {#    $('#results_mat').html(data)#}
-        {# } #}
     </script>
 {% endblock %}
+
