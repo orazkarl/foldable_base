@@ -4,15 +4,15 @@ from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from appbase.models import Object, Contract, RequestForMaterial
 from material_app.models import Material, ReleaseMaterial, ReleaseMaterialItem
-from .filters import MaterialFilter
+from .filters import MaterialFilter, ReleaseMaterialFilter
 from django.db.models import Count, Sum
 import datetime
 import pytz
 
+
 @method_decorator(login_required(login_url='/accounts/login/'), name='dispatch')
 class AnalyticsView(generic.ListView):
     template_name = 'analytics/analytics.html'
-    # queryset = Material.objects.filter(is_delivery=True, invoice__is_done=True)
     model = Material
 
     def get_context_data(self, **kwargs):
@@ -63,7 +63,7 @@ class TotalStats(generic.TemplateView):
             contracts = contracts.filter(created_at__gte=start_date_default,
                                          created_at__lte=end_date_default)
             request_mats = request_mats.filter(created_at__gte=start_date_default,
-                                         created_at__lte=end_date_default)
+                                               created_at__lte=end_date_default)
             materials = materials.filter(created_at__gte=start_date_default,
                                          created_at__lte=end_date_default)
 
@@ -73,7 +73,6 @@ class TotalStats(generic.TemplateView):
             check = contracts.filter(status='4')
             is_done_request_mat = request_mats.filter(is_done=True)
             total_sum_price = materials.aggregate(Sum('sum_price'))['sum_price__sum']
-
 
         self.extra_context = {
             'object': Object.objects.get(slug=object_slug),
@@ -89,5 +88,27 @@ class TotalStats(generic.TemplateView):
             'check': check,
             'is_done_request_mat': is_done_request_mat,
 
+        }
+        return super().get(request, *args, **kwargs)
+
+
+@method_decorator(login_required(login_url='/accounts/login/'), name='dispatch')
+class ReleaseMaterialsStats(generic.ListView):
+    template_name = 'analytics/release_mat_stats.html'
+    model = ReleaseMaterial
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        queryset = self.get_queryset()
+        queryset = queryset.filter(contract__contstruct_object__slug=self.kwargs['slug']).order_by('-release_date')
+        self.queryset = queryset
+        release_material_filter = ReleaseMaterialFilter(self.request.GET, queryset=queryset)
+        context['filter'] = release_material_filter
+
+        return context
+    def get(self, request, *args, **kwargs):
+        con_object = Object.objects.get(slug=self.kwargs['slug'])
+        self.extra_context = {
+            'object': con_object,
         }
         return super().get(request, *args, **kwargs)

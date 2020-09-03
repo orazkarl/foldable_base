@@ -10,13 +10,14 @@
                 <br>
                 <div class="row">
                     <div class="col-8">
-                        <h2>Аналитика</h2>
+                        <h2>Ход движении</h2>
                         <p>Объект: {{ object.name }}</p>
+
                     </div>
                     <div class="col-4 inline-group">
-                        <a href="{% url 'total_stats' object.slug %}" class="btn btn-primary">Общая статистика</a>
-                        <a href="{% url 'release_mat_stats' object.slug %}" class="btn btn-success" style="margin: 5px">Ход
-                            движении</a>
+                        {#                        <a href="{% url 'total_stats' object.slug %}" class="btn btn-primary">Общая статистика</a>#}
+                        {#                        <a href="{% url 'release_mat_stats' object.slug %}" class="btn btn-success" style="margin: 5px">Ход#}
+                        {#                            движении</a>#}
                     </div>
                 </div>
             </div>
@@ -36,7 +37,7 @@
                                 </div>
                                 <br>
                                 <input type="submit" value="Фильтр" class="btn btn-primary">
-                                <a href="{% url 'analytics' object.slug %}" class="btn btn-danger">Сброс</a>
+                                                                <a href="{% url 'release_mat_stats' object.slug %}" class="btn btn-danger">Сброс</a>
                             </form>
 
                         </div>
@@ -54,78 +55,76 @@
                         <thead>
                         <tr>
                             <th>#</th>
+                            <th>Дата</th>
                             <th>Название</th>
                             <th>Работа</th>
-                            <th>Статус работы</th>
-                            <th>Заявка обработана?</th>
-                            <th>Количество</th>
+                            <th>Количество (Общее)</th>
+                            {#                            <th>Количество (Были)</th>#}
                             <th>Отпущено</th>
-                            {#                            <th>Отпущено (период)</th>#}
-                            <th>Остаток</th>
+                            <th>Возврат</th>
+                            {#                            <th>Остаток</th>#}
                             <th>ед. изм.</th>
                             <th>Код инструмента</th>
-                            <th>Наличный?</th>
-                            <th>Цена</th>
-                            <th>Сумма</th>
-
+{#                            <th>Цена</th>#}
+{#                            <th>Сумма</th>#}
                         </tr>
                         </thead>
                         <tbody id="materials_list">
-
-                        <div>
-
-                            {% for material in filter.qs %}
+                        {% for release_material in filter.qs %}
+                            <tr>
+                                <th>{{ forloop.counter }}</th>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                            {% for material in release_material.items.all %}
                                 <tr>
-                                    <th scope="row">{{ forloop.counter }}</th>
-                                    <td>{{ material.name }}</td>
-                                    <td>{{ material.invoice.request_mat.contract.name }}</td>
-                                    <td>{{ material.invoice.request_mat.contract.get_status_display }}</td>
-                                    <td>{% if material.invoice.request_mat.is_done %}
-                                        Да
-                                    {% else %}
-                                        Нет
-                                    {% endif %}
-                                    </td>
-                                    <td>{{ material.quantity }}</td>
+                                    <th scope="row"></th>
+                                    <td>{{ release_material.release_date }}</td>
+                                    <td>{{ material.material.name }}</td>
+                                    <td>{{ release_material.contract }}</td>
+                                    <td>{{ material.material.quantity }}</td>
                                     <td>{{ material.release_count }}</td>
-                                    {#                                    <td></td>#}
-                                    <td>{{ material.quantity|sub:material.release_count }}</td>
-                                    <td>{{ material.units }}</td>
+                                    <td>{{ material.return_count }}</td>
+                                    <td>{{ material.material.units }}</td>
                                     <td>
-                                        {% if material.instrument_code == None %}
+                                        {% if material.material.instrument_code == None %}
                                             Нет
                                         {% else %}
-                                            {{ material.instrument_code }}
+                                            {{ material.material.instrument_code }}
                                         {% endif %}
                                     </td>
-                                    <td>{% if material.invoice.is_cash %}Да {% else %}Нет{% endif %}</td>
-                                    <td>{{ material.price }}</td>
-                                    <td>{{ material.sum_price }}</td>
+{#                                    <td>{{ material.material.price }}</td>#}
+
                                 </tr>
 
-
                             {% endfor %}
-                            <tr>
-                                <th scope="row">Итого:</th>
-                                <th>{{ filter.qs.count }}</th>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <th scope="row">{{ total_sum_price }}</th>
-                            </tr>
-                        </div>
+{#                            <tr>#}
+{#                                <td></td>#}
+{#                                <td></td>#}
+{#                                <td></td>#}
+{#                                <td></td>#}
+{#                                <td></td>#}
+{#                                <td></td>#}
+{#                                <td></td>#}
+{#                                <td></td>#}
+{#                                <td></td>#}
+{#                            </tr>#}
+
+                        {% endfor %}
+
+
                         </tbody>
                     </table>
 
 
                 </div>
+
             </div>
         </div>
     </div>
@@ -143,7 +142,7 @@
             tr = materials_list.getElementsByTagName('tr');
 
             for (i = 0; i < tr.length; i++) {
-                td = tr[i].getElementsByTagName("td")[0];
+                td = tr[i].getElementsByTagName("td")[1];
                 txtValue = td.textContent || td.innerText;
                 if (txtValue.toUpperCase().indexOf(filter) > -1) {
                     tr[i].style.display = "";
