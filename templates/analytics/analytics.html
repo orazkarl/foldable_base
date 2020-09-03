@@ -9,13 +9,13 @@
                 <br>
                 <br>
                 <div class="row">
-                    <div class="col-md-9">
+                    <div class="col-8">
                         <h2>Аналитика</h2>
                         <p>Объект: {{ object.name }}</p>
                     </div>
-                    <div class="col-md-3 inline-group">
-                        <a href="{% url 'total_stats' object.slug %}" class="btn btn-primary">Общая статистика</a>
-                        <a href="" class="btn btn-success">Ход движении</a>
+                    <div class="col-4 inline-group">
+                        <a href="{% url 'total_stats' object.slug %}" class="btn btn-primary" >Общая статистика</a>
+                        <a href="" class="btn btn-success" style="margin: 5px">Ход движении</a>
                     </div>
                 </div>
 

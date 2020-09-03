@@ -21,20 +21,20 @@
     {#                <div class="table-responsive">#}
     {#                    <div style="margin: 20px">#}
     {#                        <div>#}
-    {#                            <form method="get" style="">#}
-    {#                                {{ filter.form.as_p }}#}
-    {#                                <div class="row">#}
+    {#                                <form method="get" style="">#}
+    {#                                    {{ filter.form.as_p }}#}
+    {#                                    <div class="row">#}
     {##}
-    {#                                    {% for field in filter.form %}#}
-    {#                                        <div class="col-sm-4">#}
-    {#                                            <label for="{{ field.id }}">{{ field.label_tag }}</label> {{ field }}#}
-    {#                                        </div>#}
-    {#                                    {% endfor %}#}
-    {#                                </div>#}
-    {#                                <br>#}
-    {#                                <input type="submit" value="Фильтр" class="btn btn-primary">#}
-    {#                                <a href="{% url 'analytics' object.slug %}" class="btn btn-danger">Сброс</a>#}
-    {#                            </form>#}
+    {#                                        {% for field in filter.form %}#}
+    {#                                            <div class="col-sm-4">#}
+    {#                                                <label for="{{ field.id }}">{{ field.label_tag }}</label> {{ field }}#}
+    {#                                            </div>#}
+    {#                                        {% endfor %}#}
+    {#                                    </div>#}
+    {#                                    <br>#}
+    {#                                    <input type="submit" value="Фильтр" class="btn btn-primary">#}
+    {#                                    <a href="{% url 'analytics' object.slug %}" class="btn btn-danger">Сброс</a>#}
+    {#                                </form>#}
     {##}
     {#                        </div>#}
     {#                        <br>#}
@@ -135,16 +135,43 @@
                         <p>Объект: {{ object.name }}</p>
                     </div>
                 </div>
+
             </div>
+
             <div class="card-body p-0">
+                <div class="container-fluid">
+                    <form method="get">
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <div class="row">
+                                    <div class="col-sm-6">
+                                        <label>Дата от</label>
+
+                                        <input type="date" class="form-control" name="start_date"
+                                               value="{{ start_date_default|date:"Y-m-d" }}">
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <label>Дата до</label>
+
+                                        <input type="date" class="form-control" name="end_date"
+                                               value="{{ end_date_default|date:"Y-m-d" }}">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <br>
+                        <input type="submit" value="Фильтр" class="btn btn-primary">
+                        <a href="{% url 'total_stats' object.slug %}" class="btn btn-danger">Сброс</a>
+                    </form>
+                </div>
                 <div class="row">
-                    <div class="col-lg-3 col-md-6 col-sm-12">
+                    <div class="col-lg-4 col-md-4 col-sm-12">
                         <div class="widget">
                             <div class="widget-body">
                                 <div class="d-flex justify-content-between align-items-center">
                                     <div class="state">
                                         <h6>Работы</h6>
-                                        <h2>47</h2>
+                                        <h2 id="count">{{ contracts.count }}</h2>
                                     </div>
                                     <div class="icon">
                                         <i class="ik ik-layers"></i>
@@ -153,15 +180,61 @@
                                 <br>
                                 <h6>
                                     <div class="list-group">
-                                        <div class="list-group-item">В работе: 35 </div>
-                                        <div class="list-group-item">Выполнено: 7 </div>
-                                        <div class="list-group-item">Невыполнено: 2 </div>
-                                        <div class="list-group-item">Проверка: 3 </div>
+                                        <div class="list-group-item">В работе: <span class="count">{{ in_work.count }}</span></div>
+                                        <div class="list-group-item">Выполнено: {{ finished.count }}</div>
+                                        <div class="list-group-item">Проверка: {{ not_finished.count }}</div>
+                                        <div class="list-group-item">Невыполнено: {{ check.count }}</div>
                                     </div>
                                 </h6>
                             </div>
                         </div>
+                    </div>
+                    <div class="col-lg-4 col-md-4 col-sm-12">
+                        <div class="widget">
+                            <div class="widget-body">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div class="state">
+                                        <h6>Заявки</h6>
+                                        <h2>{{ request_mats.count }}</h2>
+                                    </div>
+                                    <div class="icon">
+                                        <i class="ik ik-clipboard"></i>
+                                    </div>
+                                </div>
+                                <br>
+                                <h6>
+                                    <div class="list-group">
+                                        <div class="list-group-item">Отработанные заявки: {{ is_done_request_mat.count }}</div>
+                                    </div>
+                                </h6>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-md-4 col-sm-12">
+                        <div class="widget">
+                            <div class="widget-body">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div class="state">
+                                        <h6>Материалы</h6>
+                                        <h2>{{ materials.count }}</h2>
+                                    </div>
+                                    <div class="icon">
+                                        <i class="fa fa-warehouse" aria-hidden="true"></i>
+                                    </div>
+                                </div>
+                                <br>
+                                <div class="">
+                                    <div class="state">
+                                        <h6>Сумма</h6>
+                                        <h2>{{ total_sum_price }}₸</h2>
+                                    </div>
+                                    <div class="icon">
+                                        <i class="fa fa-money-bill-alt" aria-hidden="true"></i>
+                                    </div>
+                                </div>
+                            </div>
 
+                        </div>
                     </div>
                 </div>
             </div>
@@ -172,6 +245,21 @@
     </div>
 {% endblock %}
 
-<div class="page-wrap">
+{% block script %}
+    {#    <script src="https://code.jquery.com/jquery-3.5.1.js" integrity="sha256-QWo7LDvxbWT2tbbQ97B53yJnYU3WhH/C8ycbRAkjPDc=" crossorigin="anonymous"></script>#}
+    {#    <script>#}
+    {#        $('.count').each(function () {#}
+    {#            $(this).prop('Counter', 0).animate({#}
+    {#                Counter: $(this).text()#}
+    {#            }, {#}
+    {#                duration: 3000,#}
+    {#                easing: 'swing',#}
+    {#                step: function (now) {#}
+    {#                    $(this).text(Math.ceil(now));#}
+    {#                }#}
+    {#            });#}
+    {#        });#}
+    {#    </script>#}
+{% endblock %}
 
 
