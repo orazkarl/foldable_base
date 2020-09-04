@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, HttpResponse
 from django.views import generic
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
@@ -8,6 +8,7 @@ from .filters import MaterialFilter, ReleaseMaterialFilter
 from django.db.models import Count, Sum
 import datetime
 import pytz
+import csv
 
 
 @method_decorator(login_required(login_url='/accounts/login/'), name='dispatch')
@@ -106,9 +107,45 @@ class ReleaseMaterialsStats(generic.ListView):
         context['filter'] = release_material_filter
 
         return context
+
     def get(self, request, *args, **kwargs):
         con_object = Object.objects.get(slug=self.kwargs['slug'])
         self.extra_context = {
             'object': con_object,
         }
         return super().get(request, *args, **kwargs)
+
+
+def export_analytics(request, slug):
+    if request.POST:
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename="analytics.csv"'
+        response.write(u'\ufeff'.encode('utf8'))
+
+        writer = csv.writer(response)
+        writer.writerow(
+            ['#', 'Название', 'Работа', 'Статус работы', 'Заявка обработана?', 'Количество',
+             'Отпущено', 'Остаток', 'ед. изм.', 'Код инструмента', 'Наличный?', 'Цена', 'Сумма'])
+        count_materirals = int(request.POST['count_materials'])
+
+
+        for i in range(1, count_materirals + 1):
+            request_mat_done = 'Нет'
+            invoice_is_cash = 'Нет'
+
+            material = Material.objects.get(id=int(request.POST['material' + str(i)]))
+            if material.invoice.request_mat.is_done:
+                request_mat_done = 'Да'
+            if material.invoice.is_cash:
+                invoice_is_cash = 'Да'
+            if material.instrument_code == None:
+                material.instrument_code = 'Нет'
+            writer.writerow([str(i), material.name, material.invoice.request_mat.contract.name,
+                             material.invoice.request_mat.contract.get_status_display(),
+                             request_mat_done, material.quantity, material.release_count,
+                             material.quantity - material.release_count, material.units, material.instrument_code,
+                             invoice_is_cash, material.price, material.sum_price])
+        writer.writerow(
+            ['Итого: ' + str(count_materirals), '', '', '', '', '','', '', '', '', '', '', request.POST['total_sum_price']])
+
+        return response

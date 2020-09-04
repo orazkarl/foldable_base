@@ -8,6 +8,7 @@ import datetime
 import requests
 from background_task import background
 
+
 import telebot
 from telebot import types
 
@@ -36,8 +37,9 @@ class ObjectDetailView(generic.TemplateView):
     def get(self, request, *args, **kwargs):
         object_slug = self.kwargs['slug']
 
-
-        if request.user.role == 'accountant' or Object.objects.get(slug=object_slug) not in list(request.user.object.all()):
+        if Object.objects.get(slug=object_slug) not in list(request.user.object.all()):
+            return render(request, '404.html')
+        if request.user.role == 'accountant':
             return redirect('/invoice_for_payment/' + object_slug)
 
         pk = self.kwargs['pk']
@@ -58,10 +60,12 @@ class ContractDetailView(generic.TemplateView):
     # queryset = Material.objects.all()
 
     def get(self, request, *args, **kwargs):
-        if request.user.role == 'accountant' or Object.objects.get(slug=contract.contstruct_object.slug) not in list(request.user.object.all()):
-            return render(request, template_name='404.html')
         contract_slug = self.kwargs['slug']
         contract = Contract.objects.get(slug=contract_slug)
+        if request.user.role == 'accountant' or Object.objects.get(slug=contract.contstruct_object.slug) not in list(request.user.object.all()):
+            return render(request, template_name='404.html')
+
+
 
         self.extra_context = {
             'contract': contract,

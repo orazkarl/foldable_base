@@ -71,60 +71,72 @@
                         </tr>
                         </thead>
                         <tbody id="materials_list">
+                        <form action="{% url 'export_analytics' object.slug %}" method="post">
+                            {% csrf_token %}
+                            <div>
 
-                        <div>
-
-                            {% for material in filter.qs %}
-                                <tr>
-                                    <th scope="row">{{ forloop.counter }}</th>
-                                    <td>{{ material.name }}</td>
-                                    <td>{{ material.invoice.request_mat.contract.name }}</td>
-                                    <td>{{ material.invoice.request_mat.contract.get_status_display }}</td>
-                                    <td>{% if material.invoice.request_mat.is_done %}
-                                        Да
-                                    {% else %}
-                                        Нет
-                                    {% endif %}
-                                    </td>
-                                    <td>{{ material.quantity }}</td>
-                                    <td>{{ material.release_count }}</td>
-                                    {#                                    <td></td>#}
-                                    <td>{{ material.quantity|sub:material.release_count }}</td>
-                                    <td>{{ material.units }}</td>
-                                    <td>
-                                        {% if material.instrument_code == None %}
-                                            Нет
+                                {% for material in filter.qs %}
+                                    <tr>
+                                        <input type="text" name="material{{ forloop.counter }}"
+                                               value="{{ material.id }}" style="display: none">
+                                        <th scope="row">{{ forloop.counter }}</th>
+                                        <td>{{ material.name }}</td>
+                                        <td>{{ material.invoice.request_mat.contract.name }}</td>
+                                        <td>{{ material.invoice.request_mat.contract.get_status_display }}</td>
+                                        <td>{% if material.invoice.request_mat.is_done %}
+                                            Да
                                         {% else %}
-                                            {{ material.instrument_code }}
+                                            Нет
                                         {% endif %}
-                                    </td>
-                                    <td>{% if material.invoice.is_cash %}Да {% else %}Нет{% endif %}</td>
-                                    <td>{{ material.price }}</td>
-                                    <td>{{ material.sum_price }}</td>
+                                        </td>
+                                        <td>{{ material.quantity }}</td>
+                                        <td>{{ material.release_count }}</td>
+                                        {#                                    <td></td>#}
+                                        <td>{{ material.quantity|sub:material.release_count }}</td>
+                                        <td>{{ material.units }}</td>
+                                        <td>
+                                            {% if material.instrument_code == None %}
+                                                Нет
+                                            {% else %}
+                                                {{ material.instrument_code }}
+                                            {% endif %}
+                                        </td>
+                                        <td>{% if material.invoice.is_cash %}Да {% else %}Нет{% endif %}</td>
+                                        <td>{{ material.price }}</td>
+                                        <td>{{ material.sum_price }}</td>
+                                    </tr>
+
+
+                                {% endfor %}
+                                <tr>
+                                    <th scope="row">Итого:</th>
+                                    <th>{{ filter.qs.count }}</th>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <th scope="row">{{ total_sum_price }}</th>
+                                    <input type="text" name="count_materials" value="{{ filter.qs.count }}"
+                                           style="display:none;">
+                                    <input type="text" name="total_sum_price" value="{{ total_sum_price }}"
+                                           style="display: none">
                                 </tr>
+                            </div>
 
-
-                            {% endfor %}
-                            <tr>
-                                <th scope="row">Итого:</th>
-                                <th>{{ filter.qs.count }}</th>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <th scope="row">{{ total_sum_price }}</th>
-                            </tr>
-                        </div>
                         </tbody>
+
                     </table>
-
-
+                    <div class="container-fluid" style="margin-bottom: 15px">
+                        {#                        <a href="{% url 'export_analytics' object.slug %}" class="btn btn-success">Экспорт в Excel</a>#}
+                        <button type="submit" class="btn btn-success">Экспорт в Excel</button>
+                    </div>
+                    </form>
                 </div>
             </div>
         </div>

@@ -21,7 +21,7 @@ class InvoiceForPaymentInline(admin.TabularInline):
     extra = 1
 
 
-@admin.register(Contract)
+# @admin.register(Contract)
 class ContractAdmin(admin.ModelAdmin):
     list_display = ['name']
     prepopulated_fields = {'slug': ('name',)}
@@ -29,8 +29,8 @@ class ContractAdmin(admin.ModelAdmin):
 
 
 
-admin.site.register(InvoiceForPayment)
-admin.site.register(RequestForMaterial)
+# admin.site.register(InvoiceForPayment)
+# admin.site.register(RequestForMaterial)
 
 from allauth.socialaccount.admin import SocialApp, SocialAccount,SocialToken
 from allauth.account.admin import EmailAddress
