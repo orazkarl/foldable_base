@@ -35,7 +35,9 @@ class ObjectDetailView(generic.TemplateView):
 
     def get(self, request, *args, **kwargs):
         object_slug = self.kwargs['slug']
-        if request.user.role == 'accountant':
+
+
+        if request.user.role == 'accountant' or Object.objects.get(slug=object_slug) not in list(request.user.object.all()):
             return redirect('/invoice_for_payment/' + object_slug)
 
         pk = self.kwargs['pk']
@@ -56,7 +58,7 @@ class ContractDetailView(generic.TemplateView):
     # queryset = Material.objects.all()
 
     def get(self, request, *args, **kwargs):
-        if request.user.role == 'accountant':
+        if request.user.role == 'accountant' or Object.objects.get(slug=contract.contstruct_object.slug) not in list(request.user.object.all()):
             return render(request, template_name='404.html')
         contract_slug = self.kwargs['slug']
         contract = Contract.objects.get(slug=contract_slug)
@@ -75,7 +77,7 @@ class ContractAddView(generic.TemplateView):
     template_name = 'appbase/contract/add.html'
 
     def get(self, request, *args, **kwargs):
-        if request.user.role == 'accountant' or request.user.role == 'manager':
+        if request.user.role == 'accountant' or request.user.role == 'manager' or Object.objects.get(slug=self.kwargs['slug']) not in list(request.user.object.all()):
             return render(request, template_name='404.html')
         self.extra_context = {
             'object': Object.objects.get(slug=self.kwargs['slug']),
@@ -107,11 +109,13 @@ class ContractEditView(generic.TemplateView):
     template_name = 'appbase/contract/edit.html'
 
     def get(self, request, *args, **kwargs):
-        if request.user.role == 'accountant' or request.user.role == 'manager':
-            return render(request, template_name='404.html')
         contract_slug = self.kwargs['slug']
-
         contract = Contract.objects.get(slug=contract_slug)
+        if request.user.role == 'accountant' or request.user.role == 'manager' or Object.objects.get(slug=contract.contstruct_object.slug) not in list(request.user.object.all()):
+            return render(request, template_name='404.html')
+
+
+
         self.extra_context = {
             'object': Object.objects.get(slug=contract.contstruct_object.slug),
             'contract': contract
@@ -155,9 +159,10 @@ class RequestAddView(generic.TemplateView):
     template_name = 'appbase/contract/request/add.html'
 
     def get(self, request, *args, **kwargs):
-        if request.user.role == 'accountant':
-            return render(request, template_name='404.html')
         contract = Contract.objects.get(slug=self.kwargs['slug'])
+        if request.user.role == 'accountant' or Object.objects.get(contract=contract) not in list(request.user.object.all()):
+            return render(request, template_name='404.html')
+
         self.extra_context = {
             'contract': contract,
             'object': Object.objects.get(contract=contract)
@@ -184,9 +189,10 @@ class RequestEditView(generic.TemplateView):
     template_name = 'appbase/contract/request/edit.html'
 
     def get(self, request, *args, **kwargs):
-        if request.user.role == 'accountant':
-            return render(request, template_name='404.html')
         request_mat = RequestForMaterial.objects.get(id=self.kwargs['id'])
+        if request.user.role == 'accountant' or Object.objects.get(contract__request=request_mat) not in list(request.user.object.all()):
+            return render(request, template_name='404.html')
+
         self.extra_context = {
             'request_mat': request_mat,
             'object': Object.objects.get(contract__request=request_mat)
@@ -218,9 +224,10 @@ class RequestDetailView(generic.TemplateView):
     template_name = 'appbase/contract/request/detail.html'
 
     def get(self, request, *args, **kwargs):
-        if request.user.role == 'accountant':
-            return render(request, template_name='404.html')
         request_mat = RequestForMaterial.objects.get(id=self.kwargs['id'])
+        if request.user.role == 'accountant' or Object.objects.get(contract__request=request_mat) not in list(request.user.object.all()):
+            return render(request, template_name='404.html')
+
 
         if all(invoice.is_done == True for invoice in request_mat.invoice.all()) and list(
                 request_mat.invoice.all()) != []:
@@ -229,7 +236,7 @@ class RequestDetailView(generic.TemplateView):
 
         self.extra_context = {
             'request_mat': request_mat,
-            'object': Object.objects.get(slug=request_mat.contract.contstruct_object.slug),
+            'object': Object.objects.get(contract__request=request_mat),
         }
         return super().get(request, *args, **kwargs)
 
@@ -239,9 +246,10 @@ class InvoiceAddView(generic.TemplateView):
     template_name = 'appbase/contract/request/invoice/add.html'
 
     def get(self, request, *args, **kwargs):
-        if request.user.role == 'accountant' or request.user.role == 'manager':
-            return render(request, template_name='404.html')
         request_mat = RequestForMaterial.objects.get(id=self.kwargs['id'])
+        if request.user.role == 'accountant' or request.user.role == 'manager' or Object.objects.get(contract__request=request_mat) not in list(request.user.object.all()):
+            return render(request, template_name='404.html')
+
         self.extra_context = {
             'request_mat': request_mat,
             'object': Object.objects.get(contract__request=request_mat)
@@ -275,9 +283,10 @@ class InvoiceEditView(generic.TemplateView):
     template_name = 'appbase/contract/request/invoice/edit.html'
 
     def get(self, request, *args, **kwargs):
-        if request.user.role == 'accountant' or request.user.role == 'manager':
-            return render(request, template_name='404.html')
         invoice = InvoiceForPayment.objects.get(id=int(self.kwargs['id']))
+        if request.user.role == 'accountant' or request.user.role == 'manager' or Object.objects.get(contract__request__invoice=invoice) not in list(request.user.object.all()):
+            return render(request, template_name='404.html')
+
 
         self.extra_context = {
             'invoice': invoice,
@@ -306,9 +315,10 @@ class InvoiceEditView(generic.TemplateView):
 
 @login_required(login_url='/accounts/login/')
 def invoice_delete(request):
-    if request.user.role == 'accountant' or request.user.role == 'manager':
-        return render(request, template_name='404.html')
     invoice = InvoiceForPayment.objects.get(id=request.POST['id'])
+    if request.user.role == 'accountant' or request.user.role == 'manager' or Object.objects.get(contract__request__invoice=invoice) not in list(request.user.object.all()):
+        return render(request, template_name='404.html')
+
     red = '/request/detail/' + str(invoice.request_mat.id)
     invoice.delete()
 
@@ -320,9 +330,10 @@ class InvoiceForPaymentView(generic.TemplateView):
     template_name = 'appbase/invoices.html'
 
     def get(self, request, *args, **kwargs):
-        if request.user.role == 'manager' or request.user.role == 'purchaser':
-            return render(request, template_name='404.html')
         con_object = Object.objects.get(slug=self.kwargs['slug'])
+        if request.user.role == 'manager' or request.user.role == 'purchaser' or con_object not in list(request.user.object.all()):
+            return render(request, template_name='404.html')
+
         invoices = InvoiceForPayment.objects.filter(status='да', request_mat__contract__contstruct_object=con_object)
 
         self.extra_context = {
@@ -370,7 +381,8 @@ bot = telebot.TeleBot(token)
 
 
 def send_telegram(request):
-    if request.user.role == 'accountant' or request.user.role == 'manager':
+    invoice = InvoiceForPayment.objects.get(id=int(request.POST['id']))
+    if request.user.role == 'accountant' or request.user.role == 'manager' or Object.objects.get(contract__request__invoice=invoice) not in list(request.user.object.all()):
         return render(request, template_name='404.html')
     keyboard = types.InlineKeyboardMarkup()  # наша клавиатура
     key_yes = types.InlineKeyboardButton(text='Да', callback_data='yes')  # кнопка «Да»
@@ -380,7 +392,7 @@ def send_telegram(request):
     key_then = types.InlineKeyboardButton(text='Потом', callback_data='then')
     keyboard.add(key_then)
 
-    invoice = InvoiceForPayment.objects.get(id=int(request.POST['id']))
+
     request_mat_file = invoice.request_mat.file
     invoice_file = invoice.file
     msg = '\n\n\n'

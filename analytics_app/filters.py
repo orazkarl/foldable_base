@@ -53,6 +53,11 @@ class ReleaseMaterialFilter(django_filters.FilterSet):
     # instrument = django_filters.BooleanFilter('items__material__is_instrument', label='Инструмент?', widget=forms.NullBooleanSelect(
     #     attrs={'class': 'form-control', 'placeholder': 'Инструмент?'}))
 
+    start_date = django_filters.DateFilter('release_date', lookup_expr='gte', widget=forms.DateInput(
+        attrs={'class': 'form-control', 'placeholder': 'Select a date', 'type': 'date'}), label='Дата от')
+    end_date = django_filters.DateFilter('release_date  ', lookup_expr='lte', widget=forms.DateInput(
+        attrs={'class': 'form-control', 'placeholder': 'Select a date', 'type': 'date'}), label='Дата до')
+
     def __init__(self, *args, **kwargs):
         super(ReleaseMaterialFilter, self).__init__(*args, **kwargs)
         con_object = self.queryset[0].contract.contstruct_object
