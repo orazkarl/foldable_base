@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, HttpResponse
 from django.http import JsonResponse, HttpResponse, FileResponse, HttpResponseRedirect
 from django.views import generic
-from appbase.models import Object, InvoiceForPayment, Contract
+from construction_objects_app.models import ConstructionObject, InvoiceForPayment, Contract
 from .models import Material, ReleaseMaterial, ReleaseMaterialItem
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
@@ -23,14 +23,14 @@ channel_id = '-1001342160485'
 
 @method_decorator(login_required(login_url='/accounts/login/'), name='dispatch')
 class AddMaterialView(generic.TemplateView):
-    template_name = 'appbase/contract/request/invoice/add_material.html'
+    template_name = 'appbase/../templates/construction_objects/contract/request/invoice/add_material.html'
 
     def get(self, request, *args, **kwargs):
-        if request.user.role == 'accountant' or request.user.role == 'purchaser' or Object.objects.get(
+        if request.user.role == 'accountant' or request.user.role == 'purchaser' or ConstructionObject.objects.get(
                 contract__request__invoice__id=self.kwargs['id']) not in list(request.user.object.all()):
             return render(request, template_name='404.html')
         self.extra_context = {
-            'object': Object.objects.get(contract__request__invoice__id=self.kwargs['id']),
+            'object': ConstructionObject.objects.get(contract__request__invoice__id=self.kwargs['id']),
             # 'contract': Contract.objects.get(slug=self.kwargs['slug']),
             # 'request_mat': RequestForMaterial.objects.get(id=self.kwargs['id'])
             'invoice': InvoiceForPayment.objects.get(id=self.kwargs['id'])
@@ -81,10 +81,10 @@ class AddMaterialView(generic.TemplateView):
 
 @method_decorator(login_required(login_url='/accounts/login/'), name='dispatch')
 class PaidMaterailsView(generic.TemplateView):
-    template_name = 'appbase/material/paid_materials/invoices.html'
+    template_name = 'appbase/material/../templates/materials/paid_materials/invoices.html'
 
     def get(self, request, *args, **kwargs):
-        if request.user.role == 'accountant' or request.user.role == 'purchaser' or Object.objects.get(
+        if request.user.role == 'accountant' or request.user.role == 'purchaser' or ConstructionObject.objects.get(
                 slug=self.kwargs['slug']) not in list(request.user.object.all()):
             return render(request, template_name='404.html')
         # materails = Material.objects.filter(request_mat__contract__contstruct_object__slug=self.kwargs['slug'],
@@ -92,7 +92,7 @@ class PaidMaterailsView(generic.TemplateView):
         invoices = InvoiceForPayment.objects.filter(request_mat__contract__contstruct_object__slug=self.kwargs['slug'])
 
         self.extra_context = {
-            'object': Object.objects.get(slug=self.kwargs['slug']),
+            'object': ConstructionObject.objects.get(slug=self.kwargs['slug']),
             'invoices': invoices,
 
             # 'materials': materails
@@ -102,10 +102,10 @@ class PaidMaterailsView(generic.TemplateView):
 
 @method_decorator(login_required(login_url='/accounts/login/'), name='dispatch')
 class InvoicePaidMaterialsView(generic.TemplateView):
-    template_name = 'appbase/material/paid_materials/paid_materials.html'
+    template_name = 'appbase/material/../templates/materials/paid_materials/paid_materials.html'
 
     def get(self, request, *args, **kwargs):
-        if request.user.role == 'accountant' or request.user.role == 'purchaser' or Object.objects.get(
+        if request.user.role == 'accountant' or request.user.role == 'purchaser' or ConstructionObject.objects.get(
                 contract__request__invoice__id=self.kwargs['id']) not in list(request.user.object.all()):
             return render(request, template_name='404.html')
         materials = Material.objects.filter(invoice__id=int(self.kwargs['id'])).filter(~Q(ok=F('quantity')))
@@ -116,21 +116,21 @@ class InvoicePaidMaterialsView(generic.TemplateView):
             invoice.save()
 
         self.extra_context = {
-            'object': Object.objects.get(contract__request__invoice__id=self.kwargs['id']),
+            'object': ConstructionObject.objects.get(contract__request__invoice__id=self.kwargs['id']),
             'materials': materials,
             'invoice': invoice
         }
         return super().get(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
-        if request.user.role == 'accountant' or request.user.role == 'purchaser' or Object.objects.get(
+        if request.user.role == 'accountant' or request.user.role == 'purchaser' or ConstructionObject.objects.get(
                 contract__request__invoice__id=self.kwargs['id']) not in list(request.user.object.all()):
             return render(request, template_name='404.html')
         materials = request.POST.getlist('materials')
         materials = Material.objects.filter(id__in=materials)
         context = {
             'materials': materials,
-            'object': Object.objects.get(contract__request__invoice__id=self.kwargs['id']),
+            'object': ConstructionObject.objects.get(contract__request__invoice__id=self.kwargs['id']),
         }
         if request.POST['submit'] == 'delivered':
             for material in materials:
@@ -140,11 +140,11 @@ class InvoicePaidMaterialsView(generic.TemplateView):
                 material.brak, material.nesotvetsvie, material.nexvatka = 0, 0, 0
                 material.save()
         elif request.POST['submit'] == 'marriage':
-            return render(request, template_name='appbase/material/paid_materials/marriage_materials.html',
+            return render(request, template_name='appbase/material/../templates/materials/paid_materials/marriage_materials.html',
                           context=context)
 
         elif request.POST['submit'] == 'return':
-            return render(request, template_name='appbase/material/paid_materials/return_materials.html',
+            return render(request, template_name='appbase/material/../templates/materials/paid_materials/return_materials.html',
                           context=context)
         return redirect('/objects/invoice/' + str(self.kwargs['id']) + '/materials')
 
@@ -172,7 +172,7 @@ def marriage_materials(request):
             invoice = material.invoice
         if request.POST['comment']:
             message += 'Примечение: ' + request.POST['comment'] + '\n'
-        if request.user.role == 'accountant' or request.user.role == 'purchaser' or Object.objects.get(
+        if request.user.role == 'accountant' or request.user.role == 'purchaser' or ConstructionObject.objects.get(
                 contract__request__invoice=invoice) not in list(request.user.object.all()):
             return render(request, template_name='404.html')
         message += 'БИН: ' + invoice.bin + '\n'
@@ -206,7 +206,7 @@ def return_materials(request):
                 material.quantity) + '\nКоличество возвратных товаров: ' + str(return_mat_count) + '\n\n'
         if request.POST['comment']:
             message += 'Примечение: ' + request.POST['comment']
-        if request.user.role == 'accountant' or request.user.role == 'purchaser' or Object.objects.get(
+        if request.user.role == 'accountant' or request.user.role == 'purchaser' or ConstructionObject.objects.get(
                 contract__request__invoice=invoice) not in list(request.user.object.all()):
             return render(request, template_name='404.html')
         message += 'БИН: ' + str(invoice.bin) + '\n'
@@ -220,15 +220,15 @@ def return_materials(request):
 
 @method_decorator(login_required(login_url='/accounts/login/'), name='dispatch')
 class ContractMaterialsView(generic.TemplateView):
-    template_name = 'appbase/material/store_mateials/contracts.html'
+    template_name = 'appbase/material/../templates/materials/store_mateials/contracts.html'
 
     def get(self, request, *args, **kwargs):
-        if request.user.role == 'accountant' or request.user.role == 'purchaser' or Object.objects.get(
+        if request.user.role == 'accountant' or request.user.role == 'purchaser' or ConstructionObject.objects.get(
                 slug=self.kwargs['slug']) not in list(request.user.object.all()):
             return render(request, template_name='404.html')
         contracts = Contract.objects.filter(contstruct_object__slug=self.kwargs['slug'])
         self.extra_context = {
-            'object': Object.objects.get(slug=self.kwargs['slug']),
+            'object': ConstructionObject.objects.get(slug=self.kwargs['slug']),
             'contracts': contracts
             # 'materials': Material.objects.filter(invoice__request_mat__contract__contstruct_object__slug=self.kwargs['slug'], is_delivery=True)
         }
@@ -237,17 +237,17 @@ class ContractMaterialsView(generic.TemplateView):
 
 @method_decorator(login_required(login_url='/accounts/login/'), name='dispatch')
 class MaterialsView(generic.TemplateView):
-    template_name = 'appbase/material/store_mateials/materials.html'
+    template_name = 'appbase/material/../templates/materials/store_mateials/materials.html'
 
     def get(self, request, *args, **kwargs):
-        if request.user.role == 'accountant' or request.user.role == 'purchaser' or Object.objects.get(
+        if request.user.role == 'accountant' or request.user.role == 'purchaser' or ConstructionObject.objects.get(
                 slug=self.kwargs['slug']) not in list(request.user.object.all()):
             return render(request, template_name='404.html')
         materials = Material.objects.filter(invoice__request_mat__contract__slug=self.kwargs['slug'],
                                             is_delivery=True, invoice__is_done=True, instrument_code=None)
 
         self.extra_context = {
-            'object': Object.objects.get(contract__slug=self.kwargs['slug']),
+            'object': ConstructionObject.objects.get(contract__slug=self.kwargs['slug']),
             'materials': materials,
         }
         return super().get(request, *args, **kwargs)
@@ -259,16 +259,16 @@ class MaterialsView(generic.TemplateView):
             print(material)
         context = {
             'materials': materials,
-            'object': Object.objects.get(contract__slug=self.kwargs['slug']),
+            'object': ConstructionObject.objects.get(contract__slug=self.kwargs['slug']),
         }
-        return render(request, template_name='appbase/material/store_mateials/release_materials.html',
+        return render(request, template_name='appbase/material/../templates/materials/store_mateials/release_materials.html',
                       context=context)
 
 
 def release_materials(request):
     if request.POST:
         contract = Material.objects.get(id=int(request.POST['material1'])).invoice.request_mat.contract
-        if request.user.role == 'accountant' or request.user.role == 'purchaser' or Object.objects.get(
+        if request.user.role == 'accountant' or request.user.role == 'purchaser' or ConstructionObject.objects.get(
                 contract=contract) not in list(request.user.object.all()):
             return render(request, template_name='404.html')
 
@@ -286,8 +286,8 @@ def release_materials(request):
         try:
             indexs = list(range(1, ReleaseMaterialItem.objects.filter(release_material=release_mat).count() + 1))
             context = {
-                'object_name': Object.objects.get(contract=contract).name,
-                'object_address': Object.objects.get(contract=contract).address,
+                'object_name': ConstructionObject.objects.get(contract=contract).name,
+                'object_address': ConstructionObject.objects.get(contract=contract).address,
                 'number_contract': contract.number_contract,
                 'date_contract': contract.date_contract,
                 'date_doc': datetime.datetime.now().strftime("%d-%m-%Y %H:%M"),
@@ -317,13 +317,13 @@ def release_materials(request):
 
 @method_decorator(login_required(login_url='/accounts/login/'), name='dispatch')
 class ReleaseMaterialsView(generic.TemplateView):
-    template_name = 'appbase/material/store_mateials/relesed_materials_list.html'
+    template_name = 'appbase/material/../templates/materials/store_mateials/relesed_materials_list.html'
 
     def get(self, request, *args, **kwargs):
-        if request.user.role == 'accountant' or request.user.role == 'purchaser' or Object.objects.get(contract__slug=self.kwargs['slug']) not in list(request.user.object.all()):
+        if request.user.role == 'accountant' or request.user.role == 'purchaser' or ConstructionObject.objects.get(contract__slug=self.kwargs['slug']) not in list(request.user.object.all()):
             return render(request, template_name='404.html')
         self.extra_context = {
-            'object': Object.objects.get(contract__slug=self.kwargs['slug']),
+            'object': ConstructionObject.objects.get(contract__slug=self.kwargs['slug']),
             'relesed_materials': ReleaseMaterial.objects.filter(contract__slug=self.kwargs['slug'],
                                                                 items__material__instrument_code=None).distinct('id')
         }
@@ -332,7 +332,7 @@ class ReleaseMaterialsView(generic.TemplateView):
 
 @method_decorator(login_required(login_url='/accounts/login/'), name='dispatch')
 class ReturnReleaseMaterialsView(generic.TemplateView):
-    template_name = 'appbase/material/store_mateials/return_release_mat.html'
+    template_name = 'appbase/material/../templates/materials/store_mateials/return_release_mat.html'
 
     def get(self, request, *args, **kwargs):
         release_mat = ReleaseMaterial.objects.get(id=int(self.kwargs['id']))
@@ -363,8 +363,8 @@ class ReturnReleaseMaterialsView(generic.TemplateView):
         try:
             indexs = list(range(1, ReleaseMaterialItem.objects.filter(release_material=release_mat).count() + 1))
             context = {
-                'object_name': Object.objects.get(contract=contract).name,
-                'object_address': Object.objects.get(contract=contract).address,
+                'object_name': ConstructionObject.objects.get(contract=contract).name,
+                'object_address': ConstructionObject.objects.get(contract=contract).address,
                 'number_contract': contract.number_contract,
                 'date_contract': contract.date_contract,
                 'date_doc': datetime.datetime.now().strftime("%d-%m-%Y %H:%M"),
@@ -396,7 +396,7 @@ class ReturnReleaseMaterialsView(generic.TemplateView):
 
 @method_decorator(login_required(login_url='/accounts/login/'), name='dispatch')
 class DetailReleaseMaterialsView(generic.TemplateView):
-    template_name = 'appbase/material/store_mateials/detial_released_mat.html'
+    template_name = 'appbase/material/../templates/materials/store_mateials/detial_released_mat.html'
 
     def get(self, request, *args, **kwargs):
         released_mat = ReleaseMaterial.objects.get(id=int(self.kwargs['id']))
@@ -414,7 +414,7 @@ class DetailReleaseMaterialsView(generic.TemplateView):
 
 @method_decorator(login_required(login_url='/accounts/login/'), name='dispatch')
 class AddReleaseWaybillView(generic.TemplateView):
-    template_name = 'appbase/material/store_mateials/waybill/add_release_waybill.html'
+    template_name = 'appbase/material/../templates/materials/store_mateials/waybill/add_release_waybill.html'
 
     def get(self, request, *args, **kwargs):
         released_mat = ReleaseMaterial.objects.get(id=int(self.kwargs['id']))
@@ -440,7 +440,7 @@ class AddReleaseWaybillView(generic.TemplateView):
 
 @method_decorator(login_required(login_url='/accounts/login/'), name='dispatch')
 class AddFinalWaybillView(generic.TemplateView):
-    template_name = 'appbase/material/store_mateials/waybill/add_final_waybill.html'
+    template_name = 'appbase/material/../templates/materials/store_mateials/waybill/add_final_waybill.html'
 
     def get(self, request, *args, **kwargs):
         released_mat = ReleaseMaterial.objects.get(id=int(self.kwargs['id']))
@@ -466,10 +466,10 @@ class AddFinalWaybillView(generic.TemplateView):
 
 @method_decorator(login_required(login_url='/accounts/login/'), name='dispatch')
 class InstrumentMateriralView(generic.TemplateView):
-    template_name = 'appbase/material/store_mateials/instruments/instruments.html'
+    template_name = 'appbase/material/../templates/materials/store_mateials/instruments/instruments.html'
 
     def get(self, request, *args, **kwargs):
-        contstruct_object = Object.objects.get(slug=self.kwargs['slug'])
+        contstruct_object = ConstructionObject.objects.get(slug=self.kwargs['slug'])
         if request.user.role == 'accountant' or request.user.role == 'purchaser' or contstruct_object not in list(request.user.object.all()):
             return render(request, template_name='404.html')
 
@@ -487,22 +487,22 @@ class InstrumentMateriralView(generic.TemplateView):
         materials = Material.objects.filter(id__in=materials)
         context = {
             'materials': materials,
-            'object': Object.objects.get(slug=self.kwargs['slug']),
+            'object': ConstructionObject.objects.get(slug=self.kwargs['slug']),
         }
-        return render(request, template_name='appbase/material/store_mateials/release_materials.html',
+        return render(request, template_name='appbase/material/../templates/materials/store_mateials/release_materials.html',
                       context=context)
 
 
 @method_decorator(login_required(login_url='/accounts/login/'), name='dispatch')
 class ReleasedInstruments(generic.TemplateView):
-    template_name = 'appbase/material/store_mateials/instruments/released_instruments.html'
+    template_name = 'appbase/material/../templates/materials/store_mateials/instruments/released_instruments.html'
 
     def get(self, request, *args, **kwargs):
-        if request.user.role == 'accountant' or request.user.role == 'purchaser' or Object.objects.get(slug=self.kwargs['slug']) not in list(
+        if request.user.role == 'accountant' or request.user.role == 'purchaser' or ConstructionObject.objects.get(slug=self.kwargs['slug']) not in list(
                 request.user.object.all()):
             return render(request, template_name='404.html')
         self.extra_context = {
-            'object': Object.objects.get(slug=self.kwargs['slug']),
+            'object': ConstructionObject.objects.get(slug=self.kwargs['slug']),
             'relesed_materials': ReleaseMaterial.objects.filter(
                 contract__contstruct_object__slug=self.kwargs['slug']).filter(~Q(items__material__instrument_code=None))
         }
@@ -511,7 +511,7 @@ class ReleasedInstruments(generic.TemplateView):
 
 @method_decorator(login_required(login_url='/accounts/login/'), name='dispatch')
 class GeneralBaseView(generic.TemplateView):
-    template_name = 'appbase/material/store_mateials/general_base.html'
+    template_name = 'appbase/material/../templates/materials/store_mateials/general_base.html'
 
     def get(self, request, *args, **kwargs):
         contstruct_object = Object.objects.get(slug=self.kwargs['slug'])
@@ -529,10 +529,10 @@ class GeneralBaseView(generic.TemplateView):
 
 @method_decorator(login_required(login_url='/accounts/login/'), name='dispatch')
 class RemainderMaterialsView(generic.TemplateView):
-    template_name = 'appbase/material/store_mateials/remainder_materials.html'
+    template_name = 'appbase/material/../templates/materials/store_mateials/remainder_materials.html'
 
     def get(self, request, *args, **kwargs):
-        contstruct_object = Object.objects.get(slug=self.kwargs['slug'])
+        contstruct_object = ConstructionObject.objects.get(slug=self.kwargs['slug'])
         if request.user.role == 'accountant' or request.user.role == 'purchaser' or contstruct_object not in list(
                 request.user.object.all()):
             return render(request, template_name='404.html')

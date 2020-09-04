@@ -38,11 +38,11 @@ INSTALLED_APPS = [
 
     'django.contrib.sites',
 
-    'appbase.apps.AppbaseConfig',
-    'user_auth.apps.UserAuthConfig',
+    'construction_objects_app.apps.AppbaseConfig',
+    'user_auth_app.apps.UserAuthConfig',
     'material_app.apps.MaterialAppConfig',
     'analytics_app.apps.AnalyticsAppConfig',
-    
+
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
@@ -85,14 +85,21 @@ WSGI_APPLICATION = 'foldable_base.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql_psycopg2',
+#         'NAME': 'foldable_base',
+#         'USER': 'admin',
+#         'PASSWORD': '123admin',
+#         'HOST': 'localhost',
+#         'PORT': '',
+#     }
+# }
+
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'foldable_base',
-        'USER': 'admin',
-        'PASSWORD': '123admin',
-        'HOST': 'localhost',
-        'PORT': '',
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     }
 }
 
@@ -141,7 +148,7 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'mediafiles')
 
 SITE_ID = 1
-AUTH_USER_MODEL = 'user_auth.User'
+AUTH_USER_MODEL = 'user_auth_app.User'
 
 AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
@@ -155,6 +162,6 @@ ACCOUNT_LOGOUT_REDIRECT_URL = 'account_login'
 LOGIN_REDIRECT_URL = '/'
 
 ACCOUNT_FORMS = {
-    'login': 'user_auth.forms.CustomLoginForm',
+    'login': 'user_auth_app.forms.CustomLoginForm',
 
 }

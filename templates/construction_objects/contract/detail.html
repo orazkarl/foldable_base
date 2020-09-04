@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+    <div class="container-fluid">
+        <div class="card">
+            <div class="card-header d-block">
+                <a href="/objects/{{ construction_object.slug }}/{{ contract.status }}" class="btn btn-light"><i
+                        class="ik ik-arrow-left"></i>Назад</a>
+                <div class="row">
+                    <div class="col-md-8">
+                        <h2>{{ contract.name }}</h2>
+                        <p>Подрядчик: {{ contract.contractor }}</p>
+                        <p>
+                            Номер договора: {{ contract.number_contract }}
+                            <br>
+                            БИН: {{ contract.bin }}
+                            <br>
+                            Дата договора: {{ contract.date_contract }}
+                            <br>
+                            <a href="{{ contract.contract.url }}" target="_blank" style="color: #4da3ff">Договор</a>
+                        </p>
+                        <p>
+                            Статус: {{ contract.get_status_display }}
+                        </p>
+                    </div>
+                    <div class="col-md-2">
+                        <a href="{% url 'request_add' contract.slug %}" class="btn btn-primary">Новая заявка</a>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body p-0 ">
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Название</th>
+                            <th>Договор</th>
+                            <th>Создан</th>
+                            <th>Изменен</th>
+                            <th></th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for request_for_materiral in requests_for_materirals %}
+                            <tr>
+                                <th scope="row">{{ forloop.counter }}</th>
+                                <td>
+                                    {% if request.user.role == 'admin' or request.user.role == 'purchaser' %}
+                                        <a href="{% url 'request_detail'  request_mat.id %}"
+                                           style="color: #4da3ff">{{ request_for_materiral.name }}</a>
+                                    {% else %}
+                                        {{ request_for_materiral.name }}
+                                    {% endif %}
+                                </td>
+                                <td><a href="{{ request_for_materiral.doc_file.url }}" target="_blank"
+                                       style="color: #4da3ff">посмотреть</a>
+                                </td>
+                                <td>{{ request_for_materiral.created_at }}</td>
+                                <td>{{ request_for_materiral.updated_at }}</td>
+                                <td>{% if request_for_materiral.is_done %}
+                                    Заявка обработана
+                                {% else %}
+                                    <a href="{% url 'request_edit' request_for_materiral.id %}"
+                                       class="btn btn-danger">Изменить</a>
+                                {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

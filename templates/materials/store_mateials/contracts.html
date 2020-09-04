@@ -1,0 +1,53 @@
+{% extends 'appbase/../../base.html' %}
+{% load static %}
+{% block content %}
+
+    <div class="container-fluid">
+        <div class="card">
+            <div class="card-header d-block">
+                <div class="row">
+                    <div class="col-md-10"><h2>Склад</h2></div>
+                    {#                        <div class="col-md-2"><a type="button" href="{% url 'contract_add' object.slug %}" class="btn btn-primary">Добавить работу</a></div>#}
+                </div>
+
+
+            </div>
+            <div class="card-body p-0 " style="margin: 30px">
+
+
+                <div class="row">
+                    <div class="col-md-2 " style="margin-top: 25px"><a class="btn-lg btn-primary "
+                                                                       data-toggle="collapse"
+                                                                       href="#multiCollapseExample1" role="button"
+                                                                       aria-expanded="false"
+                                                                       aria-controls="multiCollapseExample1">Работы</a>
+                    </div>
+                    <div class="col-md-2 " style="margin-top: 25px"><a class="btn-lg btn-primary " style="color: #fff; "
+                                                                       href="{% url 'instruments' object.slug %}">Инструменты</a>
+                    </div>
+                    <div class="col-md-2 " style="margin-top: 25px"><a class="btn-lg btn-primary " style="color: #fff; "
+                                                                       href="{% url 'general_base' object.slug %}">Общий склад</a>
+                    </div>
+                    <div class="col-md-2 " style="margin-top: 25px"><a class="btn-lg btn-primary " style="color: #fff; "
+                                                                       href="{% url 'remainder_materials' object.slug %}">Остаток</a>
+                    </div>
+                </div>
+
+
+                <div class="row">
+                    <div class="col">
+                        <div class="collapse multi-collapse" id="multiCollapseExample1">
+                            {% for contract in contracts %}
+                                <a href="{% url 'contract_list_materials' contract.slug %}" style="color: #4da3ff"><h1>{{ contract.name }}</h1></a>
+                                <hr>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

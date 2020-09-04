@@ -14,14 +14,14 @@
     }
 </style>
 <br>
-{% for object in request.user.object.all %}
+{% for object in request.user.construction_objects.all %}
     {#    <div></div>#}
 
 
     <div style="height: 700px; overflow: hidden; text-align: center; display: block; position: relative">
         {#    <a href="{% url 'object_detail' slug=object.slug pk=1 %}">{{ object.name }}</a>#}
 
-        <a href="{% url 'object_detail' slug=object.slug pk=1 %}">
+        <a href="{% url 'construction_object_detail' slug=object.slug pk=1 %}">
             <h1 style="font: 100px 'Nunito Sans', sans-serif;  text-transform: uppercase;position:absolute; top: 40%; left: 50%; transform: translate(-50%, -50%); background-color: rgba(192,192,192,0.7); border-radius: 15px; padding: 50px">{{ object.name }}</h1>
         </a>
 

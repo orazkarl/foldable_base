@@ -1,0 +1,101 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+
+    <div class="container-fluid">
+        <div class="card">
+            <div class="card-header d-block">
+                <a href="{% url 'contract_detail' request_mat.contract.slug %}"
+                   class="btn btn-light"><i
+                        class="ik ik-arrow-left"></i>Назад</a>
+                <div class="row">
+                    <div class="col-md-10">
+                        <h2>{{ request_mat.name }}</h2>
+                        <p>Файл: <a href="{{ request_mat.file.url }}" target="_blank"
+                                    style="color: #4da3ff">{{ request_mat.file }}</p>
+                        </a>
+                    </div>
+                    <div class="col-md-2">
+                        {% if request.user.role == 'admin' or request.user.role == 'purchaser' %}
+                            {% if request_mat.is_done == False %}
+                                <a href="{% url 'invoice_add' request_mat.id %}" class="btn btn-primary">Новый счет</a>
+                            {% endif %}
+                        {% endif %}
+                    </div>
+                </div>
+
+            </div>
+            <div class="card-body p-0 ">
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Название компании</th>
+                            <th>БИН</th>
+                            <th>Файл</th>
+                            <th>Статус</th>
+                            <th>Оплачено?</th>
+                            <th>Создан</th>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for invoice in request_mat.invoice.all %}
+                            <tr>
+                                <th scope="row">{{ forloop.counter }}</th>
+                                <td>{{ invoice.name_company }}</td>
+                                <td>{{ invoice.bin }}</td>
+
+                                <td><a href="{{ invoice.file.url }}" style="color: #4da3ff"
+                                       target="_blank ">{{ invoice.file }}</a></td>
+                                <td>{{ invoice.status }}</td>
+                                <td>{% if invoice.is_paid %}
+                                    Да
+                                {% else %}
+                                    Нет
+                                {% endif %}
+                                </td>
+                                <td>{{ invoice.created_at }}</td>
+                                {#                                    <td>{{ invoice.updated_at }}</td>#}
+
+                                {% if invoice.is_done %}
+                                    <td>Счет обработан</td>
+                                {% else %}
+                                    {% if request.user.role == 'admin' or request.user.role == 'purchaser' %}
+                                        {% if invoice.status == 'да' and invoice.is_paid %}
+                                            <td>
+                                                <a href="{% url 'add_material' invoice.id %}" class="btn btn-success">Загрузить
+                                                    материалы</a>
+                                            </td>
+                                        {% endif %}
+                                        {% if invoice.is_cash == False %}
+                                            <td>
+                                                <form action="{% url 'send_telegram' %}" method="post">
+                                                    {% csrf_token %}
+                                                    <input type="text" name="id" value="{{ invoice.id }}"
+                                                           style="display: none">
+                                                    <button type="submit" class="btn btn-primary">Отправить в телеграм
+                                                    </button>
+                                                </form>
+                                            </td>
+                                            <td>
+                                                <a href="{% url 'invoice_edit' invoice.id %}"
+                                                   class="btn btn-danger">Изменить</a>
+                                            </td>
+                                        {% endif %}
+                                    {% endif %}
+                                {% endif %}
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

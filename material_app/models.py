@@ -1,5 +1,5 @@
 from django.db import models
-from appbase.models import InvoiceForPayment, Contract
+from construction_objects_app.models import InvoiceForPayment, Contract
 from django.conf import settings
 
 

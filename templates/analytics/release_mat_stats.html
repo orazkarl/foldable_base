@@ -1,4 +1,4 @@
-{% extends 'appbase/base.html' %}
+{% extends 'base.html' %}
 {% load static %}
 {% load mathfilters %}
 {% block content %}
@@ -11,7 +11,7 @@
                 <div class="row">
                     <div class="col-8">
                         <h2>Ход движении</h2>
-                        <p>Объект: {{ object.name }}</p>
+                        <p>Объект: {{ construction_object.name }}</p>
 
                     </div>
                     <div class="col-4 inline-group">
@@ -37,17 +37,17 @@
                                 </div>
                                 <br>
                                 <input type="submit" value="Фильтр" class="btn btn-primary">
-                                                                <a href="{% url 'release_mat_stats' object.slug %}" class="btn btn-danger">Сброс</a>
+                                <a href="{% url 'release_mat_stats' construction_object.slug %}" class="btn btn-danger">Сброс</a>
                             </form>
 
                         </div>
-{#                        <br>#}
-{#                        <div class="" style="display: inline-flex">#}
-{#                            <input type="search" id="search" class="form-control" placeholder="Поиск"#}
-{#                                   style="border-radius: 0; width: 230px" onkeyup="searchFunc()">#}
-{#                            <button class="btn-lg btn-success" style="border-radius: 0"><i class="ik ik-search"></i>#}
-{#                            </button>#}
-{#                        </div>#}
+                        {#                        <br>#}
+                        {#                        <div class="" style="display: inline-flex">#}
+                        {#                            <input type="search" id="search" class="form-control" placeholder="Поиск"#}
+                        {#                                   style="border-radius: 0; width: 230px" onkeyup="searchFunc()">#}
+                        {#                            <button class="btn-lg btn-success" style="border-radius: 0"><i class="ik ik-search"></i>#}
+                        {#                            </button>#}
+                        {#                        </div>#}
 
                     </div>
 
@@ -65,8 +65,8 @@
                             {#                            <th>Остаток</th>#}
                             <th>ед. изм.</th>
                             <th>Код инструмента</th>
-{#                            <th>Цена</th>#}
-{#                            <th>Сумма</th>#}
+                            {#                            <th>Цена</th>#}
+                            {#                            <th>Сумма</th>#}
                         </tr>
                         </thead>
                         <tbody id="materials_list">
@@ -99,22 +99,22 @@
                                             {{ material.material.instrument_code }}
                                         {% endif %}
                                     </td>
-{#                                    <td>{{ material.material.price }}</td>#}
+                                    {#                                    <td>{{ material.material.price }}</td>#}
 
                                 </tr>
 
                             {% endfor %}
-{#                            <tr>#}
-{#                                <td></td>#}
-{#                                <td></td>#}
-{#                                <td></td>#}
-{#                                <td></td>#}
-{#                                <td></td>#}
-{#                                <td></td>#}
-{#                                <td></td>#}
-{#                                <td></td>#}
-{#                                <td></td>#}
-{#                            </tr>#}
+                            {#                            <tr>#}
+                            {#                                <td></td>#}
+                            {#                                <td></td>#}
+                            {#                                <td></td>#}
+                            {#                                <td></td>#}
+                            {#                                <td></td>#}
+                            {#                                <td></td>#}
+                            {#                                <td></td>#}
+                            {#                                <td></td>#}
+                            {#                                <td></td>#}
+                            {#                            </tr>#}
 
                         {% endfor %}
 

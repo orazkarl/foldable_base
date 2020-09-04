@@ -2,7 +2,7 @@ from django.shortcuts import render, HttpResponse
 from django.views import generic
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
-from appbase.models import Object, Contract, RequestForMaterial
+from construction_objects_app.models import ConstructionObject, Contract, RequestForMaterial
 from material_app.models import Material, ReleaseMaterial, ReleaseMaterialItem
 from .filters import MaterialFilter, ReleaseMaterialFilter
 from django.db.models import Count, Sum
@@ -31,7 +31,7 @@ class AnalyticsView(generic.ListView):
     def get(self, request, *args, **kwargs):
         object_slug = self.kwargs['slug']
         self.extra_context = {
-            'object': Object.objects.get(slug=object_slug),
+            'object': ConstructionObject.objects.get(slug=object_slug),
 
             # 'materialFilter': materialFilter,
         }
@@ -76,7 +76,7 @@ class TotalStats(generic.TemplateView):
             total_sum_price = materials.aggregate(Sum('sum_price'))['sum_price__sum']
 
         self.extra_context = {
-            'object': Object.objects.get(slug=object_slug),
+            'object': ConstructionObject.objects.get(slug=object_slug),
             'contracts': contracts,
             'request_mats': request_mats,
             'materials': materials,
@@ -109,7 +109,7 @@ class ReleaseMaterialsStats(generic.ListView):
         return context
 
     def get(self, request, *args, **kwargs):
-        con_object = Object.objects.get(slug=self.kwargs['slug'])
+        con_object = ConstructionObject.objects.get(slug=self.kwargs['slug'])
         self.extra_context = {
             'object': con_object,
         }

@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+        <div class="container-fluid">
+            <div class="card">
+                <div class="card-header d-block">
+                    <a href="/request/detail/{{ invoice.request_mat.id }}" class="btn btn-light"><i
+                        class="ik ik-arrow-left"></i>Назад</a>
+                    <h2>Добавить материалы</h2>
+                </div>
+
+                <div class="card-body">
+                    <form class="forms-sample" action="{% url 'add_material' invoice.id %}" method="post"
+                          enctype="multipart/form-data">
+
+                        <input type="text" name="id" value="{{ invoice.id }}" style="display: none">
+
+                        <div class="form-group">
+                            <label>Материалы</label>
+                            <input type="file" name="file" class="form-control">
+
+                        </div>
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-primary mr-2">Сохранить</button>
+{#                        <button class="btn btn-light">Cancel</button>#}
+
+                    </form>
+                </div>
+            </div>
+        </div>
+
+{% endblock %}

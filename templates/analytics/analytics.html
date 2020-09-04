@@ -1,4 +1,4 @@
-{% extends 'appbase/base.html' %}
+{% extends 'base.html' %}
 {% load static %}
 {% load mathfilters %}
 {% block content %}
@@ -11,11 +11,11 @@
                 <div class="row">
                     <div class="col-8">
                         <h2>Аналитика</h2>
-                        <p>Объект: {{ object.name }}</p>
+                        <p>Объект: {{ construction_object.name }}</p>
                     </div>
                     <div class="col-4 inline-group">
-                        <a href="{% url 'total_stats' object.slug %}" class="btn btn-primary">Общая статистика</a>
-                        <a href="{% url 'release_mat_stats' object.slug %}" class="btn btn-success" style="margin: 5px">Ход
+                        <a href="{% url 'total_stats' construction_object.slug %}" class="btn btn-primary">Общая статистика</a>
+                        <a href="{% url 'release_mat_stats' construction_object.slug %}" class="btn btn-success" style="margin: 5px">Ход
                             движении</a>
                     </div>
                 </div>
@@ -36,7 +36,7 @@
                                 </div>
                                 <br>
                                 <input type="submit" value="Фильтр" class="btn btn-primary">
-                                <a href="{% url 'analytics' object.slug %}" class="btn btn-danger">Сброс</a>
+                                <a href="{% url 'analytics' construction_object.slug %}" class="btn btn-danger">Сброс</a>
                             </form>
 
                         </div>
@@ -71,7 +71,7 @@
                         </tr>
                         </thead>
                         <tbody id="materials_list">
-                        <form action="{% url 'export_analytics' object.slug %}" method="post">
+                        <form action="{% url 'export_analytics' construction_object.slug %}" method="post">
                             {% csrf_token %}
                             <div>
 

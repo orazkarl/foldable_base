@@ -1,0 +1,109 @@
+{% extends 'appbase/../../../base.html' %}
+{% load static %}
+{% load mathfilters %}
+{% block content %}
+
+    <div class="container-fluid">
+        <div class="card">
+            <div class="card-header d-block">
+                <a href="/objects/{{ object.slug }}/instruments" class="btn btn-light"><i
+                        class="ik ik-arrow-left"></i>Назад</a>
+                <br>
+                <br>
+                <div class="row">
+
+                    <div class="col-md-9">
+                        <h2>Отпущенные инструменты</h2>
+                        {#                        <p>Работа: {{ materials.first.invoice.request_mat.contract }}</p>#}
+                    </div>
+
+                </div>
+
+
+            </div>
+            <div class="card-body p-0 table-border-style">
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                        <tr>
+                            <th>#</th>
+                            <th></th>
+                            <th>Когда отпустил?</th>
+                            <th></th>
+                            <th>Накладная отпуск</th>
+                            <th>Накладная возрат</th>
+                            {#                                <th>Осталось</th>#}
+                            {#                                <th>ед. изм.</th>#}
+                            {#                                <th>Код инструмента</th>#}
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for material in relesed_materials.all %}
+                            <tr>
+                                <th scope="row">{{ forloop.counter }}</th>
+                                <td><a href="{% url 'detail_relesed_materials' material.id %}" style="color: #4da3ff">Отпущенные материалы №{{ material.id }}</a></td>
+                                <td>{{ material.release_date }}</td>
+                                <td>{% if material.is_done == False %}<a href="{% url 'return_relesed_materials' material.id %}" style="color: #4da3ff">Возврат</a>{% endif %}</td>
+                                <td><a href="/media/waybill/nakladnaya-{{ material.contract.name }}{{ material.id }}.docx" style="color: #4da3ff" download>Скачать</a></td>
+                                <td>{% if material.is_done %}<a href="/media/waybill/nakladnaya_final-{{ material.contract.name }}{{ material.id }}.docx" style="color: #4da3ff" download>Скачать</a>{% endif %}</td>
+                                {#                                    <td>{{ material.release_count }}</td>#}
+                                {#                                    <td>{{ material.quantity|sub:material.release_count }}</td>#}
+                                {#                                    <td>{{ material.units }}</td>#}
+                                <td>
+                                </td>
+                            </tr>
+                        {% endfor %}
+
+                        </tbody>
+                    </table>
+
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block script %}
+    {#    <script>#}
+    {#        function myFormInput(n) {#}
+    {#            var action_div = document.getElementById('action_div');#}
+    {#            for (i = 1; i <= n; i++) {#}
+    {#                var mat_checbox = document.getElementById('material_checkbox' + i);#}
+    {#                console.log(mat_checbox.checked)#}
+    {#                if (mat_checbox.checked === true) {#}
+    {#                    action_div.style.display = 'block';#}
+    {#                    return;#}
+    {#                } else {#}
+    {#                    action_div.style.display = 'none';#}
+    {#                }#}
+    {#            }#}
+    {##}
+    {#        }#}
+    {##}
+    {#        function checkAll(n) {#}
+    {#            for (i = 1; i <= n; i++) {#}
+    {#                var mat_checbox = document.getElementById('material_checkbox' + i);#}
+    {#                if (mat_checbox.checked === true) {#}
+    {#                    mat_checbox.checked = false;#}
+    {##}
+    {#                } else {#}
+    {#                    mat_checbox.checked = true;#}
+    {#                }#}
+    {#            }#}
+    {#        }#}
+    {##}
+    {#        function funcSubmit() {#}
+    {#            var my_checkbox = document.getElementById('myCheckbox');#}
+    {#            var submit_release = document.getElementById('submit_release');#}
+    {#submit_delivery.style.display = 'block';#}
+    {#            if (my_checkbox.checked === true) {#}
+    {#                submit_release.style.display = 'block';#}
+    {#            } else {#}
+    {#                submit_release.style.display = 'none';#}
+    {#            }#}
+    {##}
+    {#        }#}
+    {#    </script>#}
+{% endblock %}

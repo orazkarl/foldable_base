@@ -1,6 +1,6 @@
 import django_filters
 from material_app.models import Material, ReleaseMaterial
-from appbase.models import Contract
+from construction_objects_app.models import Contract
 
 from django import forms
 
