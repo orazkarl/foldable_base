@@ -4,7 +4,7 @@
     <div class="container-fluid">
         <div class="card">
             <div class="card-header d-block">
-                <a href="/objects/{{ construction_object.slug }}/{{ contract.status }}" class="btn btn-light"><i
+                <a href="/construction_objects/{{ construction_object.slug }}/{{ contract.status }}" class="btn btn-light"><i
                         class="ik ik-arrow-left"></i>Назад</a>
                 <div class="row">
                     <div class="col-md-8">
@@ -24,7 +24,7 @@
                         </p>
                     </div>
                     <div class="col-md-2">
-                        <a href="{% url 'request_add' contract.slug %}" class="btn btn-primary">Новая заявка</a>
+                        <a href="{% url 'request_for_material_add' contract.slug %}" class="btn btn-primary">Новая заявка</a>
                     </div>
                 </div>
             </div>
@@ -47,7 +47,7 @@
                                 <th scope="row">{{ forloop.counter }}</th>
                                 <td>
                                     {% if request.user.role == 'admin' or request.user.role == 'purchaser' %}
-                                        <a href="{% url 'request_detail'  request_mat.id %}"
+                                        <a href="{% url 'request_for_material_detail'  request_mat.id %}"
                                            style="color: #4da3ff">{{ request_for_materiral.name }}</a>
                                     {% else %}
                                         {{ request_for_materiral.name }}
@@ -61,7 +61,7 @@
                                 <td>{% if request_for_materiral.is_done %}
                                     Заявка обработана
                                 {% else %}
-                                    <a href="{% url 'request_edit' request_for_materiral.id %}"
+                                    <a href="{% url 'request_for_material_edit' request_for_materiral.id %}"
                                        class="btn btn-danger">Изменить</a>
                                 {% endif %}
                                 </td>

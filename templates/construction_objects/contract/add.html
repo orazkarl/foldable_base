@@ -4,7 +4,7 @@
         <div class="container-fluid">
             <div class="card">
                 <div class="card-header d-block">
-                    <a href="/objects/{{ construction_object.slug }}/1" class="btn btn-light"><i
+                    <a href="/construction_objects/{{ construction_object.slug }}/1" class="btn btn-light"><i
                             class="ik ik-arrow-left"></i>Назад</a>
 
                     <h2>Добавить работу</h2>
@@ -14,7 +14,7 @@
                     <form class="forms-sample" action="{% url 'contract_add' construction_object.slug %}" method="post"
                           enctype="multipart/form-data">
 
-                        <input type="text" name="object" value="{{ construction_object.id }}" style="display: none">
+                        <input type="text" name="construction_object" value="{{ construction_object.id }}" style="display: none">
                         <div class="form-group">
                             <label for="name">Название</label>
                             <input type="text" class="form-control" id="name" placeholder="Название" name="name">
@@ -26,7 +26,7 @@
                         </div>
                         <div class="form-group">
                             <label>Договор</label>
-                            <input type="file" name="contract" class="form-control">
+                            <input type="file" name="doc_file" class="form-control">
 
                         </div>
                         <div class="form-group">

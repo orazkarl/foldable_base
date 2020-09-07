@@ -5,20 +5,19 @@
     <div class="container-fluid">
         <div class="card">
             <div class="card-header d-block">
-                <a href="{% url 'contract_detail' request_mat.contract.slug %}"
+                <a href="{% url 'contract_detail' request_for_material.contract.slug %}"
                    class="btn btn-light"><i
                         class="ik ik-arrow-left"></i>Назад</a>
                 <div class="row">
                     <div class="col-md-10">
-                        <h2>{{ request_mat.name }}</h2>
-                        <p>Файл: <a href="{{ request_mat.file.url }}" target="_blank"
-                                    style="color: #4da3ff">{{ request_mat.file }}</p>
+                        <h2>{{ request_for_material.name }}</h2>
+                        <p>Файл: <a href="{{ request_for_material.doc_file.url }}" target="_blank" style="color: #4da3ff">{{ request_for_material.doc_file }}</p>
                         </a>
                     </div>
                     <div class="col-md-2">
                         {% if request.user.role == 'admin' or request.user.role == 'purchaser' %}
                             {% if request_mat.is_done == False %}
-                                <a href="{% url 'invoice_add' request_mat.id %}" class="btn btn-primary">Новый счет</a>
+                                <a href="{% url 'invoice_add' request_for_material.id %}" class="btn btn-primary">Новый счет</a>
                             {% endif %}
                         {% endif %}
                     </div>
@@ -44,14 +43,14 @@
                         </tr>
                         </thead>
                         <tbody>
-                        {% for invoice in request_mat.invoice.all %}
+                        {% for invoice in request_for_material.invoice_for_payment.all %}
                             <tr>
                                 <th scope="row">{{ forloop.counter }}</th>
                                 <td>{{ invoice.name_company }}</td>
                                 <td>{{ invoice.bin }}</td>
 
-                                <td><a href="{{ invoice.file.url }}" style="color: #4da3ff"
-                                       target="_blank ">{{ invoice.file }}</a></td>
+                                <td><a href="{{ invoice.doc_file.url }}" style="color: #4da3ff"
+                                       target="_blank ">{{ invoice.doc_file }}</a></td>
                                 <td>{{ invoice.status }}</td>
                                 <td>{% if invoice.is_paid %}
                                     Да

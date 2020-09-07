@@ -5,7 +5,7 @@
     <div class="container-fluid">
         <div class="card">
             <div class="card-header d-block">
-                <a href="/objects/{{ construction_object.slug }}/{{ contract.status }}" class="btn btn-light"><i
+                <a href="/construction_objects/{{ construction_object.slug }}/{{ contract.status }}" class="btn btn-light"><i
                         class="ik ik-arrow-left"></i>Назад</a>
 
                 <h2>Изменить</h2>
@@ -16,7 +16,7 @@
                       method="post"
                       enctype="multipart/form-data">
 
-                    <input type="text" name="object" value="{{ object.id }}" style="display:none;">
+                    <input type="text" name="construction_object" value="{{ construction_object.id }}" style="display:none;">
                     <div class="form-group">
                         <label for="name">Название</label>
                         <input type="text" class="form-control" id="name" placeholder="Название" name="name"
@@ -33,7 +33,7 @@
                         На данный момент: <a href="{{ contract.contract.url }}" download>{{ contract.contract }}</a>
                         <br>
                         Изменить:
-                        <input type="file" name="contract" class="form-control">
+                        <input type="file" name="doc_file" class="form-control">
                     </div>
                     <div class="form-group">
                         <label for="number_contract">Номер договора</label>

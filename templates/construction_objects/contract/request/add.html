@@ -8,8 +8,7 @@
                         class="ik ik-arrow-left"></i>Назад</a><h2>Добавить заявку</h2></div>
 
                 <div class="card-body">
-                    <form class="forms-sample" action="{% url 'request_add' contract.slug %}" method="post"
-                          enctype="multipart/form-data">
+                    <form class="forms-sample" action="{% url 'request_for_material_add' contract.slug %}" method="post" enctype="multipart/form-data">
 
                         <input type="text" name="contract" value="{{ contract.id }}" style="display: none">
                         <div class="form-group">
@@ -18,7 +17,7 @@
                         </div>
                         <div class="form-group">
                             <label>Заявка</label>
-                            <input type="file" name="request" class="form-control">
+                            <input type="file" name="doc_file" class="form-control">
                         </div>
                         {% csrf_token %}
                         <button type="submit" class="btn btn-primary mr-2">Сохранить</button>

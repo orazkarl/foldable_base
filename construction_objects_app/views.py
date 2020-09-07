@@ -5,14 +5,12 @@ from transliterate import slugify
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 import datetime
-import requests
-
 import telebot
 from telebot import types
 
+
 GENERAL_BOT_TOKEN = '1270115367:AAGCRLBP1iSZhpTniwVYQ9p9fqLysY668ew'
 general_bot = telebot.TeleBot(GENERAL_BOT_TOKEN)
-
 
 @method_decorator(login_required(login_url='/accounts/login/'), name='dispatch')
 class HomeView(generic.ListView):
@@ -47,7 +45,8 @@ class ContractDetailView(generic.TemplateView):
         contract = Contract.objects.get(slug=self.kwargs['slug'])
         construction_object = contract.contstruct_object
         requests_for_materirals = RequestForMaterial.objects.filter(contract=contract)
-        if request.user.role == 'accountant' or construction_object not in list(request.user.construction_objects.all()):
+        if request.user.role == 'accountant' or construction_object not in list(
+                request.user.construction_objects.all()):
             return render(request, template_name='404.html')
         self.extra_context = {
             'contract': contract,
@@ -63,7 +62,8 @@ class ContractAddView(generic.TemplateView):
 
     def get(self, request, *args, **kwargs):
         construction_object = ConstructionObject.objects.get(slug=self.kwargs['slug'])
-        if request.user.role == 'accountant' or request.user.role == 'manager' or construction_object not in list(request.user.construction_objects.all()):
+        if request.user.role == 'accountant' or request.user.role == 'manager' or construction_object not in list(
+                request.user.construction_objects.all()):
             return render(request, template_name='404.html')
         self.extra_context = {
             'construction_object': construction_object,
@@ -71,10 +71,10 @@ class ContractAddView(generic.TemplateView):
         return super().get(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
-        object_id = request.POST['object']
+        construction_object_id = request.POST['construction_object']
         name = request.POST['name']
         contractor = request.POST['contractor']
-        contract = request.FILES['contract']
+        doc_file = request.FILES['doc_file']
         number_contract = request.POST['number_contract']
         status = request.POST['status']
         bin = request.POST['bin']
@@ -84,51 +84,50 @@ class ContractAddView(generic.TemplateView):
         else:
             slug = slugify(name)
 
-        Contract.objects.create(contstruct_object_id=object_id, name=name, slug=slug, contract=contract,
+        Contract.objects.create(contstruct_object_id=construction_object_id, name=name, slug=slug,
+                                contract_file=doc_file,
                                 contractor=contractor, number_contract=number_contract, status=status,
                                 date_contract=date_contract, bin=bin)
 
-        return redirect('/objects/' + ConstructionObject.objects.get(id=object_id).slug + '/' + str(status))
+        return redirect(
+            '/objects/' + ConstructionObject.objects.get(id=construction_object_id).slug + '/' + str(status))
 
 
 @method_decorator(login_required(login_url='/accounts/login/'), name='dispatch')
 class ContractEditView(generic.TemplateView):
-    template_name = 'appbase/../templates/construction_objects/contract/edit.html'
+    template_name = 'construction_objects/contract/edit.html'
 
     def get(self, request, *args, **kwargs):
-        contract_slug = self.kwargs['slug']
-        contract = Contract.objects.get(slug=contract_slug)
-        if request.user.role == 'accountant' or request.user.role == 'manager' or ConstructionObject.objects.get(
-                slug=contract.contstruct_object.slug) not in list(request.user.object.all()):
+        construction_object = ConstructionObject.objects.get(contract__slug=self.kwargs['slug'])
+        contract = Contract.objects.get(slug=self.kwargs['slug'])
+        if request.user.role == 'accountant' or request.user.role == 'manager' or construction_object not in list(
+                request.user.construction_objects.all()):
             return render(request, template_name='404.html')
 
         self.extra_context = {
-            'object': ConstructionObject.objects.get(slug=contract.contstruct_object.slug),
+            'construction_object': construction_object,
             'contract': contract
         }
         return super().get(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
-        contract_slug = self.kwargs['slug']
-        contract = Contract.objects.get(slug=contract_slug)
-        object_id = request.POST['object']
+        contract = Contract.objects.get(slug=self.kwargs['slug'])
+        construction_object_id = request.POST['construction_object']
         name = request.POST['name']
-
         contractor = request.POST['contractor']
-
         number_contract = request.POST['number_contract']
         status = request.POST['status']
         bin = request.POST['bin']
         date_contract = request.POST['date_contract']
         slug = slugify(name)
         if request.FILES:
-            contract_file = request.FILES['contract']
+            contract_file = request.FILES['doc_file']
         else:
-            contract_file = contract.contract
+            contract_file = contract.contract_file
 
         contract.name = name
         contract.contract = contractor
-        contract.contract = contract_file
+        contract.contract_file = contract_file
         contract.number_contract = number_contract
         contract.status = status
         contract.bin = bin
@@ -136,118 +135,116 @@ class ContractEditView(generic.TemplateView):
         contract.save()
 
         return redirect(
-            '/objects/' + ConstructionObject.objects.get(id=object_id).slug + '/' + str(status_dict[status]))
+            '/objects/' + ConstructionObject.objects.get(id=construction_object_id).slug + '/' + str(status))
 
 
 @method_decorator(login_required(login_url='/accounts/login/'), name='dispatch')
-class RequestAddView(generic.TemplateView):
-    template_name = 'appbase/../templates/construction_objects/contract/request/add.html'
+class RequestForMaterialAddView(generic.TemplateView):
+    template_name = 'construction_objects/contract/request/add.html'
 
     def get(self, request, *args, **kwargs):
         contract = Contract.objects.get(slug=self.kwargs['slug'])
-        if request.user.role == 'accountant' or ConstructionObject.objects.get(contract=contract) not in list(
-                request.user.object.all()):
+        construction_object = ConstructionObject.objects.get(contract=contract)
+        if request.user.role == 'accountant' or construction_object not in list(
+                request.user.construction_objects.all()):
             return render(request, template_name='404.html')
-
         self.extra_context = {
             'contract': contract,
-            'object': ConstructionObject.objects.get(contract=contract)
+            'construction_object': construction_object,
         }
         return super().get(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
         contract = Contract.objects.get(id=request.POST['contract'])
         name = request.POST['name']
-        file = request.FILES['request']
+        doc_file = request.FILES['doc_file']
         message = '🔔🔔🔔🔔🔔🔔🔔🔔🔔🔔🔔🔔🔔🔔🔔🔔\n'
         message += 'Новая заявка!\n'
         message += 'Работа: ' + contract.name + '\n'
         general_bot.send_message(channel_id, text=message)
-        general_bot.send_document(channel_id, file)
-        RequestForMaterial.objects.create(contract=contract, name=name, file=file, is_done=False)
+        general_bot.send_document(channel_id, doc_file)
+        RequestForMaterial.objects.create(contract=contract, name=name, doc_file=doc_file, is_done=False)
 
         return redirect('/contract/detail/' + contract.slug)
 
 
 @method_decorator(login_required(login_url='/accounts/login/'), name='dispatch')
-class RequestEditView(generic.TemplateView):
-    template_name = 'appbase/../templates/construction_objects/contract/request/edit.html'
+class RequestForMaterialEditView(generic.TemplateView):
+    template_name = 'construction_objects/contract/request/edit.html'
 
     def get(self, request, *args, **kwargs):
-        request_mat = RequestForMaterial.objects.get(id=self.kwargs['id'])
-        if request.user.role == 'accountant' or ConstructionObject.objects.get(
-                contract__request=request_mat) not in list(
-            request.user.object.all()):
+        request_for_material = RequestForMaterial.objects.get(id=self.kwargs['id'])
+        construction_object = ConstructionObject.objects.get(contract__request=request_for_material)
+        if request.user.role == 'accountant' or construction_object not in list(
+                request.user.construction_objects.all()):
             return render(request, template_name='404.html')
 
         self.extra_context = {
-            'request_mat': request_mat,
-            'object': ConstructionObject.objects.get(contract__request=request_mat)
+            'request_for_material': request_for_material,
+            'construction_object': construction_object,
         }
 
         return super().get(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
-        request_mat = RequestForMaterial.objects.get(id=request.POST['id'])
+        request_for_material = RequestForMaterial.objects.get(id=request.POST['id'])
 
-        # contract_slug = self.kwargs['contract_slug']
-        # contract = Contract.objects.get(slug=contract_slug)
-        # object_id = request.POST['object']
         name = request.POST['name']
         if request.FILES:
-            request_mat_file = request.FILES['request']
+            doc_file = request.FILES['doc_file']
         else:
-            request_mat_file = request_mat.file
+            doc_file = request_for_material.doc_file
 
-        request_mat.name = name
-        request_mat.file = request_mat_file
-        request_mat.save()
+        request_for_material.name = name
+        request_for_material.doc_file = doc_file
+        request_for_material.save()
 
-        return redirect('/contract/detail/' + request_mat.contract.slug)
+        return redirect('/contract/detail/' + request_for_material.contract.slug)
 
 
 @method_decorator(login_required(login_url='/accounts/login/'), name='dispatch')
-class RequestDetailView(generic.TemplateView):
-    template_name = 'appbase/../templates/construction_objects/contract/request/detail.html'
+class RequestForMaterialDetailView(generic.TemplateView):
+    template_name = 'construction_objects/contract/request/detail.html'
 
     def get(self, request, *args, **kwargs):
-        request_mat = RequestForMaterial.objects.get(id=self.kwargs['id'])
-        if request.user.role == 'accountant' or ConstructionObject.objects.get(
-                contract__request=request_mat) not in list(
-            request.user.object.all()):
+        request_for_material = RequestForMaterial.objects.get(id=self.kwargs['id'])
+        construction_object = ConstructionObject.objects.get(contract__request_for_material=request_for_material)
+        if request.user.role == 'accountant' or construction_object not in list(
+                request.user.construction_objects.all()):
             return render(request, template_name='404.html')
 
-        if all(invoice.is_done == True for invoice in request_mat.invoice.all()) and list(
-                request_mat.invoice.all()) != []:
-            request_mat.is_done = True
-            request_mat.save()
+        if all(invoice.is_done == True for invoice in request_for_material.invoice_for_payment.all()) and list(
+                request_for_material.invoice.all()) != []:
+            request_for_material.is_done = True
+            request_for_material.save()
 
         self.extra_context = {
-            'request_mat': request_mat,
-            'object': ConstructionObject.objects.get(contract__request=request_mat),
+            'request_for_material': request_for_material,
+            'construction_object': construction_object,
         }
         return super().get(request, *args, **kwargs)
 
 
 @method_decorator(login_required(login_url='/accounts/login/'), name='dispatch')
-class InvoiceAddView(generic.TemplateView):
-    template_name = 'appbase/../templates/construction_objects/contract/request/invoice/add.html'
+class InvoiceForPaymentAddView(generic.TemplateView):
+    template_name = 'construction_objects/contract/request/invoice/add.html'
 
     def get(self, request, *args, **kwargs):
-        request_mat = RequestForMaterial.objects.get(id=self.kwargs['id'])
-        if request.user.role == 'accountant' or request.user.role == 'manager' or ConstructionObject.objects.get(
-                contract__request=request_mat) not in list(request.user.object.all()):
+        request_for_material = RequestForMaterial.objects.get(id=self.kwargs['id'])
+        construction_object = ConstructionObject.objects.get(contract__request_for_material=request_for_material)
+        if request.user.role == 'accountant' or request.user.role == 'manager' or construction_object not in list(
+                request.user.construction_objects.all()):
             return render(request, template_name='404.html')
 
         self.extra_context = {
-            'request_mat': request_mat,
-            'object': ConstructionObject.objects.get(contract__request=request_mat)
+            'request_for_material': request_for_material,
+            'construction_object': construction_object,
         }
         return super().get(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
-        request_mat = RequestForMaterial.objects.get(id=int(request.POST['id']))
-        file = request.FILES['invoice']
+        request_for_material = RequestForMaterial.objects.get(id=int(request.POST['id']))
+        doc_file = request.FILES['doc_file']
         bin = request.POST['bin']
         name_company = request.POST['name']
         comment = request.POST['comment']
@@ -261,35 +258,37 @@ class InvoiceAddView(generic.TemplateView):
             status = 'да'
         else:
             is_cash = False
-        InvoiceForPayment.objects.create(request_mat=request_mat, file=file, bin=bin, name_company=name_company,
-                                         comment=comment, is_cash=is_cash, is_paid=is_paid, is_looked=is_looked,
-                                         status=status)
-        return redirect('/request/detail/' + str(request_mat.id))
+        InvoiceForPayment.objects.create(request_for_material=request_for_material, doc_file=doc_file, bin=bin,
+                                         name_company=name_company, comment=comment, is_cash=is_cash, is_paid=is_paid,
+                                         is_looked=is_looked, status=status)
+        return redirect('/request/detail/' + str(request_for_material.id))
 
 
 @method_decorator(login_required(login_url='/accounts/login/'), name='dispatch')
-class InvoiceEditView(generic.TemplateView):
-    template_name = 'appbase/../templates/construction_objects/contract/request/invoice/edit.html'
+class InvoiceForPaymentEditView(generic.TemplateView):
+    template_name = 'construction_objects/contract/request/invoice/edit.html'
 
     def get(self, request, *args, **kwargs):
         invoice = InvoiceForPayment.objects.get(id=int(self.kwargs['id']))
-        if request.user.role == 'accountant' or request.user.role == 'manager' or ConstructionObject.objects.get(
-                contract__request__invoice=invoice) not in list(request.user.object.all()):
+        construction_object = ConstructionObject.objects.get(
+            contract__request_for_material__invoice_for_payment=invoice)
+        if request.user.role == 'accountant' or request.user.role == 'manager' or construction_object not in list(
+                request.user.construction_objects.all()):
             return render(request, template_name='404.html')
 
         self.extra_context = {
             'invoice': invoice,
-            'object': ConstructionObject.objects.get(contract__request__invoice=invoice)
+            'construction_object': construction_object,
         }
         return super().get(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
         invoice = InvoiceForPayment.objects.get(id=int(request.POST['id']))
         if request.FILES:
-            file = request.FILES['file']
+            doc_file = request.FILES['doc_file']
         else:
-            file = invoice.file
-        invoice.file = file
+            doc_file = invoice.doc_file
+        invoice.doc_file = doc_file
         invoice.bin = request.POST['bin']
         invoice.name_company = request.POST['name']
         invoice.comment = request.POST['comment']
@@ -299,36 +298,36 @@ class InvoiceEditView(generic.TemplateView):
         else:
             invoice.is_cash = False
         invoice.save()
-        return redirect('/request/detail/' + str(invoice.request_mat.id))
+        return redirect('/request/detail/' + str(invoice.request_for_materiral.id))
 
 
 @login_required(login_url='/accounts/login/')
 def invoice_delete(request):
     invoice = InvoiceForPayment.objects.get(id=request.POST['id'])
-    if request.user.role == 'accountant' or request.user.role == 'manager' or ConstructionObject.objects.get(
-            contract__request__invoice=invoice) not in list(request.user.object.all()):
+    construction_object = ConstructionObject.objects.get(contract__request_for_material__invoice_for_payment=invoice)
+    if request.user.role == 'accountant' or request.user.role == 'manager' or construction_object not in list(
+            request.user.construction_objects.all()):
         return render(request, template_name='404.html')
-
     red = '/request/detail/' + str(invoice.request_mat.id)
     invoice.delete()
-
     return redirect(red)
 
 
 @method_decorator(login_required(login_url='/accounts/login/'), name='dispatch')
 class InvoiceForPaymentView(generic.TemplateView):
-    template_name = 'appbase/../templates/construction_objects/invoices.html'
+    template_name = 'construction_objects/invoices.html'
 
     def get(self, request, *args, **kwargs):
-        con_object = ConstructionObject.objects.get(slug=self.kwargs['slug'])
-        if request.user.role == 'manager' or request.user.role == 'purchaser' or con_object not in list(
-                request.user.object.all()):
+        construction_object = ConstructionObject.objects.get(slug=self.kwargs['slug'])
+        if request.user.role == 'manager' or request.user.role == 'purchaser' or construction_object not in list(
+                request.user.construction_objects.all()):
             return render(request, template_name='404.html')
 
-        invoices = InvoiceForPayment.objects.filter(status='да', request_mat__contract__contstruct_object=con_object)
+        invoices = InvoiceForPayment.objects.filter(status='да',
+                                                    request_mat__contract__contstruct_object=construction_object)
 
         self.extra_context = {
-            'object': con_object,
+            'construction_object': construction_object,
             'invoices': invoices,
             'current_date': datetime.datetime.now()
 
@@ -345,7 +344,7 @@ class InvoiceForPaymentView(generic.TemplateView):
             message += 'Счет оплачен!\n'
             message += 'БИН: ' + invoice.bin + '\n'
             general_bot.send_message(channel_id, message)
-            general_bot.send_document(channel_id, invoice.file)
+            general_bot.send_document(channel_id, invoice.doc_file)
             invoice.save()
 
         elif request.POST['submit'] == 'looked':
@@ -358,10 +357,10 @@ class InvoiceForPaymentView(generic.TemplateView):
             message += 'Оплаченный счет отменен!\n'
             message += 'БИН: ' + invoice.bin + '\n'
             general_bot.send_message(channel_id, message)
-            general_bot.send_document(channel_id, invoice.file)
+            general_bot.send_document(channel_id, invoice.doc_file)
             invoice.save()
             invoice.save()
-        return redirect('/invoice_for_payment/' + invoice.request_mat.contract.contstruct_object.slug)
+        return redirect('/invoice_for_payment/' + invoice.request_for_materiral.contract.contstruct_object.slug)
 
 
 token = '1318683651:AAH_fhHdb-PGt9kGhSqEOrVXvak3-jFRljk'
@@ -373,8 +372,9 @@ bot = telebot.TeleBot(token)
 
 def send_telegram(request):
     invoice = InvoiceForPayment.objects.get(id=int(request.POST['id']))
-    if request.user.role == 'accountant' or request.user.role == 'manager' or ConstructionObject.objects.get(
-            contract__request__invoice=invoice) not in list(request.user.object.all()):
+    construction_object = ConstructionObject.objects.get(contract__request_for_material__invoice_for_payment=invoice)
+    if request.user.role == 'accountant' or request.user.role == 'manager' or construction_object not in list(
+            request.user.construction_objects.all()):
         return render(request, template_name='404.html')
     keyboard = types.InlineKeyboardMarkup()  # наша клавиатура
     key_yes = types.InlineKeyboardButton(text='Да', callback_data='yes')  # кнопка «Да»
@@ -384,23 +384,23 @@ def send_telegram(request):
     key_then = types.InlineKeyboardButton(text='Потом', callback_data='then')
     keyboard.add(key_then)
 
-    request_mat_file = invoice.request_mat.file
-    invoice_file = invoice.file
+    request_for_material_file = invoice.request_for_materiral.doc_file
+    invoice_file = invoice.doc_file
     msg = '\n\n\n'
     msg += '🔔🔔🔔🔔🔔🔔🔔🔔🔔🔔🔔🔔🔔🔔🔔🔔\n'
     msg += 'Новый счет!\n'
     bot.send_message('438797738', text=msg)
-    msg = 'Объект: ' + str(invoice.request_mat.contract.contstruct_object) + '\n'
-    msg += 'Работа: ' + str(invoice.request_mat.contract) + '\n'
+    msg = 'Объект: ' + str(invoice.request_for_materiral.contract.contstruct_object) + '\n'
+    msg += 'Работа: ' + str(invoice.request_for_materiral.contract) + '\n'
     msg += 'Текущий статус: ' + str(invoice.status) + '\n'
     bot.send_message('438797738', text=msg)
 
-    bot.send_document('438797738', request_mat_file)
+    bot.send_document('438797738', request_for_material_file)
     bot.send_document('438797738', invoice_file)
     msg = 'ID: ' + str(invoice.id) + '\n'
     bot.send_message('438797738', text=msg, reply_markup=keyboard)
 
-    return redirect('/request/detail/' + str(invoice.request_mat.id))
+    return redirect('/request/detail/' + str(invoice.request_for_materiral.id))
 
 
 def api_telegram_response(request):
@@ -408,7 +408,7 @@ def api_telegram_response(request):
         return render(request, template_name='404.html')
     message = '🔔🔔🔔🔔🔔🔔🔔🔔🔔🔔🔔🔔🔔🔔🔔🔔\n'
     message += 'Счет на оплату!' + '\n'
-    bot = telebot.TeleBot(general_bot_token)
+    bot = telebot.TeleBot(GENERAL_BOT_TOKEN)
 
     if request.GET['token'] == '123':
         response = request.GET['response']
@@ -425,9 +425,7 @@ def api_telegram_response(request):
         invoice.save()
         message += 'Ответ: ' + status
         bot.send_message(channel_id, text=message)
-        bot.send_document(channel_id, invoice.request_mat.file)
-        bot.send_document(channel_id, invoice.file)
+        bot.send_document(channel_id, invoice.request_for_materiral.doc_file)
+        bot.send_document(channel_id, invoice.doc_file)
 
-    # requests.get("https://api.telegram.org/bot%s/sendMessage" % general_bot_token,
-    #              params={'chat_id': '-1001302242759', 'text': message})
     return HttpResponse('ok')

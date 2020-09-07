@@ -53,13 +53,6 @@
                                 <td>{{ contract.get_status_display }}</td>
                                 <td>{{ contract.created_at }}</td>
                                 <td>{{ contract.updated_at }}</td>
-                                {#                                <td>#}
-                                {#                                    <form action="{% url 'contract_delete' object.slug%}" method="post">#}
-                                {#                                        {% csrf_token %}#}
-                                {#                                        <input type="text" name="contract" value="{{ contract.id }}" style="display: none">#}
-                                {#                                        <button class="btn btn-danger" type="submit">Удалить</button>#}
-                                {#                                    </form>#}
-                                {#                                </td>#}
                                 {% if request.user.role == 'admin' or request.user.role == 'purchaser' %}
                                     <td>
                                         <a href="{% url 'contract_edit' contract.slug %}" class="btn btn-danger">
