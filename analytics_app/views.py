@@ -1,11 +1,11 @@
-from django.shortcuts import render, HttpResponse
+from django.shortcuts import HttpResponse
 from django.views import generic
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from construction_objects_app.models import ConstructionObject, Contract, RequestForMaterial
-from material_app.models import Material, ReleaseMaterial, ReleaseMaterialItem
-from .filters import MaterialFilter, ReleaseMaterialFilter
-from django.db.models import Count, Sum
+from material_app.models import Material, ReleasedMaterial
+from .filters import MaterialFilter, ReleasedMaterialFilter
+from django.db.models import Sum
 import datetime
 import pytz
 import csv
@@ -18,7 +18,7 @@ class AnalyticsView(generic.ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        contracts = Contract.objects.filter(contstruct_object__slug=self.kwargs['slug'])
+        # contracts = Contract.objects.filter(contstruct_object__slug=self.kwargs['slug'])
         queryset = self.get_queryset().filter(is_delivery=True, invoice__is_done=True,
                                               invoice__request_mat__contract__contstruct_object__slug=self.kwargs[
                                                   'slug'])
@@ -96,14 +96,14 @@ class TotalStats(generic.TemplateView):
 @method_decorator(login_required(login_url='/accounts/login/'), name='dispatch')
 class ReleaseMaterialsStats(generic.ListView):
     template_name = 'analytics/release_mat_stats.html'
-    model = ReleaseMaterial
+    model = ReleasedMaterial
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         queryset = self.get_queryset()
         queryset = queryset.filter(contract__contstruct_object__slug=self.kwargs['slug']).order_by('-release_date')
         self.queryset = queryset
-        release_material_filter = ReleaseMaterialFilter(self.request.GET, queryset=queryset)
+        release_material_filter = ReleasedMaterialFilter(self.request.GET, queryset=queryset)
         context['filter'] = release_material_filter
 
         return context
@@ -116,7 +116,7 @@ class ReleaseMaterialsStats(generic.ListView):
         return super().get(request, *args, **kwargs)
 
 
-def export_analytics(request, slug):
+def export_analytics(request):
     if request.POST:
         response = HttpResponse(content_type='text/csv')
         response['Content-Disposition'] = 'attachment; filename="analytics.csv"'
@@ -128,7 +128,6 @@ def export_analytics(request, slug):
              'Отпущено', 'Остаток', 'ед. изм.', 'Код инструмента', 'Наличный?', 'Цена', 'Сумма'])
         count_materirals = int(request.POST['count_materials'])
 
-
         for i in range(1, count_materirals + 1):
             request_mat_done = 'Нет'
             invoice_is_cash = 'Нет'
@@ -138,7 +137,7 @@ def export_analytics(request, slug):
                 request_mat_done = 'Да'
             if material.invoice.is_cash:
                 invoice_is_cash = 'Да'
-            if material.instrument_code == None:
+            if material.instrument_code is None:
                 material.instrument_code = 'Нет'
             writer.writerow([str(i), material.name, material.invoice.request_mat.contract.name,
                              material.invoice.request_mat.contract.get_status_display(),
@@ -146,6 +145,7 @@ def export_analytics(request, slug):
                              material.quantity - material.release_count, material.units, material.instrument_code,
                              invoice_is_cash, material.price, material.sum_price])
         writer.writerow(
-            ['Итого: ' + str(count_materirals), '', '', '', '', '','', '', '', '', '', '', request.POST['total_sum_price']])
+            ['Итого: ' + str(count_materirals), '', '', '', '', '', '', '', '', '', '', '',
+             request.POST['total_sum_price']])
 
         return response

@@ -111,11 +111,11 @@
                         {% endif %}
                         {% if request.user.role == 'admin' or request.user.role == 'manager' %}
                             <div class="nav-item">
-                                <a href="/objects/{{ construction_object.slug }}/contract/materials"><i
+                                <a href="/construction_objects/{{ construction_object.slug }}/contract/materials"><i
                                         class="fa fa-warehouse"></i><span>Материалы</span></a>
                             </div>
                             <div class="nav-item">
-                                <a href="/objects/{{ construction_object.slug }}/paid_materials"><i class="ik ik-inbox"></i><span>Оплаченные материалы</span></a>
+                                <a href="/construction_objects/{{ construction_object.slug }}/paid_materials"><i class="ik ik-inbox"></i><span>Оплаченные материалы</span></a>
                             </div>
                         {% endif %}
                         {% if request.user.role == 'admin' or request.user.role == 'accountant' %}
@@ -125,7 +125,7 @@
                         {% endif %}
                         {% if request.user.role == 'admin' %}
                             <div class="nav-item">
-                                <a href="/objects/{{ construction_object.slug }}/analytics"><i class="ik ik-bar-chart-2"></i><span>Аналитика</span></a>
+                                <a href="/construction_objects/{{ construction_object.slug }}/analytics"><i class="ik ik-bar-chart-2"></i><span>Аналитика</span></a>
                             </div>
                         {% endif %}
                         {% if request.user.role == 'admin' or request.user.role == 'purchaser' %}

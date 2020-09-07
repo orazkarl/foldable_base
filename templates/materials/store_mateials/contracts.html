@@ -1,4 +1,4 @@
-{% extends 'appbase/../../base.html' %}
+{% extends 'base.html' %}
 {% load static %}
 {% block content %}
 
@@ -7,7 +7,6 @@
             <div class="card-header d-block">
                 <div class="row">
                     <div class="col-md-10"><h2>Склад</h2></div>
-                    {#                        <div class="col-md-2"><a type="button" href="{% url 'contract_add' object.slug %}" class="btn btn-primary">Добавить работу</a></div>#}
                 </div>
 
 
@@ -23,13 +22,13 @@
                                                                        aria-controls="multiCollapseExample1">Работы</a>
                     </div>
                     <div class="col-md-2 " style="margin-top: 25px"><a class="btn-lg btn-primary " style="color: #fff; "
-                                                                       href="{% url 'instruments' object.slug %}">Инструменты</a>
+                                                                       href="{% url 'instruments' construction_object.slug %}">Инструменты</a>
                     </div>
                     <div class="col-md-2 " style="margin-top: 25px"><a class="btn-lg btn-primary " style="color: #fff; "
-                                                                       href="{% url 'general_base' object.slug %}">Общий склад</a>
+                                                                       href="{% url 'general_base' construction_object.slug %}">Общий склад</a>
                     </div>
                     <div class="col-md-2 " style="margin-top: 25px"><a class="btn-lg btn-primary " style="color: #fff; "
-                                                                       href="{% url 'remainder_materials' object.slug %}">Остаток</a>
+                                                                       href="{% url 'remainder_materials' construction_object.slug %}">Остаток</a>
                     </div>
                 </div>
 

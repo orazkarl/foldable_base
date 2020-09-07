@@ -1,4 +1,4 @@
-{% extends 'appbase/../../../base.html' %}
+{% extends 'base.html' %}
 {% load static %}
 {% load mathfilters %}
 {% block content %}
@@ -6,7 +6,7 @@
     <div class="container-fluid">
         <div class="card">
             <div class="card-header d-block">
-                <a href="/objects/{{ object.slug }}/instruments" class="btn btn-light"><i
+                <a href="/construction_objects/{{ construction_object.slug }}/instruments" class="btn btn-light"><i
                         class="ik ik-arrow-left"></i>Назад</a>
                 <br>
                 <br>
@@ -14,7 +14,6 @@
 
                     <div class="col-md-9">
                         <h2>Отпущенные инструменты</h2>
-                        {#                        <p>Работа: {{ materials.first.invoice.request_mat.contract }}</p>#}
                     </div>
 
                 </div>
@@ -32,9 +31,6 @@
                             <th></th>
                             <th>Накладная отпуск</th>
                             <th>Накладная возрат</th>
-                            {#                                <th>Осталось</th>#}
-                            {#                                <th>ед. изм.</th>#}
-                            {#                                <th>Код инструмента</th>#}
                         </tr>
                         </thead>
                         <tbody>
@@ -46,9 +42,6 @@
                                 <td>{% if material.is_done == False %}<a href="{% url 'return_relesed_materials' material.id %}" style="color: #4da3ff">Возврат</a>{% endif %}</td>
                                 <td><a href="/media/waybill/nakladnaya-{{ material.contract.name }}{{ material.id }}.docx" style="color: #4da3ff" download>Скачать</a></td>
                                 <td>{% if material.is_done %}<a href="/media/waybill/nakladnaya_final-{{ material.contract.name }}{{ material.id }}.docx" style="color: #4da3ff" download>Скачать</a>{% endif %}</td>
-                                {#                                    <td>{{ material.release_count }}</td>#}
-                                {#                                    <td>{{ material.quantity|sub:material.release_count }}</td>#}
-                                {#                                    <td>{{ material.units }}</td>#}
                                 <td>
                                 </td>
                             </tr>

@@ -1,7 +1,5 @@
 import django_filters
-from material_app.models import Material, ReleaseMaterial
 from construction_objects_app.models import Contract
-
 from django import forms
 
 
@@ -15,7 +13,8 @@ class MaterialFilter(django_filters.FilterSet):
                                                       attrs={'class': 'form-control', 'placeholder': 'Статус работы'}))
     request_done = django_filters.BooleanFilter('invoice__request_mat__is_done', label='Заявка обработана?',
                                                 widget=forms.NullBooleanSelect(attrs={'class': 'form-control',
-                                                                                      'placeholder': 'Заявка обработана?'}))
+                                                                                      'placeholder':
+                                                                                          'Заявка обработана?'}))
     units = django_filters.ChoiceFilter('units', label='ед. изм.', choices=[],
                                         widget=forms.Select(attrs={'class': 'form-control', 'placeholder': 'ед. изм.'}))
     instrument = django_filters.BooleanFilter('is_instrument', label='Инструмент?', widget=forms.NullBooleanSelect(
@@ -44,14 +43,10 @@ class MaterialFilter(django_filters.FilterSet):
         attrs={'class': 'form-control', 'placeholder': 'Select a date', 'type': 'date'}), label='Дата до')
 
 
-class ReleaseMaterialFilter(django_filters.FilterSet):
+class ReleasedMaterialFilter(django_filters.FilterSet):
     contract = django_filters.ChoiceFilter('contract__name', choices=[], label='Работа',
                                            lookup_expr='iexact', widget=forms.Select(
             attrs={'class': 'form-control', 'placeholder': 'Работа'}))
-    # units = django_filters.ChoiceFilter('items__material__units', label='ед. изм.', choices=[],
-    #                                     widget=forms.Select(attrs={'class': 'form-control', 'placeholder': 'ед. изм.'}))
-    # instrument = django_filters.BooleanFilter('items__material__is_instrument', label='Инструмент?', widget=forms.NullBooleanSelect(
-    #     attrs={'class': 'form-control', 'placeholder': 'Инструмент?'}))
 
     start_date = django_filters.DateFilter('release_date', lookup_expr='gte', widget=forms.DateInput(
         attrs={'class': 'form-control', 'placeholder': 'Select a date', 'type': 'date'}), label='Дата от')
@@ -59,7 +54,7 @@ class ReleaseMaterialFilter(django_filters.FilterSet):
         attrs={'class': 'form-control', 'placeholder': 'Select a date', 'type': 'date'}), label='Дата до')
 
     def __init__(self, *args, **kwargs):
-        super(ReleaseMaterialFilter, self).__init__(*args, **kwargs)
+        super(ReleasedMaterialFilter, self).__init__(*args, **kwargs)
         con_object = self.queryset[0].contract.contstruct_object
         contract_choices = self.filters['contract'].extra['choices']
         contract_choices += [
