@@ -15,9 +15,9 @@
             <div class="card-body p-0 table-border-style">
                 <div class="table-responsive">
 
-                    {% if release_mat.is_done == False %}
-                        <form action="{% url 'return_relesed_materials' release_mat.id %}"
-                              onsubmit="return mySubmit({{ release_mat.items.count }});" method="post">
+                    {% if released_material.is_done == False %}
+                        <form action="{% url 'return_relesed_materials' released_material.id %}"
+                              onsubmit="return mySubmit({{ released_material.items.count }});" method="post">
                             <table class="table">
                                 <thead>
                                 <tr>
@@ -34,9 +34,9 @@
                                 <tbody>
 
                                 {% csrf_token %}
-                                <input type="text" name="count" value="{{ release_mat.items.count }}"
+                                <input type="text" name="count" value="{{ released_material.items.count }}"
                                        style="display: none">
-                                {% for material in release_mat.items.all %}
+                                {% for material in released_material.items.all %}
                                     <input type="text" style="display: none" name="material{{ forloop.counter }}"
                                            value="{{ material.material.id }}">
                                     <tr>

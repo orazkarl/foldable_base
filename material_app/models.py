@@ -60,7 +60,7 @@ class ReleasedMaterial(models.Model):
 
 
 class ReleasedMaterialItem(models.Model):
-    release_material = models.ForeignKey(ReleasedMaterial, related_name='items', on_delete=models.CASCADE,
+    released_material = models.ForeignKey(ReleasedMaterial, related_name='items', on_delete=models.CASCADE,
                                          verbose_name='Отпускаемый материал')
     material = models.ForeignKey(Material, related_name='release_material_items', on_delete=models.CASCADE,
                                  verbose_name='Материал')

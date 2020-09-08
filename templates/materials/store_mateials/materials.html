@@ -16,9 +16,12 @@
                         <h2>Материалы</h2>
                         <p>Работа: {{ materials.first.invoice.request_mat.contract }}</p>
                     </div>
-                    <div class="col-md-3"><a type="button"
-                                             href="{% url 'relesed_materials' materials.first.invoice.request_mat.contract.slug %}"
-                                             class="btn btn-primary">Отпущенные материалы</a></div>
+
+                    {% if materials.first.release_material_items.all %}
+                        <div class="col-md-3"><a type="button"
+                                                 href="{% url 'relesed_materials' materials.first.invoice.request_for_material.contract.slug %}"
+                                                 class="btn btn-primary">Отпущенные материалы</a></div>
+                    {% endif %}
                 </div>
 
 
@@ -39,7 +42,7 @@
                     </div>
 
 
-                    <form action="/contract/{{ materials.first.invoice.request_mat.contract.slug }}/materials"
+                    <form action="/contract/{{ materials.first.invoice.request_for_material.contract.slug }}/materials"
                           method="post" oninput="myFormInput({{ materials.count }});">
                         {% csrf_token %}
                         <table class="table">

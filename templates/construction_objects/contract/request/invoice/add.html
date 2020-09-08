@@ -9,9 +9,9 @@
                 <h2>Добавить счет на оплату</h2></div>
 
             <div class="card-body">
-                <form class="forms-sample" action="{% url 'invoice_add' request_mat.id %}" method="post"
+                <form class="forms-sample" action="{% url 'invoice_add' request_for_material.id %}" method="post"
                       enctype="multipart/form-data">
-                    <input type="text" name="id" value="{{ request_for_material.id }}" style="display: none">
+                    <input type="text" name="request_for_material_id" value="{{ request_for_material.id }}" style="display: none">
                     <div class="form-group">
                         <label>БИН</label>
                         <input type="text" name="bin" class="form-control" placeholder="БИН" required>

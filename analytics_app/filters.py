@@ -4,14 +4,14 @@ from django import forms
 
 
 class MaterialFilter(django_filters.FilterSet):
-    contract = django_filters.ChoiceFilter('invoice__request_mat__contract__name', choices=[], label='Работа',
+    contract = django_filters.ChoiceFilter('invoice__request_for_material__contract__name', choices=[], label='Работа',
                                            lookup_expr='iexact', widget=forms.Select(
             attrs={'class': 'form-control', 'placeholder': 'Работа'}))
-    contract_status = django_filters.ChoiceFilter('invoice__request_mat__contract__status', label='Статус работы',
+    contract_status = django_filters.ChoiceFilter('invoice__request_for_material__contract__status', label='Статус работы',
                                                   choices=Contract.STATUS_WORK,
                                                   widget=forms.Select(
                                                       attrs={'class': 'form-control', 'placeholder': 'Статус работы'}))
-    request_done = django_filters.BooleanFilter('invoice__request_mat__is_done', label='Заявка обработана?',
+    request_done = django_filters.BooleanFilter('invoice__request_for_material__is_done', label='Заявка обработана?',
                                                 widget=forms.NullBooleanSelect(attrs={'class': 'form-control',
                                                                                       'placeholder':
                                                                                           'Заявка обработана?'}))
@@ -25,16 +25,16 @@ class MaterialFilter(django_filters.FilterSet):
 
     def __init__(self, *args, **kwargs):
         super(MaterialFilter, self).__init__(*args, **kwargs)
-        con_object = self.queryset[0].invoice.request_mat.contract.contstruct_object
+        construction_object = self.queryset[0].invoice.request_for_material.contract.construction_object
         contract_choices = self.filters['contract'].extra['choices']
         contract_choices += [
             (subcat.name, subcat.name) for subcat
-            in Contract.objects.filter(contstruct_object=con_object)
+            in Contract.objects.filter(construction_object=construction_object)
         ]
         units_choices = self.filters['units'].extra['choices']
         units_choices += [
-            (subcat.units, subcat.units) for subcat
-            in self.queryset.distinct('units')
+            (subcat, subcat) for subcat
+            in self.queryset.values_list('units', flat=True).distinct()
         ]
 
     start_date = django_filters.DateFilter('created_at', lookup_expr='gte', widget=forms.DateInput(
@@ -55,11 +55,11 @@ class ReleasedMaterialFilter(django_filters.FilterSet):
 
     def __init__(self, *args, **kwargs):
         super(ReleasedMaterialFilter, self).__init__(*args, **kwargs)
-        con_object = self.queryset[0].contract.contstruct_object
+        construction_object = self.queryset[0].contract.construction_object
         contract_choices = self.filters['contract'].extra['choices']
         contract_choices += [
             (subcat.name, subcat.name) for subcat
-            in Contract.objects.filter(contstruct_object=con_object)
+            in Contract.objects.filter(construction_object=construction_object)
         ]
 
         # units_choices = self.filters['units'].extra['choices']

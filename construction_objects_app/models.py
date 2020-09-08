@@ -72,7 +72,7 @@ class InvoiceForPayment(models.Model):
         ['нет', 'нет'],
         ['потом', 'потом']
     ]
-    request_for_materiral = models.ForeignKey(RequestForMaterial, on_delete=models.CASCADE, verbose_name='Заявка',
+    request_for_material = models.ForeignKey(RequestForMaterial, on_delete=models.CASCADE, verbose_name='Заявка',
                                               related_name='invoice_for_payment')
     bin = models.CharField('БИН', max_length=100)
     name_company = models.CharField('Название компании', max_length=250)

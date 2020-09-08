@@ -32,7 +32,7 @@
                                         <th scope="row">{{ forloop.counter }}</th>
                                         <td><a href="{% url 'invoice_materials' invoice.id %}" style="color: #4da3ff;">{{ invoice.name_company }}</a></td>
                                         <td>{{ invoice.bin }}</td>
-                                        <td>{{ invoice.request_mat.contract.name }}</td>
+                                        <td>{{ invoice.request_for_material.contract.name }}</td>
 
                                     </tr>
                                 {% endfor %}

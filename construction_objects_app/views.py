@@ -11,7 +11,7 @@ from telebot import types
 
 GENERAL_BOT_TOKEN = '1270115367:AAGCRLBP1iSZhpTniwVYQ9p9fqLysY668ew'
 general_bot = telebot.TeleBot(GENERAL_BOT_TOKEN)
-
+channel_id = '-1001342160485'
 @method_decorator(login_required(login_url='/accounts/login/'), name='dispatch')
 class HomeView(generic.ListView):
     template_name = 'index.html'
@@ -43,7 +43,7 @@ class ContractDetailView(generic.TemplateView):
 
     def get(self, request, *args, **kwargs):
         contract = Contract.objects.get(slug=self.kwargs['slug'])
-        construction_object = contract.contstruct_object
+        construction_object = contract.construction_object
         requests_for_materirals = RequestForMaterial.objects.filter(contract=contract)
         if request.user.role == 'accountant' or construction_object not in list(
                 request.user.construction_objects.all()):
@@ -84,7 +84,7 @@ class ContractAddView(generic.TemplateView):
         else:
             slug = slugify(name)
 
-        Contract.objects.create(contstruct_object_id=construction_object_id, name=name, slug=slug,
+        Contract.objects.create(construction_object_id=construction_object_id, name=name, slug=slug,
                                 contract_file=doc_file,
                                 contractor=contractor, number_contract=number_contract, status=status,
                                 date_contract=date_contract, bin=bin)
@@ -135,7 +135,7 @@ class ContractEditView(generic.TemplateView):
         contract.save()
 
         return redirect(
-            '/objects/' + ConstructionObject.objects.get(id=construction_object_id).slug + '/' + str(status))
+            '/construction_objects/' + ConstructionObject.objects.get(id=construction_object_id).slug + '/' + str(status))
 
 
 @method_decorator(login_required(login_url='/accounts/login/'), name='dispatch')
@@ -174,7 +174,7 @@ class RequestForMaterialEditView(generic.TemplateView):
 
     def get(self, request, *args, **kwargs):
         request_for_material = RequestForMaterial.objects.get(id=self.kwargs['id'])
-        construction_object = ConstructionObject.objects.get(contract__request=request_for_material)
+        construction_object = ConstructionObject.objects.get(contract__request_for_material=request_for_material)
         if request.user.role == 'accountant' or construction_object not in list(
                 request.user.construction_objects.all()):
             return render(request, template_name='404.html')
@@ -213,8 +213,7 @@ class RequestForMaterialDetailView(generic.TemplateView):
                 request.user.construction_objects.all()):
             return render(request, template_name='404.html')
 
-        if all(invoice.is_done == True for invoice in request_for_material.invoice_for_payment.all()) and list(
-                request_for_material.invoice.all()) != []:
+        if all(invoice.is_done == True for invoice in request_for_material.invoice_for_payment.all()) and list(request_for_material.invoice_for_payment.all()) != []:
             request_for_material.is_done = True
             request_for_material.save()
 
@@ -242,8 +241,9 @@ class InvoiceForPaymentAddView(generic.TemplateView):
         }
         return super().get(request, *args, **kwargs)
 
-    def post(self, request, *args, **kwargs):
-        request_for_material = RequestForMaterial.objects.get(id=int(request.POST['id']))
+    def post(self, request, id):
+        request_for_material = RequestForMaterial.objects.get(pk=int(request.POST['request_for_material_id']))
+        print(request_for_material)
         doc_file = request.FILES['doc_file']
         bin = request.POST['bin']
         name_company = request.POST['name']
@@ -258,10 +258,12 @@ class InvoiceForPaymentAddView(generic.TemplateView):
             status = 'да'
         else:
             is_cash = False
+
         InvoiceForPayment.objects.create(request_for_material=request_for_material, doc_file=doc_file, bin=bin,
                                          name_company=name_company, comment=comment, is_cash=is_cash, is_paid=is_paid,
-                                         is_looked=is_looked, status=status)
-        return redirect('/request/detail/' + str(request_for_material.id))
+                                         is_looked=is_looked,
+                                         status=status)
+        return redirect('/request_for_material/detail/' + str(request_for_material.id))
 
 
 @method_decorator(login_required(login_url='/accounts/login/'), name='dispatch')
@@ -292,13 +294,15 @@ class InvoiceForPaymentEditView(generic.TemplateView):
         invoice.bin = request.POST['bin']
         invoice.name_company = request.POST['name']
         invoice.comment = request.POST['comment']
-        is_cash = request.POST['is_cash']
+        is_cash = ''
+        if 'is_cash' in request.POST:
+            is_cash = request.POST['is_cash']
         if is_cash == 'on':
             invoice.is_cash = True
         else:
             invoice.is_cash = False
         invoice.save()
-        return redirect('/request/detail/' + str(invoice.request_for_materiral.id))
+        return redirect('/request_for_material/detail/' + str(invoice.request_for_material.id))
 
 
 @login_required(login_url='/accounts/login/')
@@ -323,8 +327,7 @@ class InvoiceForPaymentView(generic.TemplateView):
                 request.user.construction_objects.all()):
             return render(request, template_name='404.html')
 
-        invoices = InvoiceForPayment.objects.filter(status='да',
-                                                    request_mat__contract__contstruct_object=construction_object)
+        invoices = InvoiceForPayment.objects.filter(status='да',request_for_material__contract__construction_object=construction_object)
 
         self.extra_context = {
             'construction_object': construction_object,
@@ -360,17 +363,18 @@ class InvoiceForPaymentView(generic.TemplateView):
             general_bot.send_document(channel_id, invoice.doc_file)
             invoice.save()
             invoice.save()
-        return redirect('/invoice_for_payment/' + invoice.request_for_materiral.contract.contstruct_object.slug)
+        return redirect('/invoice_for_payment/' + invoice.request_for_material.contract.construction_object.slug)
 
 
 token = '1318683651:AAH_fhHdb-PGt9kGhSqEOrVXvak3-jFRljk'
 
-channel_id = '-1001342160485'
 
-bot = telebot.TeleBot(token)
+
+
 
 
 def send_telegram(request):
+    bot = telebot.TeleBot(token)
     invoice = InvoiceForPayment.objects.get(id=int(request.POST['id']))
     construction_object = ConstructionObject.objects.get(contract__request_for_material__invoice_for_payment=invoice)
     if request.user.role == 'accountant' or request.user.role == 'manager' or construction_object not in list(
@@ -384,14 +388,14 @@ def send_telegram(request):
     key_then = types.InlineKeyboardButton(text='Потом', callback_data='then')
     keyboard.add(key_then)
 
-    request_for_material_file = invoice.request_for_materiral.doc_file
+    request_for_material_file = invoice.request_for_material.doc_file
     invoice_file = invoice.doc_file
     msg = '\n\n\n'
     msg += '🔔🔔🔔🔔🔔🔔🔔🔔🔔🔔🔔🔔🔔🔔🔔🔔\n'
     msg += 'Новый счет!\n'
     bot.send_message('438797738', text=msg)
-    msg = 'Объект: ' + str(invoice.request_for_materiral.contract.contstruct_object) + '\n'
-    msg += 'Работа: ' + str(invoice.request_for_materiral.contract) + '\n'
+    msg = 'Объект: ' + str(invoice.request_for_material.contract.construction_object) + '\n'
+    msg += 'Работа: ' + str(invoice.request_for_material.contract) + '\n'
     msg += 'Текущий статус: ' + str(invoice.status) + '\n'
     bot.send_message('438797738', text=msg)
 
@@ -400,12 +404,10 @@ def send_telegram(request):
     msg = 'ID: ' + str(invoice.id) + '\n'
     bot.send_message('438797738', text=msg, reply_markup=keyboard)
 
-    return redirect('/request/detail/' + str(invoice.request_for_materiral.id))
+    return redirect('/request_for_material/detail/' + str(invoice.request_for_material.id))
 
 
 def api_telegram_response(request):
-    if request.user.role == 'accountant' or request.user.role == 'manager':
-        return render(request, template_name='404.html')
     message = '🔔🔔🔔🔔🔔🔔🔔🔔🔔🔔🔔🔔🔔🔔🔔🔔\n'
     message += 'Счет на оплату!' + '\n'
     bot = telebot.TeleBot(GENERAL_BOT_TOKEN)
@@ -425,7 +427,7 @@ def api_telegram_response(request):
         invoice.save()
         message += 'Ответ: ' + status
         bot.send_message(channel_id, text=message)
-        bot.send_document(channel_id, invoice.request_for_materiral.doc_file)
+        bot.send_document(channel_id, invoice.request_for_material.doc_file)
         bot.send_document(channel_id, invoice.doc_file)
 
     return HttpResponse('ok')

@@ -11,13 +11,16 @@
                 <div class="row">
                     <div class="col-md-10">
                         <h2>{{ request_for_material.name }}</h2>
-                        <p>Файл: <a href="{{ request_for_material.doc_file.url }}" target="_blank" style="color: #4da3ff">{{ request_for_material.doc_file }}</p>
+                        <p>Файл: <a href="{{ request_for_material.doc_file.url }}" target="_blank"
+                                    style="color: #4da3ff">{{ request_for_material.doc_file }}</p>
                         </a>
                     </div>
                     <div class="col-md-2">
+
                         {% if request.user.role == 'admin' or request.user.role == 'purchaser' %}
-                            {% if request_mat.is_done == False %}
-                                <a href="{% url 'invoice_add' request_for_material.id %}" class="btn btn-primary">Новый счет</a>
+                            {% if request_for_material.is_done == False %}
+                                <a href="{% url 'invoice_add' request_for_material.id %}" class="btn btn-primary">Новый
+                                    счет</a>
                             {% endif %}
                         {% endif %}
                     </div>
@@ -71,15 +74,19 @@
                                                     материалы</a>
                                             </td>
                                         {% endif %}
+
                                         {% if invoice.is_cash == False %}
                                             <td>
-                                                <form action="{% url 'send_telegram' %}" method="post">
-                                                    {% csrf_token %}
-                                                    <input type="text" name="id" value="{{ invoice.id }}"
-                                                           style="display: none">
-                                                    <button type="submit" class="btn btn-primary">Отправить в телеграм
-                                                    </button>
-                                                </form>
+                                                {% if invoice.is_paid == False %}
+                                                    <form action="{% url 'send_telegram' %}" method="post">
+                                                        {% csrf_token %}
+                                                        <input type="text" name="id" value="{{ invoice.id }}"
+                                                               style="display: none">
+                                                        <button type="submit" class="btn btn-primary">Отправить в
+                                                            телеграм
+                                                        </button>
+                                                    </form>
+                                                {% endif %}
                                             </td>
                                             <td>
                                                 <a href="{% url 'invoice_edit' invoice.id %}"

@@ -18,10 +18,9 @@ class AnalyticsView(generic.ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        # contracts = Contract.objects.filter(contstruct_object__slug=self.kwargs['slug'])
         queryset = self.get_queryset().filter(is_delivery=True, invoice__is_done=True,
-                                              invoice__request_mat__contract__contstruct_object__slug=self.kwargs[
-                                                  'slug'])
+                                              invoice__request_for_material__contract__construction_object__slug=
+                                              self.kwargs['slug'])
         material_filter = MaterialFilter(self.request.GET, queryset=queryset)
         context['total_sum_price'] = material_filter.qs.aggregate(Sum('sum_price'))['sum_price__sum']
         context['filter'] = material_filter
@@ -29,11 +28,9 @@ class AnalyticsView(generic.ListView):
         return context
 
     def get(self, request, *args, **kwargs):
-        object_slug = self.kwargs['slug']
+        construction_object = ConstructionObject.objects.get(slug=self.kwargs['slug'])
         self.extra_context = {
-            'object': ConstructionObject.objects.get(slug=object_slug),
-
-            # 'materialFilter': materialFilter,
+            'construction_object': construction_object,
         }
         return super().get(request, *args, **kwargs)
 
@@ -43,10 +40,11 @@ class TotalStats(generic.TemplateView):
     template_name = 'analytics/total_stats.html'
 
     def get(self, request, *args, **kwargs):
-        object_slug = self.kwargs['slug']
-        contracts = Contract.objects.filter(contstruct_object__slug=object_slug)
-        request_mats = RequestForMaterial.objects.filter(contract__contstruct_object__slug=object_slug)
-        materials = Material.objects.filter(invoice__request_mat__contract__contstruct_object__slug=object_slug)
+        construction_object = ConstructionObject.objects.get(slug=self.kwargs['slug'])
+        contracts = Contract.objects.filter(construction_object=construction_object)
+        request_mats = RequestForMaterial.objects.filter(contract__construction_object=construction_object)
+        materials = Material.objects.filter(
+            invoice__request_for_material__contract__construction_object=construction_object)
         total_sum_price = materials.aggregate(Sum('sum_price'))['sum_price__sum']
 
         start_date_default = datetime.datetime(2020, 8, 1, tzinfo=pytz.UTC)
@@ -76,7 +74,7 @@ class TotalStats(generic.TemplateView):
             total_sum_price = materials.aggregate(Sum('sum_price'))['sum_price__sum']
 
         self.extra_context = {
-            'object': ConstructionObject.objects.get(slug=object_slug),
+            'construction_object': construction_object,
             'contracts': contracts,
             'request_mats': request_mats,
             'materials': materials,
@@ -94,14 +92,15 @@ class TotalStats(generic.TemplateView):
 
 
 @method_decorator(login_required(login_url='/accounts/login/'), name='dispatch')
-class ReleaseMaterialsStats(generic.ListView):
+class ReleasedMaterialsStats(generic.ListView):
     template_name = 'analytics/release_mat_stats.html'
     model = ReleasedMaterial
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         queryset = self.get_queryset()
-        queryset = queryset.filter(contract__contstruct_object__slug=self.kwargs['slug']).order_by('-release_date')
+        construction_object = ConstructionObject.objects.get(slug=self.kwargs['slug'])
+        queryset = queryset.filter(contract__construction_object=construction_object).order_by('-release_date')
         self.queryset = queryset
         release_material_filter = ReleasedMaterialFilter(self.request.GET, queryset=queryset)
         context['filter'] = release_material_filter
@@ -109,14 +108,14 @@ class ReleaseMaterialsStats(generic.ListView):
         return context
 
     def get(self, request, *args, **kwargs):
-        con_object = ConstructionObject.objects.get(slug=self.kwargs['slug'])
+        construction_object = ConstructionObject.objects.get(slug=self.kwargs['slug'])
         self.extra_context = {
-            'object': con_object,
+            'construction_object': construction_object,
         }
         return super().get(request, *args, **kwargs)
 
 
-def export_analytics(request):
+def export_analytics(request, slug):
     if request.POST:
         response = HttpResponse(content_type='text/csv')
         response['Content-Disposition'] = 'attachment; filename="analytics.csv"'
@@ -126,26 +125,26 @@ def export_analytics(request):
         writer.writerow(
             ['#', 'Название', 'Работа', 'Статус работы', 'Заявка обработана?', 'Количество',
              'Отпущено', 'Остаток', 'ед. изм.', 'Код инструмента', 'Наличный?', 'Цена', 'Сумма'])
-        count_materirals = int(request.POST['count_materials'])
+        count_materiras = int(request.POST['count_materials'])
 
-        for i in range(1, count_materirals + 1):
-            request_mat_done = 'Нет'
+        for i in range(1, count_materiras + 1):
+            request_for_material_done = 'Нет'
             invoice_is_cash = 'Нет'
 
             material = Material.objects.get(id=int(request.POST['material' + str(i)]))
-            if material.invoice.request_mat.is_done:
-                request_mat_done = 'Да'
+            if material.invoice.request_for_material.is_done:
+                request_for_material_done = 'Да'
             if material.invoice.is_cash:
                 invoice_is_cash = 'Да'
             if material.instrument_code is None:
                 material.instrument_code = 'Нет'
-            writer.writerow([str(i), material.name, material.invoice.request_mat.contract.name,
-                             material.invoice.request_mat.contract.get_status_display(),
-                             request_mat_done, material.quantity, material.release_count,
+            writer.writerow([str(i), material.name, material.invoice.request_for_material.contract.name,
+                             material.invoice.request_for_material.contract.get_status_display(),
+                             request_for_material_done, material.quantity, material.release_count,
                              material.quantity - material.release_count, material.units, material.instrument_code,
                              invoice_is_cash, material.price, material.sum_price])
         writer.writerow(
-            ['Итого: ' + str(count_materirals), '', '', '', '', '', '', '', '', '', '', '',
+            ['Итого: ' + str(count_materiras), '', '', '', '', '', '', '', '', '', '', '',
              request.POST['total_sum_price']])
 
         return response

@@ -37,7 +37,7 @@
                                     <th scope="row">{{ forloop.counter }}</th>
                                     <td>{{ invoice.request_for_material.contract.name }}</td>
                                     <td>{{ invoice.request_for_material.contract.number_contract }}</td>
-                                    <td><a href="{{ invoice.request_for_material.contract.contract.url }}"
+                                    <td><a href="{{ invoice.request_for_material.contract.contract_file.url }}"
                                            target="_blank"
                                            style="color: #4da3ff">посмотреть</a></td>
                                     <td><a href="{{ invoice.doc_file.url }}" target="_blank" style="color: #4da3ff">посмотреть</a>

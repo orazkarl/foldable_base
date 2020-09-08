@@ -13,7 +13,7 @@
                         <p>Работа: {{ invoice.request_mat.contract.name }}</p>
                         <p>Название компании: {{ invoice.name_company }}</p>
                         <p>БИН: {{ invoice.bin }}</p>
-                        <p>Счет на оплату: <a href="{{ invoice.file.url }}" target="_blank" style="color: #4da3ff">посмотреть</a>
+                        <p>Счет на оплату: <a href="{{ invoice.doc_file.url }}" target="_blank" style="color: #4da3ff">посмотреть</a>
                         </p>
                     </div>
                 </div>
@@ -61,9 +61,9 @@
                                         <th scope="row">{{ forloop.counter }}</th>
                                         <td>{{ material.name }}</td>
 
-                                        <td>{{ material.brak }}</td>
-                                        <td>{{ material.nexvatka }}</td>
-                                        <td>{{ material.nesotvetsvie }}</td>
+                                        <td>{{ material.marriage }}</td>
+                                        <td>{{ material.shortage }}</td>
+                                        <td>{{ material.inconsistency }}</td>
                                         <td>{{ material.ok }}</td>
 
                                         <td>{{ material.quantity }}</td>
