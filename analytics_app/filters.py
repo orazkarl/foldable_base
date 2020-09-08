@@ -50,7 +50,7 @@ class ReleasedMaterialFilter(django_filters.FilterSet):
 
     start_date = django_filters.DateFilter('release_date', lookup_expr='gte', widget=forms.DateInput(
         attrs={'class': 'form-control', 'placeholder': 'Select a date', 'type': 'date'}), label='Дата от')
-    end_date = django_filters.DateFilter('release_date  ', lookup_expr='lte', widget=forms.DateInput(
+    end_date = django_filters.DateFilter('release_date', lookup_expr='lte', widget=forms.DateInput(
         attrs={'class': 'form-control', 'placeholder': 'Select a date', 'type': 'date'}), label='Дата до')
 
     def __init__(self, *args, **kwargs):
@@ -61,9 +61,3 @@ class ReleasedMaterialFilter(django_filters.FilterSet):
             (subcat.name, subcat.name) for subcat
             in Contract.objects.filter(construction_object=construction_object)
         ]
-
-        # units_choices = self.filters['units'].extra['choices']
-        # units_choices += [
-        #     (subcat.units, subcat.units) for subcat
-        #     in Material.objects.filter(invoice__request_mat__contract__contstruct_object=con_object).distinct('units')
-        # ]

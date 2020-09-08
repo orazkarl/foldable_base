@@ -124,8 +124,18 @@
                             </div>
                         {% endif %}
                         {% if request.user.role == 'admin' %}
+                            <div class="nav-item has-sub">
+                                <a href="javascript:void(0)"><i class="ik ik-bar-chart-2"></i><span>Аналитика</span></a>
+                                <div class="submenu-content">
+                                    <a href="/construction_objects/{{ construction_object.slug }}/analytics" class="menu-item"><span>Аналитика</span></a>
+                                    <a href="/construction_objects/{{ construction_object.slug }}/total_stats" class="menu-item"><span>Общая статистика</span></a>
+                                    <a href="/construction_objects/{{ construction_object.slug }}/released_material_stats" class="menu-item"><span>Ход движении</span></a>
+
+
+                                </div>
+                            </div>
                             <div class="nav-item">
-                                <a href="/construction_objects/{{ construction_object.slug }}/analytics"><i class="ik ik-bar-chart-2"></i><span>Аналитика</span></a>
+
                             </div>
                         {% endif %}
                         {% if request.user.role == 'admin' or request.user.role == 'purchaser' %}

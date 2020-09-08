@@ -318,7 +318,7 @@ class ReleasedMaterialsView(generic.TemplateView):
             return render(request, template_name='404.html')
         self.extra_context = {
             'construction_object': construction_object,
-            'relesed_materials': ReleasedMaterial.objects.filter(contract__slug=self.kwargs['slug'],items__material__instrument_code=None).order_by('id')
+            'relesed_materials': ReleasedMaterial.objects.filter(contract__slug=self.kwargs['slug'],items__material__instrument_code=None).order_by('id').distinct()
         }
         return super().get(request, *args, **kwargs)
 
@@ -365,7 +365,7 @@ class ReturnReleaseMaterialsView(generic.TemplateView):
                 'role': request.user.get_role_display(),
                 'name': request.user.first_name + ' ' + request.user.last_name,
                 'contract_contractor': contract.contractor,
-                'materials': ReleasedMaterialItem.objects.filter(release_material=released_material),
+                'materials': ReleasedMaterialItem.objects.filter(released_material=released_material),
                 'indexs': indexs,
                 'contract_name': contract.name,
             }
@@ -377,7 +377,7 @@ class ReturnReleaseMaterialsView(generic.TemplateView):
         if released_material.items.all()[0].material.instrument_code == None:
             return redirect('/contract/' + contract.slug + '/relesed_materials')
         else:
-            return redirect('/construction_objects/' + contract.contstruct_object.slug + '/released_instruments')
+            return redirect('/construction_objects/' + contract.construction_object.slug + '/released_instruments')
 
 
 @method_decorator(login_required(login_url='/accounts/login/'), name='dispatch')
@@ -452,22 +452,21 @@ class InstrumentMateriralView(generic.TemplateView):
     template_name = 'materials/store_mateials/instruments/instruments.html'
 
     def get(self, request, *args, **kwargs):
-        contstruct_object = ConstructionObject.objects.get(slug=self.kwargs['slug'])
-        if request.user.role == 'accountant' or request.user.role == 'purchaser' or contstruct_object not in list(
+        contstruction_object = ConstructionObject.objects.get(slug=self.kwargs['slug'])
+        if request.user.role == 'accountant' or request.user.role == 'purchaser' or contstruction_object not in list(
                 request.user.construction_objects.all()):
             return render(request, template_name='404.html')
 
-        materials = Material.objects.filter(is_delivery=True, invoice__is_done=True,
-                                            invoice__request_for_material__contract__contstruct_object=contstruct_object).filter(
+        materials = Material.objects.filter(is_delivery=True, invoice__is_done=True,invoice__request_for_material__contract__construction_object=contstruction_object).filter(
             ~Q(instrument_code=None))
 
         self.extra_context = {
-            'construction_object': contstruct_object,
+            'construction_object': contstruction_object,
             'materials': materials,
         }
         return super().get(request, *args, **kwargs)
 
-    def post(self, request):
+    def post(self, request, *args, **kwargs):
         materials = request.POST.getlist('materials')
         materials = Material.objects.filter(id__in=materials)
         construction_object = ConstructionObject.objects.get(slug=self.kwargs['slug'])
@@ -488,7 +487,7 @@ class ReleasedInstruments(generic.TemplateView):
             return render(request, template_name='404.html')
         self.extra_context = {
             'construction_object': construction_object,
-            'relesed_materials': ReleasedMaterial.objects.filter(construction_object=construction_object).filter(~Q(items__material__instrument_code=None))
+            'relesed_materials': ReleasedMaterial.objects.filter(contract__construction_object=construction_object).filter(~Q(items__material__instrument_code=None))
         }
         return super().get(request, *args, **kwargs)
 

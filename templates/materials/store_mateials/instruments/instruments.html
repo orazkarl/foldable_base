@@ -33,7 +33,7 @@
                     </div>
 
 
-                    <form action="/objects/{{ object.slug }}/instruments" method="post" oninput="myFormInput({{ materials.count }});">
+                    <form action="/construction_objects/{{ construction_object.slug }}/instruments" method="post" oninput="myFormInput({{ materials.count }});">
                         {% csrf_token %}
                         <table class="table">
                             <thead>

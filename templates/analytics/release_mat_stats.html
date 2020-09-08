@@ -38,7 +38,7 @@
                                 </div>
                                 <br>
                                 <input type="submit" value="Фильтр" class="btn btn-primary">
-                                <a href="{% url 'release_mat_stats' construction_object.slug %}" class="btn btn-danger">Сброс</a>
+                                <a href="{% url 'released_material_stats' construction_object.slug %}" class="btn btn-danger">Сброс</a>
                             </form>
 
                         </div>
@@ -73,7 +73,7 @@
                         <tbody id="materials_list">
                         {% for release_material in filter.qs %}
                             <tr>
-                                <th>{{ forloop.counter }}</th>
+                                <th>{{ release_material.id }}</th>
                                 <td></td>
                                 <td></td>
                                 <td></td>
