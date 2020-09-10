@@ -43,7 +43,7 @@
                             <tr>
                                 <th scope="row">{{ forloop.counter }}</th>
 
-                                <td><a href="{% url 'detail_relesed_materials' relesed_material.id %}" style="color: #4da3ff">Отпущенные материалы №{{ relesed_material.id }}</a></td>
+                                <td><a href="{% url 'detail_relesed_materials' relesed_material.id %}" style="color: #4da3ff">Отпущенные материалы {{ relesed_material.unique_code }}</a></td>
                                 <td>{{ relesed_material.release_date }}</td>
                                 <td>{% if relesed_material.is_done == False %}<a href="{% url 'return_relesed_materials' relesed_material.id %}" style="color: #4da3ff">Возврат</a>{% endif %}</td>
                                 <td><a href="/media/waybill/nakladnaya-{{ relesed_material.contract.name }}{{ relesed_material.id }}.docx" style="color: #4da3ff" download>Скачать</a></td>

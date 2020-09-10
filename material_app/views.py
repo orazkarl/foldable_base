@@ -273,14 +273,30 @@ def release_materials(request):
         if request.user.role == 'accountant' or request.user.role == 'purchaser' or construction_object not in list(request.user.construction_objects.all()):
             return render(request, template_name='404.html')
 
+        is_instrument = False
         released_material = ReleasedMaterial.objects.create(user=request.user, release_date=datetime.datetime.now(),contract=contract)
         for i in range(1, int(request.POST['count']) + 1):
             material = Material.objects.get(id=int(request.POST['material' + str(i)]))
             released_materials_count = int(request.POST['release' + str(i)])
             material.remainder_count = material.quantity - material.release_count
             material.release_count = material.release_count + released_materials_count
+            is_instrument = material.is_instrument
             material.save()
             ReleasedMaterialItem.objects.create(released_material=released_material, material=material,release_count=released_materials_count)
+        unique_code = ''
+        for i in construction_object.name.split(' '):
+            if slugify(i) != None:
+                i = slugify(i)
+            unique_code += i[0]
+        unique_code = unique_code.upper()
+        unique_code += '-'
+
+        if is_instrument:
+            unique_code += 'I' + str(released_material.id)
+        else:
+            unique_code += 'M' + str(released_material.id)
+        released_material.unique_code = unique_code
+        released_material.save()
         try:
             indexs = list(range(1, ReleasedMaterialItem.objects.filter(released_material=released_material).count() + 1))
             context = {
@@ -289,7 +305,7 @@ def release_materials(request):
                 'number_contract': contract.number_contract,
                 'date_contract': contract.date_contract,
                 'date_doc': datetime.datetime.now().strftime("%d-%m-%Y %H:%M"),
-                'number_doc': released_material.id,
+                'number_doc': released_material.unique_code,
                 'role': request.user.get_role_display(),
                 'name': request.user.first_name + ' ' + request.user.last_name,
                 'contract_contractor': contract.contractor,
@@ -361,7 +377,7 @@ class ReturnReleaseMaterialsView(generic.TemplateView):
                 'number_contract': contract.number_contract,
                 'date_contract': contract.date_contract,
                 'date_doc': datetime.datetime.now().strftime("%d-%m-%Y %H:%M"),
-                'number_doc': released_material.id,
+                'number_doc': released_material.unique_code,
                 'role': request.user.get_role_display(),
                 'name': request.user.first_name + ' ' + request.user.last_name,
                 'contract_contractor': contract.contractor,
@@ -497,14 +513,14 @@ class GeneralBaseView(generic.TemplateView):
     template_name = 'materials/store_mateials/general_base.html'
 
     def get(self, request, *args, **kwargs):
-        contstruction_object = ConstructionObject.objects.get(slug=self.kwargs['slug'])
-        if request.user.role == 'accountant' or request.user.role == 'purchaser' or contstruction_object not in list(
+        construction_object = ConstructionObject.objects.get(slug=self.kwargs['slug'])
+        if request.user.role == 'accountant' or request.user.role == 'purchaser' or construction_object not in list(
                 request.user.construction_objects.all()):
             return render(request, template_name='404.html')
 
-        materials = Material.objects.filter(is_delivery=True, invoice__is_done=True)
+        materials = Material.objects.filter(is_delivery=True, invoice__is_done=True, invoice__request_for_material__contract__construction_object=construction_object)
         self.extra_context = {
-            'construction_object': contstruction_object,
+            'construction_object': construction_object,
             'materials': materials,
         }
         return super().get(request, *args, **kwargs)
@@ -519,7 +535,7 @@ class RemainderMaterialsView(generic.TemplateView):
         if request.user.role == 'accountant' or request.user.role == 'purchaser' or construction_object not in list(request.user.construction_objects.all()):
             return render(request, template_name='404.html')
 
-        materials = Material.objects.filter(is_delivery=True, invoice__is_done=True)
+        materials = Material.objects.filter(is_delivery=True, invoice__is_done=True, invoice__request_for_material__contract__construction_object=construction_object)
         self.extra_context = {
             'construction_object': construction_object,
             'materials': materials,

@@ -30,6 +30,9 @@ class ConstructionObjectDetailView(generic.TemplateView):
             return redirect('/invoice_for_payment/' + construction_object.slug)
         contracts = Contract.objects.filter(construction_object=construction_object, status=str(self.kwargs['pk']))
 
+
+
+
         self.extra_context = {
             'contracts': contracts,
             'construction_object': construction_object
@@ -48,6 +51,11 @@ class ContractDetailView(generic.TemplateView):
         if request.user.role == 'accountant' or construction_object not in list(
                 request.user.construction_objects.all()):
             return render(request, template_name='404.html')
+
+        for request_for_material in requests_for_materirals:
+            if all(invoice.is_done == True for invoice in request_for_material.invoice_for_payment.all()) and list(request_for_material.invoice_for_payment.all()) != []:
+                request_for_material.is_done = True
+                request_for_material.save()
         self.extra_context = {
             'contract': contract,
             'requests_for_materirals': requests_for_materirals,
@@ -90,7 +98,7 @@ class ContractAddView(generic.TemplateView):
                                 date_contract=date_contract, bin=bin)
 
         return redirect(
-            '/objects/' + ConstructionObject.objects.get(id=construction_object_id).slug + '/' + str(status))
+            '/construction_objects/' + ConstructionObject.objects.get(id=construction_object_id).slug + '/' + str(status))
 
 
 @method_decorator(login_required(login_url='/accounts/login/'), name='dispatch')
@@ -213,9 +221,9 @@ class RequestForMaterialDetailView(generic.TemplateView):
                 request.user.construction_objects.all()):
             return render(request, template_name='404.html')
 
-        if all(invoice.is_done == True for invoice in request_for_material.invoice_for_payment.all()) and list(request_for_material.invoice_for_payment.all()) != []:
-            request_for_material.is_done = True
-            request_for_material.save()
+        # if all(invoice.is_done == True for invoice in request_for_material.invoice_for_payment.all()) and list(request_for_material.invoice_for_payment.all()) != []:
+        #     request_for_material.is_done = True
+        #     request_for_material.save()
 
         self.extra_context = {
             'request_for_material': request_for_material,

@@ -64,7 +64,7 @@ class TotalStats(generic.TemplateView):
             request_mats = request_mats.filter(created_at__gte=start_date_default,
                                                created_at__lte=end_date_default)
             materials = materials.filter(created_at__gte=start_date_default,
-                                         created_at__lte=end_date_default)
+                                         created_at__lte=end_date_default + datetime.timedelta(days=1))
 
             in_work = contracts.filter(status='1')
             finished = contracts.filter(status='2')

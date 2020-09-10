@@ -1,6 +1,7 @@
 from django.db import models
 from construction_objects_app.models import InvoiceForPayment, Contract
 from django.conf import settings
+import uuid
 
 
 class Material(models.Model):
@@ -43,6 +44,7 @@ class Material(models.Model):
 
 
 class ReleasedMaterial(models.Model):
+    unique_code = models.CharField(unique=True, max_length=100)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, verbose_name='Пользователь')
     release_date = models.DateTimeField('Когда отпустил?', auto_now_add=True)
     contract = models.ForeignKey(Contract, on_delete=models.CASCADE, related_name='realeas_material',
@@ -56,7 +58,7 @@ class ReleasedMaterial(models.Model):
         verbose_name_plural = 'Отпускаемые материалы'
 
     def __str__(self):
-        return str(self.id)
+        return f"Отпущенные материалы: {self.unique_code}"
 
 
 class ReleasedMaterialItem(models.Model):
