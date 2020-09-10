@@ -118,7 +118,7 @@ class ReleasedMaterialsStats(generic.ListView):
 def export_analytics(request, slug):
     if request.POST:
         response = HttpResponse(content_type='text/csv')
-        response['Content-Disposition'] = 'attachment; filename="analytics.csv"'
+        response['Content-Disposition'] = 'attachment; filename="analytics.xls"'
         response.write(u'\ufeff'.encode('utf8'))
 
         writer = csv.writer(response)
