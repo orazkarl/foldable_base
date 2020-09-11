@@ -21,6 +21,8 @@ class AnalyticsView(generic.ListView):
         queryset = self.get_queryset().filter(is_delivery=True, invoice__is_done=True,
                                               invoice__request_for_material__contract__construction_object__slug=
                                               self.kwargs['slug'])
+        if list(queryset) == []:
+            return context
         material_filter = MaterialFilter(self.request.GET, queryset=queryset)
         context['total_sum_price'] = material_filter.qs.aggregate(Sum('sum_price'))['sum_price__sum']
         context['filter'] = material_filter
@@ -101,6 +103,8 @@ class ReleasedMaterialsStats(generic.ListView):
         queryset = self.get_queryset()
         construction_object = ConstructionObject.objects.get(slug=self.kwargs['slug'])
         queryset = queryset.filter(contract__construction_object=construction_object).order_by('-release_date')
+        if list(queryset) == []:
+            return context
         self.queryset = queryset
         release_material_filter = ReleasedMaterialFilter(self.request.GET, queryset=queryset)
         context['filter'] = release_material_filter
