@@ -24,6 +24,6 @@ class UserAdmin(DjangoUserAdmin):
         (None, {
             'classes': ('wide',),
             'fields': (
-                'email', 'username', 'first_name', 'last_name', 'phone', 'role', 'id_passport', 'object', 'password1', 'password2', 'is_active', 'is_staff', 'is_superuser'),
+                'email', 'username', 'first_name', 'last_name', 'phone', 'role', 'id_passport', 'construction_objects', 'password1', 'password2', 'is_active', 'is_staff', 'is_superuser'),
         }),
     )
