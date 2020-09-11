@@ -47,7 +47,7 @@
                                 <td>{{ relesed_material.release_date }}</td>
                                 <td>{% if relesed_material.is_done == False %}<a href="{% url 'return_relesed_materials' relesed_material.id %}" style="color: #4da3ff">Возврат</a>{% endif %}</td>
                                 <td><a href="/media/waybill/nakladnaya-{{ relesed_material.contract.name }}{{ relesed_material.id }}.docx" style="color: #4da3ff" download>Скачать</a></td>
-                                <td>{% if material.is_done %}<a href="/media/waybill/nakladnaya_final-{{ relesed_material.contract.name }}{{ relesed_material.id }}.docx" style="color: #4da3ff" download>Скачать</a>{% endif %}</td>
+                                <td>{% if relesed_material.is_done %}<a href="/media/waybill/nakladnaya_final-{{ relesed_material.contract.name }}{{ relesed_material.id }}.docx" style="color: #4da3ff" download>Скачать</a>{% endif %}</td>
                                 {#                                    <td>{{ material.release_count }}</td>#}
                                 {#                                    <td>{{ material.quantity|sub:material.release_count }}</td>#}
                                 {#                                    <td>{{ material.units }}</td>#}
