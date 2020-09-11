@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+    <div class="container-fluid">
+        <div class="card">
+            <div class="card-header d-block">
+                <a href="/invoice/detail/{{ material.invoice.id }}" class="btn btn-light"><i
+                        class="ik ik-arrow-left"></i>Назад</a>
+                <h2>Изменить материал</h2></div>
+
+            <div class="card-body">
+                <form class="forms-sample" action="{% url 'material_edit' material.id %}" method="post"
+                      enctype="multipart/form-data">
+                    <input type="text" name="material_id" value="{{ material.id }}" style="display: none">
+                    <div class="form-group">
+                        <label>Название</label>
+                        <input type="text" name="name" class="form-control" placeholder="Название" value="{{ material.name }}" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Количество</label>
+                        <input type="number" name="quantity" class="form-control" placeholder="Количество" value="{{ material.quantity }}" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Ед. изм.</label>
+                        <input type="text" name="units" class="form-control" placeholder="ед. изм." value="{{ material.units }}" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Цена</label>
+                        <input type="number" name="price" class="form-control" placeholder="Цена" value="{{ material.price|add:"0" }}" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Сумма</label>
+                        <input type="number" name="sum_price" class="form-control" placeholder="Сумма" value="{{ material.sum_price|add:"0" }}" required>
+                    </div>
+                    <div class="form-group">
+                        <input type="checkbox" name="is_instrument" {% if material.is_instrument %}checked{% endif %}>
+                        <label>Инструмент?</label>
+                    </div>
+
+
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-primary mr-2">Сохранить</button>
+                    {#                        <button class="btn btn-light">Cancel</button>#}
+
+                </form>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

@@ -38,6 +38,7 @@ class AddMaterialView(generic.TemplateView):
         return super().get(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
+
         invoice = InvoiceForPayment.objects.get(id=int(request.POST['id']))
         object_name = invoice.request_for_material.contract.construction_object.name
         object_name = object_name.split(' ')

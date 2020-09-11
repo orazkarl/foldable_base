@@ -17,6 +17,11 @@ urlpatterns = [
     path('request_for_material/<int:id>/invoice/add', views.InvoiceForPaymentAddView.as_view(), name='invoice_add'),
     path('invoice/edit/<int:id>', views.InvoiceForPaymentEditView.as_view(), name='invoice_edit'),
     path('invoice/delete', views.invoice_delete, name='invoice_delete'),
+    path('invoice/detail/<int:id>', views.InvoiceForPaymentDetailView.as_view(), name='invoice_detail'),
+
+    path('invoice/<int:id>/material/add', views.MaterialAddView.as_view(), name='material_add'),
+    path('material/edit/<int:id>', views.MaterialEditView.as_view(), name='material_edit'),
+    path('material/delete', views.material_delete, name='material_delete'),
 
     path('send_telegram', views.send_telegram, name='send_telegram'),
     path('invoice_for_payment/<slug:slug>', views.InvoiceForPaymentView.as_view(), name='invoice_for_payment'),
