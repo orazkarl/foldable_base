@@ -28,7 +28,7 @@ class AddMaterialView(generic.TemplateView):
         construction_object = ConstructionObject.objects.get(
             contract__request_for_material__invoice_for_payment__id=self.kwargs['id'])
         invoice = InvoiceForPayment.objects.get(id=self.kwargs['id'])
-        if request.user.role == 'accountant' or request.user.role == 'purchaser' or construction_object not in list(
+        if request.user.role == 'accountant' or request.user.role == 'manager' or construction_object not in list(
                 request.user.construction_objects.all()):
             return render(request, template_name='404.html')
         self.extra_context = {
