@@ -1,7 +1,10 @@
 {% extends 'base.html' %}
 {% load static %}
 {% block content %}
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.7.1/min/dropzone.min.css">
+    <style>
+
+
+    </style>
 
     <div class="container-fluid">
         <div class="card">
@@ -13,6 +16,7 @@
 
 
             <div class="card-body">
+
                 <form class="forms-sample" action="{% url 'add_material' invoice.id %}" method="post"
                       enctype="multipart/form-data">
 
@@ -20,8 +24,11 @@
 
                     <div class="form-group">
                         <label>Материалы</label>
-                        <input type="file" name="doc_file" class="form-control" required>
-
+                        <div style="position: fixed; width: 100%;">
+                            <p style="margin-top: 50px; width: 300px; margin-left: 10px ">Перетащите сюда файл, чтобы прикрепить их</p>
+                        </div>
+                        <input type="file" name="doc_file" class="form-control" style="height: 200px"
+                               data-title="Drag and drop a file" required>
                     </div>
 
                     {% csrf_token %}
@@ -35,3 +42,21 @@
 
 {% endblock %}
 
+{% block script %}
+    <script>
+        function readUrl(input) {
+
+            if (input.files && input.files[0]) {
+                let reader = new FileReader();
+                reader.onload = (e) => {
+                    let imgData = e.target.result;
+                    let imgName = input.files[0].name;
+                    input.setAttribute("data-title", imgName);
+                    console.log(e.target.result);
+                }
+                reader.readAsDataURL(input.files[0]);
+            }
+
+        }
+    </script>
+{% endblock %}
