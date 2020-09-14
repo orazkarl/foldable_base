@@ -1,6 +1,8 @@
 {% extends 'base.html' %}
 {% load static %}
 {% load mathfilters %}
+{% load humanize %}
+
 {% block content %}
 
     <div class="container-fluid">
@@ -98,8 +100,8 @@
                                             {% endif %}
                                         </td>
                                         <td>{% if material.invoice.is_cash %}Да {% else %}Нет{% endif %}</td>
-                                        <td>{{ material.price }}</td>
-                                        <td>{{ material.sum_price }}</td>
+                                        <td>{{ material.price|intcomma  }}</td>
+                                        <td>{{ material.sum_price|intcomma  }}</td>
                                     </tr>
 
 
@@ -117,12 +119,13 @@
                                     <td></td>
                                     <td></td>
                                     <td></td>
-                                    <th scope="row">{{ total_sum_price }}</th>
+                                    <th scope="row">{{ total_sum_price|intcomma }}₸</th>
                                     <input type="text" name="count_materials" value="{{ filter.qs.count }}"
                                            style="display:none;">
-                                    <input type="text" name="total_sum_price" value="{{ total_sum_price }}"
+                                    <input type="text" name="total_sum_price" value="{{ total_sum_price}}"
                                            style="display: none">
                                 </tr>
+
                             </div>
 
                         </tbody>

@@ -29,9 +29,11 @@
                             <th>#</th>
                             <th></th>
                             <th>Когда отпустил?</th>
-                            <th></th>
+                            <th>Возврат</th>
                             <th>Накладная отпуск</th>
                             <th>Накладная возрат</th>
+                            <th>Накладная отпуск (загрузка)</th>
+                            <th>Накладная возрат (загрузка)</th>
                             {#                                <th>Осталось</th>#}
                             {#                                <th>ед. изм.</th>#}
                             {#                                <th>Код инструмента</th>#}
@@ -39,20 +41,41 @@
                         </thead>
                         <tbody>
 
-                        {% for relesed_material in relesed_materials %}
+                        {% for released_material in relesed_materials %}
                             <tr>
                                 <th scope="row">{{ forloop.counter }}</th>
 
-                                <td><a href="{% url 'detail_relesed_materials' relesed_material.id %}" style="color: #4da3ff">Отпущенные материалы {{ relesed_material.unique_code }}</a></td>
-                                <td>{{ relesed_material.release_date }}</td>
-                                <td>{% if relesed_material.is_done == False %}<a href="{% url 'return_relesed_materials' relesed_material.id %}" style="color: #4da3ff">Возврат</a>{% endif %}</td>
-                                <td><a href="/media/waybill/nakladnaya-{{ relesed_material.contract.name }}{{ relesed_material.id }}.docx" style="color: #4da3ff" download>Скачать</a></td>
-                                <td>{% if relesed_material.is_done %}<a href="/media/waybill/nakladnaya_final-{{ relesed_material.contract.name }}{{ relesed_material.id }}.docx" style="color: #4da3ff" download>Скачать</a>{% endif %}</td>
+                                <td><a href="{% url 'detail_relesed_materials' released_material.id %}"
+                                       style="color: #4da3ff">Отпущенные
+                                    материалы {{ released_material.unique_code }}</a></td>
+                                <td>{{ released_material.release_date }}</td>
+                                <td>{% if released_material.is_done == False %}
+                                    <a href="{% url 'return_relesed_materials' released_material.id %}"
+                                       style="color: #4da3ff">Возврат</a>{% endif %}</td>
+                                <td><a href="/media/waybill/nakladnaya-
+                                        {{ released_material.contract.name }}{{ released_material.id }}.docx"
+                                       style="color: #4da3ff" download>Скачать</a></td>
+                                <td>{% if released_material.is_done %}<a href="/media/waybill/nakladnaya_final-
+                                        {{ released_material.contract.name }}{{ released_material.id }}.docx"
+                                                                        style="color: #4da3ff"
+                                                                        download>Скачать</a>{% endif %}</td>
                                 {#                                    <td>{{ material.release_count }}</td>#}
                                 {#                                    <td>{{ material.quantity|sub:material.release_count }}</td>#}
                                 {#                                    <td>{{ material.units }}</td>#}
-                                <td>
+                                <td>{% if released_material.release_waybill %}
+                                    <a href="{{ released_material.release_waybill.url }}" style="color: #4da3ff"
+                                       download>скачать</a>
+                                {% else %}
+                                    <a href="{% url 'add_release_waybill' released_material.id %}"
+                                       class="btn btn-primary">Загрузить</a>{% endif %}
                                 </td>
+                            <td>
+                                {% if released_material.final_waybill %}
+                                <a href="{{ released_material.final_waybill.url }}" style="color: #4da3ff"
+                                   download>скачать</a>{% else %}
+                                <a href="{% url 'add_final_waybill' released_material.id %}"
+                                   class="btn btn-primary">Загрузить</a>{% endif %}
+                            </td>
                             </tr>
                         {% endfor %}
 

@@ -24,6 +24,7 @@
                             <tr>
                                 <th>#</th>
                                 <th>название</th>
+                                <th>ед изм.</th>
                                 <th>отпуск.</th>
                                 <th>остаток</th>
                                 <th></th>
@@ -39,6 +40,7 @@
                                     <td>{{ material.name }}</td>
                                     <input type="text" style="display: none" name="material{{ forloop.counter }}"
                                            value="{{ material.id }}">
+                                    <td>{{ material.units }}</td>
                                     <td><input type="text" class="form-control" name="release{{ forloop.counter }}"
                                                value="0" id="release{{ forloop.counter }}"></td>
                                     <td><input type="text" class="form-control" id="quantity{{ forloop.counter }}"

@@ -16,22 +16,22 @@
             {% endif %}
                 <div class="row">
                     <div class="col-md-10">
-                        <h2>Отпущенные материалы №{{ released_mat.id }}</h2>
-                        <p>Накладная отпуск (с подписью): </p>
-                        <p>{% if released_material.release_waybill %}
-                            <a href="{{ released_material.release_waybill.url }}" style="color: #4da3ff" download>скачать</a>
-                        {% else %}
-                            <a href="{% url 'add_release_waybill' released_material.id %}"
-                               class="btn btn-primary">Загрузить</a>{% endif %}</p>
+                        <h2>Отпущенные материалы №{{ released_material.unique_code }}</h2>
+{#                        <p>Накладная отпуск (с подписью): </p>#}
+{#                        <p>{% if released_material.release_waybill %}#}
+{#                            <a href="{{ released_material.release_waybill.url }}" style="color: #4da3ff" download>скачать</a>#}
+{#                        {% else %}#}
+{#                            <a href="{% url 'add_release_waybill' released_material.id %}"#}
+{#                               class="btn btn-primary">Загрузить</a>{% endif %}</p>#}
 
-                        <p>Накладная возврат (с подписью): </p>
-                        <p>
-                            {% if released_material.final_waybill %}
-                                <a href="{{ released_material.final_waybill.url }}" style="color: #4da3ff"
-                                   download>скачать</a>{% else %}
-                                <a href="{% url 'add_final_waybill' released_material.id %}"
-                                   class="btn btn-primary">Загрузить</a>{% endif %}
-                        </p>
+{#                        <p>Накладная возврат (с подписью): </p>#}
+{#                        <p>#}
+{#                            {% if released_material.final_waybill %}#}
+{#                                <a href="{{ released_material.final_waybill.url }}" style="color: #4da3ff"#}
+{#                                   download>скачать</a>{% else %}#}
+{#                                <a href="{% url 'add_final_waybill' released_material.id %}"#}
+{#                                   class="btn btn-primary">Загрузить</a>{% endif %}#}
+{#                        </p>#}
 
                     </div>
                 </div>

@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 {% load static %}
 {% load mathfilters %}
+{% load humanize %}
 {% block content %}
     <div class="container-fluid">
         <div class="card">
@@ -102,7 +103,7 @@
                                 <div class="">
                                     <div class="state">
                                         <h6>Сумма</h6>
-                                        <h2>{% if total_sum_price %}{{ total_sum_price }}{% else %}0{% endif %} ₸</h2>
+                                            <h2>{% if total_sum_price %}{{ total_sum_price|intcomma }}{% else %}0{% endif %} ₸</h2>
                                     </div>
                                     <div class="icon">
                                         <i class="fa fa-money-bill-alt" aria-hidden="true"></i>

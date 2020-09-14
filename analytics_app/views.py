@@ -24,7 +24,7 @@ class AnalyticsView(generic.ListView):
         if list(queryset) == []:
             return context
         material_filter = MaterialFilter(self.request.GET, queryset=queryset)
-        context['total_sum_price'] = material_filter.qs.aggregate(Sum('sum_price'))['sum_price__sum']
+        context['total_sum_price'] = round((material_filter.qs.aggregate(Sum('sum_price'))['sum_price__sum']), 2)
         context['filter'] = material_filter
 
         return context
@@ -47,7 +47,8 @@ class TotalStats(generic.TemplateView):
         request_mats = RequestForMaterial.objects.filter(contract__construction_object=construction_object)
         materials = Material.objects.filter(
             invoice__request_for_material__contract__construction_object=construction_object)
-        total_sum_price = materials.aggregate(Sum('sum_price'))['sum_price__sum']
+
+        total_sum_price = round(materials.aggregate(Sum('sum_price'))['sum_price__sum'], 2)
 
         start_date_default = datetime.datetime(2020, 8, 1, tzinfo=pytz.UTC)
         end_date_default = datetime.datetime.today().date()

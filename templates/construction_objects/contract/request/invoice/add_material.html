@@ -1,32 +1,37 @@
 {% extends 'base.html' %}
 {% load static %}
 {% block content %}
-        <div class="container-fluid">
-            <div class="card">
-                <div class="card-header d-block">
-                    <a href="/request_for_material/detail/{{ invoice.request_for_material.id }}" class="btn btn-light"><i
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.7.1/min/dropzone.min.css">
+
+    <div class="container-fluid">
+        <div class="card">
+            <div class="card-header d-block">
+                <a href="/request_for_material/detail/{{ invoice.request_for_material.id }}" class="btn btn-light"><i
                         class="ik ik-arrow-left"></i>Назад</a>
-                    <h2>Добавить материалы</h2>
-                </div>
+                <h2>Добавить материалы</h2>
+            </div>
 
-                <div class="card-body">
-                    <form class="forms-sample" action="{% url 'add_material' invoice.id %}" method="post"
-                          enctype="multipart/form-data">
 
-                        <input type="text" name="id" value="{{ invoice.id }}" style="display: none">
+            <div class="card-body">
+                <form class="forms-sample" action="{% url 'add_material' invoice.id %}" method="post"
+                      enctype="multipart/form-data">
 
-                        <div class="form-group">
-                            <label>Материалы</label>
-                            <input type="file" name="doc_file" class="form-control">
+                    <input type="text" name="id" value="{{ invoice.id }}" style="display: none">
 
-                        </div>
-                        {% csrf_token %}
-                        <button type="submit" class="btn btn-primary mr-2">Сохранить</button>
-{#                        <button class="btn btn-light">Cancel</button>#}
+                    <div class="form-group">
+                        <label>Материалы</label>
+                        <input type="file" name="doc_file" class="form-control" required>
 
-                    </form>
-                </div>
+                    </div>
+
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-primary mr-2">Сохранить</button>
+                    {#                        <button class="btn btn-light">Cancel</button>#}
+
+                </form>
             </div>
         </div>
+    </div>
 
 {% endblock %}
+

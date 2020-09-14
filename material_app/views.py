@@ -55,6 +55,8 @@ class AddMaterialView(generic.TemplateView):
         sheet = wb.get_sheet_by_name(sheet_name)
         data = list(sheet.values)
         for item in data:
+            if item[0] is None:
+               continue
             name = item[0]
             quantuty = item[1]
             units = item[2]
@@ -63,9 +65,13 @@ class AddMaterialView(generic.TemplateView):
             instriment_code = None
             if len(item) > 5:
                 instriment_code = item[5]
-
+            if (isinstance(quantuty, int)) == False:
+                quantuty = int(quantuty)
+            if (isinstance(price, int)) == False:
+                price = int(price)
+            sum_price = quantuty * price
             material = Material.objects.create(invoice=invoice, name=name, quantity=quantuty, units=units, price=price,
-                                               sum_price=sum_price)
+                                               sum_price=int(sum_price))
 
             if instriment_code == 1:
                 instriment_code = 'I' + object_slug + '-' + str(datetime.datetime.now().year) + '-'
@@ -329,7 +335,7 @@ def release_materials(request):
 
 @method_decorator(login_required(login_url='/accounts/login/'), name='dispatch')
 class ReleasedMaterialsView(generic.TemplateView):
-    template_name = 'materials/store_mateials/relesed_materials_list.html'
+    template_name = 'materials/store_mateials/released_materials_list.html'
 
     def get(self, request, *args, **kwargs):
         construction_object = ConstructionObject.objects.get(contract__slug=self.kwargs['slug'])
@@ -340,7 +346,7 @@ class ReleasedMaterialsView(generic.TemplateView):
             'construction_object': construction_object,
             'relesed_materials': ReleasedMaterial.objects.filter(contract__slug=self.kwargs['slug'],
                                                                  items__material__instrument_code=None).order_by(
-                'id').distinct()
+                '-id').distinct()
         }
         return super().get(request, *args, **kwargs)
 
@@ -443,7 +449,7 @@ class AddReleaseWaybillView(generic.TemplateView):
         released_waybill = request.FILES['waybill']
         released_material.release_waybill = released_waybill
         released_material.save()
-        return redirect('/detail/relesed_materials/' + str(self.kwargs['id']))
+        return redirect('/contract/' + released_material.contract.slug + '/relesed_materials')
 
 
 @method_decorator(login_required(login_url='/accounts/login/'), name='dispatch')
@@ -468,7 +474,7 @@ class AddFinalWaybillView(generic.TemplateView):
         final_waybill = request.FILES['waybill']
         released_material.final_waybill = final_waybill
         released_material.save()
-        return redirect('/detail/relesed_materials/' + str(self.kwargs['id']))
+        return redirect('/contract/'+ released_material.contract.slug + '/relesed_materials')
 
 
 @method_decorator(login_required(login_url='/accounts/login/'), name='dispatch')
