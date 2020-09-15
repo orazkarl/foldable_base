@@ -12,8 +12,8 @@
 
                         <input type="text" name="contract" value="{{ contract.id }}" style="display: none">
                         <div class="form-group">
-                            <label for="name">Название</label>
-                            <input type="text" class="form-control" id="name" placeholder="Название" name="name" required>
+                            <label for="name">Название заявки</label>
+                            <input type="text" class="form-control" id="name" placeholder="Название" name="name" value="Заявка {{ contract.request_for_material.all.count|add:1 }}" required>
                         </div>
                         <div class="form-group">
                             <label>Заявка</label>

@@ -40,14 +40,25 @@
                             <tr>
                                 <th scope="row">{{ forloop.counter }}</th>
                                 <td>
-                                        <a href="{% url 'contract_detail' contract.slug %}"
-                                           style="color: #4da3ff">{{ contract.name }}</a>
+                                    <a href="{% url 'contract_detail' contract.slug %}"
+                                       style="color: #4da3ff">{{ contract.name }}</a>
 
-                                        </td>
+                                </td>
 
                                 <td>{{ contract.contractor }}</td>
                                 <td>{{ contract.number_contract }}</td>
-                                <td><a href="{{ contract.contract_file.url }}" style="color: #4da3ff; " target="_blank">посмотреть</a>
+                                <td>
+                                    <a href=
+                                               {% if '.doc' in contract.contract_file.url %}
+                                                   "https://docs.google.com/gview?url=
+                                    {{ request.META.HTTP_HOST }}{{ contract.contract_file.url }}"
+                                               {% else %}
+                                                   "{{ contract.contract_file.url }}"
+                                               {% endif %} style="color: #4da3ff; " target="_blank">посмотреть
+
+
+                                    </a>
+                                </td>
                                 <td>{{ contract.bin }}</td>
                                 <td>{{ contract.date_contract }}</td>
                                 <td>{{ contract.get_status_display }}</td>
