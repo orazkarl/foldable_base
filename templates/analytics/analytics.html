@@ -133,6 +133,9 @@
                     </table>
                     <div class="container-fluid" style="margin-bottom: 15px">
                         {#                        <a href="{% url 'export_analytics' object.slug %}" class="btn btn-success">Экспорт в Excel</a>#}
+                        <input type="text"  name="construction_object_id" value="{{ construction_object.id }}" style="display:none;">
+                        <input type="text" name="start_date" value="{{ request.GET.start_date }}" style="display:none;">
+                        <input type="text" name="end_date" value="{{ request.GET.end_date }}" style="display:none;">
                         <button type="submit" class="btn btn-success">Экспорт в Excel</button>
                     </div>
                     </form>

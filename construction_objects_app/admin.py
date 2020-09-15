@@ -11,7 +11,7 @@ admin.site.site_title = "АДМИН ПАНЕЛЬ"
 
 @admin.register(ConstructionObject)
 class ConstructionObjectAdmin(admin.ModelAdmin):
-    list_display = ['name']
+    list_display = ['name', 'created_at']
     prepopulated_fields = {'slug': ('name',)}
 
 

@@ -6,4 +6,5 @@ urlpatterns = [
     path('construction_objects/<slug:slug>/total_stats', views.TotalStats.as_view(), name='total_stats'),
     path('construction_objects/<slug:slug>/released_material_stats', views.ReleasedMaterialsStats.as_view(), name='released_material_stats'),
     path('construction_objects/<slug:slug>/analytics/export', views.export_analytics, name='export_analytics'),
+    path('export_total_stats', views.export_total_stats, name='export_total_stats'),
 ]
