@@ -50,8 +50,7 @@
                                 <td>
                                     <a href=
                                                {% if '.doc' in contract.contract_file.url %}
-                                                   "https://docs.google.com/gview?url=
-                                    {{ request.META.HTTP_HOST }}{{ contract.contract_file.url }}"
+                                                   "https://docs.google.com/gview?url={{ request.META.HTTP_HOST }}{{ contract.contract_file.url }}"
                                                {% else %}
                                                    "{{ contract.contract_file.url }}"
                                                {% endif %} style="color: #4da3ff; " target="_blank">посмотреть
