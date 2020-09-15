@@ -80,12 +80,12 @@ class ContractAddView(generic.TemplateView):
 
     def post(self, request, *args, **kwargs):
         construction_object_id = request.POST['construction_object']
-        name = request.POST['name']
+        name = request.POST['name_contract']
         contractor = request.POST['contractor']
-        doc_file = request.FILES['doc_file']
+        doc_file = request.FILES['doc_file_contract']
         number_contract = request.POST['number_contract']
-        status = request.POST['status']
-        bin = request.POST['bin']
+        status = request.POST['status_contract']
+        bin = request.POST['bin_contract']
         date_contract = request.POST['date_contract']
         if slugify(name) == None:
             slug = name
@@ -122,15 +122,15 @@ class ContractEditView(generic.TemplateView):
     def post(self, request, *args, **kwargs):
         contract = Contract.objects.get(slug=self.kwargs['slug'])
         construction_object_id = request.POST['construction_object']
-        name = request.POST['name']
+        name = request.POST['name_contract']
         contractor = request.POST['contractor']
         number_contract = request.POST['number_contract']
-        status = request.POST['status']
-        bin = request.POST['bin']
+        status = request.POST['status_contract']
+        bin = request.POST['bin_contract']
         date_contract = request.POST['date_contract']
         slug = slugify(name)
         if request.FILES:
-            contract_file = request.FILES['doc_file']
+            contract_file = request.FILES['doc_file_contract']
         else:
             contract_file = contract.contract_file
 
@@ -253,10 +253,9 @@ class InvoiceForPaymentAddView(generic.TemplateView):
 
     def post(self, request, id):
         request_for_material = RequestForMaterial.objects.get(pk=int(request.POST['request_for_material_id']))
-        print(request_for_material)
-        doc_file = request.FILES['doc_file']
-        bin = request.POST['bin']
-        name_company = request.POST['name']
+        doc_file = request.FILES['doc_file_invoice']
+        bin = request.POST['bin_invoice']
+        name_company = request.POST['name_invoice']
         comment = request.POST['comment']
         is_cash = 'off'
         if 'is_cash' in request.POST:

@@ -14,11 +14,11 @@
                     <input type="text" name="request_for_material_id" value="{{ request_for_material.id }}" style="display: none">
                     <div class="form-group">
                         <label>БИН поставщика</label>
-                        <input type="text" name="bin" class="form-control" placeholder="БИН" required>
+                        <input type="text" name="bin_invoice" class="form-control" placeholder="БИН" required>
                     </div>
                     <div class="form-group">
                         <label>Название поставщика</label>
-                        <input type="text" name="name" class="form-control" placeholder="Название компании" required>
+                        <input type="text" name="name_invoice" class="form-control" placeholder="Название компании" required>
 
                     </div>
                     <div class="form-group">
@@ -32,7 +32,7 @@
                     </div>
                     <div class="form-group">
                         <label>Счет</label>
-                        <input type="file" name="doc_file" class="form-control" required>
+                        <input type="file" name="doc_file_invoice" class="form-control" required>
                     </div>
 
                     {% csrf_token %}

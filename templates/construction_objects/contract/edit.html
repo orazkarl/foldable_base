@@ -18,8 +18,8 @@
 
                     <input type="text" name="construction_object" value="{{ construction_object.id }}" style="display:none;">
                     <div class="form-group">
-                        <label for="name">Название</label>
-                        <input type="text" class="form-control" id="name" placeholder="Название" name="name"
+                        <label for="name">Название работы</label>
+                        <input type="text" class="form-control" id="name" placeholder="Название" name="name_contract"
                                value="{{ contract.name }}">
                     </div>
                     <div class="form-group">
@@ -33,7 +33,7 @@
                         На данный момент: <a href="{{ contract.contract_file.url }}" download>{{ contract.contract_file }}</a>
                         <br>
                         Изменить:
-                        <input type="file" name="doc_file" class="form-control">
+                        <input type="file" name="doc_file_contract" class="form-control">
                     </div>
                     <div class="form-group">
                         <label for="number_contract">Номер договора</label>
@@ -44,7 +44,7 @@
                     <div class="form-group">
                         <label for="bin">БИН</label>
                         <input type="text" class="form-control" id="bin"
-                               placeholder="БИН" name="bin" value="{{ contract.bin }}">
+                               placeholder="БИН" name="bin_contract" value="{{ contract.bin }}">
                     </div>
                     <div class="form-group">
                         <label for="date_contract">Дата договора</label>
@@ -54,7 +54,7 @@
                     <div class="form-group">
                         <label for="status">Статус работы</label>
 
-                        <select class="form-control" id="status" name="status">
+                        <select class="form-control" id="status" name="status_contract">
                             <option value="1" {% if contract.status == 'в работе' %}selected {% endif %}>
                                 в работе
                             </option>

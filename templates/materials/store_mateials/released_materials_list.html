@@ -52,13 +52,13 @@
                                 <td>{% if released_material.is_done == False %}
                                     <a href="{% url 'return_relesed_materials' released_material.id %}"
                                        style="color: #4da3ff">Возврат</a>{% endif %}</td>
-                                <td><a href="/media/waybill/nakladnaya-
-                                        {{ released_material.contract.name }}{{ released_material.id }}.docx"
-                                       style="color: #4da3ff" download>Скачать</a></td>
-                                <td>{% if released_material.is_done %}<a href="/media/waybill/nakladnaya_final-
-                                        {{ released_material.contract.name }}{{ released_material.id }}.docx"
-                                                                        style="color: #4da3ff"
-                                                                        download>Скачать</a>{% endif %}</td>
+                                <td>
+                                    <a href="/media/waybill/nakladnaya-{{ released_material.contract.name }}{{ released_material.id }}.docx"
+                                       style="color: #4da3ff" download>Скачать</a>
+                                </td>
+                                <td>{% if released_material.is_done %}<a href="/media/waybill/nakladnaya_final-{{ released_material.contract.name }}{{ released_material.id }}.docx"
+                                                                         style="color: #4da3ff"
+                                                                         download>Скачать</a>{% endif %}</td>
                                 {#                                    <td>{{ material.release_count }}</td>#}
                                 {#                                    <td>{{ material.quantity|sub:material.release_count }}</td>#}
                                 {#                                    <td>{{ material.units }}</td>#}
@@ -69,13 +69,15 @@
                                     <a href="{% url 'add_release_waybill' released_material.id %}"
                                        class="btn btn-primary">Загрузить</a>{% endif %}
                                 </td>
-                            <td>
-                                {% if released_material.final_waybill %}
-                                <a href="{{ released_material.final_waybill.url }}" style="color: #4da3ff"
-                                   download>скачать</a>{% else %}
-                                <a href="{% url 'add_final_waybill' released_material.id %}"
-                                   class="btn btn-primary">Загрузить</a>{% endif %}
-                            </td>
+                                <td>
+                                {% if released_material.is_done and released_material.release_waybill %}
+                                    {% if released_material.final_waybill %}
+                                        <a href="{{ released_material.final_waybill.url }}" style="color: #4da3ff"
+                                           download>скачать</a>{% else %}
+                                        <a href="{% url 'add_final_waybill' released_material.id %}"
+                                           class="btn btn-primary">Загрузить</a>{% endif %}
+                                {% endif %}
+                                </td>
                             </tr>
                         {% endfor %}
 
