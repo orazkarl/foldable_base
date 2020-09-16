@@ -55,7 +55,8 @@ class TotalStats(generic.TemplateView):
         materials = Material.objects.filter(
             invoice__request_for_material__contract__construction_object=construction_object, is_delivery=True,
             invoice__is_done=True)
-
+        if list(materials)==[]:
+            return super().get(request, *args, **kwargs)
         total_sum_price = round(materials.aggregate(Sum('sum_price'))['sum_price__sum'])
 
         is_cash_total_sum_price = round(
