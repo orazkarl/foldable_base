@@ -1,3 +1,4 @@
+from django.shortcuts import redirect
 from django.http import HttpResponse, FileResponse
 from django.views import generic
 from django.contrib.auth.decorators import login_required
@@ -188,16 +189,16 @@ def export_analytics(request, slug):
         ws['M' + str(count_materials + 9)] = request.POST['total_sum_price']
 
         response = HttpResponse(save_virtual_workbook(wb), content_type='application/vnd.ms-excel')
+        response['Content-Disposition'] = 'attachment; filename=analytics.xlsx'
         return response
 
 
 def export_total_stats(request):
     if request.POST:
-
         context = {
             'construction_object_name': request.POST['construction_object_name'],
             'start_date': request.POST['start_date'],
-            'end_date':request.POST['start_date'],
+            'end_date': request.POST['start_date'],
             'contracts_count': request.POST['contracts_count'],
             'in_work_count': request.POST['in_work_count'],
             'finished_count': request.POST['finished_count'],
@@ -215,3 +216,55 @@ def export_total_stats(request):
         tpl.save(byte_io)
         byte_io.seek(0)
         return FileResponse(byte_io, as_attachment=True, filename='total_stats.docx')
+
+
+def export_release_mat_stats(request):
+    if request.POST:
+        construction_object = ConstructionObject.objects.get(id=int(request.POST['construction_object_id']))
+        start_date = request.POST['start_date']
+        end_date = request.POST['end_date']
+
+        if start_date == '':
+            start_date = str(construction_object.created_at.date())
+        if end_date == '':
+            end_date = str(datetime.datetime.today().date())
+        start_date = str(start_date).split('-')
+        start_date = start_date[2] + '.' + start_date[1] + '.' + start_date[0]
+        end_date = str(end_date).split('-')
+        end_date = end_date[2] + '.' + end_date[1] + '.' + end_date[0]
+        wb = load_workbook('mediafiles/release_mat_stats.xlsx')
+        ws = wb.active
+        ws['C2'] = 'Отчет движения материальных ценностей по объекту "' + construction_object.name + '"'
+        ws['D4'] = start_date
+        ws['D5'] = end_date
+        count_release_material = request.POST['count_release_material']
+        a = 9
+        for i in range(1, int(count_release_material) + 1):
+            release_material_id = request.POST['release_material' + str(i)]
+            release_material = ReleasedMaterial.objects.get(id=release_material_id)
+            count_materials = release_material.items.count()
+            ws['B' + str(a)] = release_material.release_date.astimezone(pytz.timezone('Asia/Almaty')).strftime(
+                "%d.%m.%Y %H:%M ")
+            ws['A' + str(a)] = release_material.unique_code
+
+            for material in release_material.items.all():
+                instrument_code = material.material.instrument_code
+                if material.material.instrument_code is None:
+                    instrument_code = 'Нет'
+                ws['C' + str(a)] = material.material.name
+                ws['D' + str(a)] = material.material.invoice.request_for_material.contract.name
+                ws['E' + str(a)] = material.material.quantity
+                ws['F' + str(a)] = material.release_count
+                ws['G' + str(a)] = material.return_count
+                ws['H' + str(a)] = material.material.quantity - material.release_count + material.return_count
+                ws['I' + str(a)] = material.material.units
+                ws['J' + str(a)] = instrument_code
+                a += 1
+        for row in ws["A9:J" + str(a-1)]:
+            for cell in row:
+                cell.style = 'Output'
+
+        response = HttpResponse(save_virtual_workbook(wb), content_type='application/vnd.ms-excel')
+        response['Content-Disposition'] = 'attachment; filename=hod_dvizhenij.xlsx'
+        return response
+        # return redirect('/construction_objects/nurly-tau/released_material_stats')

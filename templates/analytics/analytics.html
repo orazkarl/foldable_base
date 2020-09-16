@@ -34,7 +34,8 @@
                                 </div>
                                 <br>
                                 <input type="submit" value="Фильтр" class="btn btn-primary">
-                                <a href="{% url 'analytics' construction_object.slug %}" class="btn btn-danger">Сброс</a>
+                                <a href="{% url 'analytics' construction_object.slug %}"
+                                   class="btn btn-danger">Сброс</a>
                             </form>
 
                         </div>
@@ -47,30 +48,30 @@
                         </div>
 
                     </div>
+                    <form action="{% url 'export_analytics' construction_object.slug %}" method="post">
+                        {% csrf_token %}
+                        <table class="table" style="font-size:15px">
+                            <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Название</th>
+                                <th>Работа</th>
+                                <th>Статус работы</th>
+                                <th>Заявка обработана?</th>
+                                <th>Количество</th>
+                                <th>Отпущено</th>
+                                {#                            <th>Отпущено (период)</th>#}
+                                <th>Остаток</th>
+                                <th>ед. изм.</th>
+                                <th>Код инструмента</th>
+                                <th>Наличный?</th>
+                                <th>Цена</th>
+                                <th>Сумма</th>
 
-                    <table class="table" style="font-size:15px">
-                        <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>Название</th>
-                            <th>Работа</th>
-                            <th>Статус работы</th>
-                            <th>Заявка обработана?</th>
-                            <th>Количество</th>
-                            <th>Отпущено</th>
-                            {#                            <th>Отпущено (период)</th>#}
-                            <th>Остаток</th>
-                            <th>ед. изм.</th>
-                            <th>Код инструмента</th>
-                            <th>Наличный?</th>
-                            <th>Цена</th>
-                            <th>Сумма</th>
+                            </tr>
+                            </thead>
+                            <tbody id="materials_list">
 
-                        </tr>
-                        </thead>
-                        <tbody id="materials_list">
-                        <form action="{% url 'export_analytics' construction_object.slug %}" method="post">
-                            {% csrf_token %}
                             <div>
 
                                 {% for material in filter.qs %}
@@ -100,8 +101,8 @@
                                             {% endif %}
                                         </td>
                                         <td>{% if material.invoice.is_cash %}Да {% else %}Нет{% endif %}</td>
-                                        <td>{{ material.price|intcomma  }}</td>
-                                        <td>{{ material.sum_price|intcomma  }}</td>
+                                        <td>{{ material.price|intcomma }}</td>
+                                        <td>{{ material.sum_price|intcomma }}</td>
                                     </tr>
 
 
@@ -122,22 +123,24 @@
                                     <th scope="row">{{ total_sum_price|intcomma }}₸</th>
                                     <input type="text" name="count_materials" value="{{ filter.qs.count }}"
                                            style="display:none;">
-                                    <input type="text" name="total_sum_price" value="{{ total_sum_price}}"
+                                    <input type="text" name="total_sum_price" value="{{ total_sum_price }}"
                                            style="display: none">
                                 </tr>
 
                             </div>
 
-                        </tbody>
+                            </tbody>
 
-                    </table>
-                    <div class="container-fluid" style="margin-bottom: 15px">
-                        {#                        <a href="{% url 'export_analytics' object.slug %}" class="btn btn-success">Экспорт в Excel</a>#}
-                        <input type="text"  name="construction_object_id" value="{{ construction_object.id }}" style="display:none;">
-                        <input type="text" name="start_date" value="{{ request.GET.start_date }}" style="display:none;">
-                        <input type="text" name="end_date" value="{{ request.GET.end_date }}" style="display:none;">
-                        <button type="submit" class="btn btn-success">Экспорт в Excel</button>
-                    </div>
+                        </table>
+                        <div class="container-fluid" style="margin-bottom: 15px">
+                            {#                        <a href="{% url 'export_analytics' object.slug %}" class="btn btn-success">Экспорт в Excel</a>#}
+                            <input type="text" name="construction_object_id" value="{{ construction_object.id }}"
+                                   style="display:none;">
+                            <input type="text" name="start_date" value="{{ request.GET.start_date }}"
+                                   style="display:none;">
+                            <input type="text" name="end_date" value="{{ request.GET.end_date }}" style="display:none;">
+                            <button type="submit" class="btn btn-success">Экспорт в Excel</button>
+                        </div>
                     </form>
                 </div>
             </div>
