@@ -55,55 +55,56 @@ class TotalStats(generic.TemplateView):
         materials = Material.objects.filter(
             invoice__request_for_material__contract__construction_object=construction_object, is_delivery=True,
             invoice__is_done=True)
-        if list(materials)==[]:
-            return super().get(request, *args, **kwargs)
-        total_sum_price = round(materials.aggregate(Sum('sum_price'))['sum_price__sum'])
-
-        is_cash_total_sum_price = round(
-            materials.filter(invoice__is_cash=True).aggregate(Sum('sum_price'))['sum_price__sum'])
-
-        start_date_default = datetime.datetime(2020, 8, 1, tzinfo=pytz.UTC)
-        end_date_default = datetime.datetime.today().date()
-        in_work = contracts.filter(status='1')
-        finished = contracts.filter(status='2')
-        not_finished = contracts.filter(status='3')
-        check = contracts.filter(status='4')
-        is_done_request_mat = request_mats.filter(is_done=True)
-        if 'start_date' in request.GET:
-            start_date_default = request.GET['start_date'].replace('-', '/')
-            end_date_default = request.GET['end_date'].replace('-', '/')
-            start_date_default = datetime.datetime.strptime(start_date_default, '%Y/%m/%d')
-            end_date_default = datetime.datetime.strptime(end_date_default, '%Y/%m/%d')
-            contracts = contracts.filter(created_at__gte=start_date_default,
-                                         created_at__lte=end_date_default)
-            request_mats = request_mats.filter(created_at__gte=start_date_default,
-                                               created_at__lte=end_date_default)
-            materials = materials.filter(created_at__gte=start_date_default,
-                                         created_at__lte=end_date_default + datetime.timedelta(days=1))
-
-            in_work = contracts.filter(status='1')
-            finished = contracts.filter(status='2')
-            not_finished = contracts.filter(status='3')
-            check = contracts.filter(status='4')
-            is_done_request_mat = request_mats.filter(is_done=True)
-            total_sum_price = materials.aggregate(Sum('sum_price'))['sum_price__sum']
-
         self.extra_context = {
             'construction_object': construction_object,
             'contracts': contracts,
             'request_mats': request_mats,
             'materials': materials,
-            'total_sum_price': total_sum_price,
-            'start_date_default': start_date_default,
-            'end_date_default': end_date_default,
-            'in_work': in_work,
-            'finished': finished,
-            'not_finished': not_finished,
-            'check': check,
-            'is_done_request_mat': is_done_request_mat,
-            'is_cash_total_sum_price': is_cash_total_sum_price
 
         }
+        if list(materials)!=[]:
+            total_sum_price = round(materials.aggregate(Sum('sum_price'))['sum_price__sum'])
+
+            is_cash_total_sum_price = round(
+                materials.filter(invoice__is_cash=True).aggregate(Sum('sum_price'))['sum_price__sum'])
+
+            start_date_default = datetime.datetime(2020, 8, 1, tzinfo=pytz.UTC)
+            end_date_default = datetime.datetime.today().date()
+            in_work = contracts.filter(status='1')
+            finished = contracts.filter(status='2')
+            not_finished = contracts.filter(status='3')
+            check = contracts.filter(status='4')
+            is_done_request_mat = request_mats.filter(is_done=True)
+            if 'start_date' in request.GET:
+                start_date_default = request.GET['start_date'].replace('-', '/')
+                end_date_default = request.GET['end_date'].replace('-', '/')
+                start_date_default = datetime.datetime.strptime(start_date_default, '%Y/%m/%d')
+                end_date_default = datetime.datetime.strptime(end_date_default, '%Y/%m/%d')
+                contracts = contracts.filter(created_at__gte=start_date_default,
+                                             created_at__lte=end_date_default)
+                request_mats = request_mats.filter(created_at__gte=start_date_default,
+                                                   created_at__lte=end_date_default)
+                materials = materials.filter(created_at__gte=start_date_default,
+                                             created_at__lte=end_date_default + datetime.timedelta(days=1))
+
+                in_work = contracts.filter(status='1')
+                finished = contracts.filter(status='2')
+                not_finished = contracts.filter(status='3')
+                check = contracts.filter(status='4')
+                is_done_request_mat = request_mats.filter(is_done=True)
+                total_sum_price = materials.aggregate(Sum('sum_price'))['sum_price__sum']
+                self.extra_context.update({
+                    'total_sum_price': total_sum_price,
+                    'start_date_default': start_date_default,
+                    'end_date_default': end_date_default,
+                    'in_work': in_work,
+                    'finished': finished,
+                    'not_finished': not_finished,
+                    'check': check,
+                    'is_done_request_mat': is_done_request_mat,
+                    'is_cash_total_sum_price': is_cash_total_sum_price
+                })
+
 
         return super().get(request, *args, **kwargs)
 
