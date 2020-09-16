@@ -62,10 +62,10 @@
                                 <th>Название</th>
                                 <th>Работа</th>
                                 <th>Количество (Общее)</th>
-                                {#                            <th>Количество (Были)</th>#}
+                                <th>Количество (Были)</th>
                                 <th>Отпущено</th>
                                 <th>Возврат</th>
-                                {#                            <th>Остаток</th>#}
+<th>Остаток</th>
                                 <th>ед. изм.</th>
                                 <th>Код инструмента</th>
                                 {#                            <th>Цена</th>#}
@@ -99,6 +99,7 @@
                                         <td>{{ material.material.quantity }}</td>
                                         <td>{{ material.release_count }}</td>
                                         <td>{{ material.return_count }}</td>
+                                        <td>{{ material.material.quantity|sub:material.material.release_count }}</td>
                                         <td>{{ material.material.units }}</td>
                                         <td>
                                             {% if material.material.instrument_code == None %}

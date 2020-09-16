@@ -256,7 +256,7 @@ def export_release_mat_stats(request):
                 ws['E' + str(a)] = material.material.quantity
                 ws['F' + str(a)] = material.release_count
                 ws['G' + str(a)] = material.return_count
-                ws['H' + str(a)] = material.material.quantity - material.release_count + material.return_count
+                ws['H' + str(a)] = material.material.quantity - material.material.release_count
                 ws['I' + str(a)] = material.material.units
                 ws['J' + str(a)] = instrument_code
                 a += 1

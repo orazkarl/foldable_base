@@ -148,8 +148,8 @@
                                style="display:none;">
                             <input type="text" name="is_cash_total_sum_price" value="{{ is_cash_total_sum_price|intcomma }}"
                                style="display:none;">
-                        <input type="text" name="start_date" value="{{ start_date_default|date:"d.m.Y" }}">
-                        <input type="text" name="end_date" value="{{ end_date_default|date:"d.m.Y" }}">
+                        <input type="text" name="start_date" value="{{ start_date_default|date:"d.m.Y" }}" style="display: none">
+                        <input type="text" name="end_date" value="{{ end_date_default|date:"d.m.Y" }}" style="display: none">
                         <button type="submit" class="btn btn-success">Экспорт в Excel</button>
                     </form>
                 </div>
