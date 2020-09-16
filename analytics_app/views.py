@@ -254,15 +254,23 @@ def export_release_mat_stats(request):
                 ws['C' + str(a)] = material.material.name
                 ws['D' + str(a)] = material.material.invoice.request_for_material.contract.name
                 ws['E' + str(a)] = material.material.quantity
-                ws['F' + str(a)] = material.release_count
-                ws['G' + str(a)] = material.return_count
-                ws['H' + str(a)] = material.material.quantity - material.material.release_count
-                ws['I' + str(a)] = material.material.units
-                ws['J' + str(a)] = instrument_code
+                ws['F' + str(a)] = material.remainder_count
+                ws['G' + str(a)] = material.release_count
+                ws['H' + str(a)] = material.return_count
+                ws['I' + str(a)] = material.remainder_count - material.release_count + material.return_count
+                ws['J' + str(a)] = material.material.units
+                ws['K' + str(a)] = instrument_code
+                for row in ws["A"+str(a):"K"+str(a)]:
+                    for cell in row:
+                        cell.style = 'Output'
                 a += 1
-        for row in ws["A9:J" + str(a-1)]:
-            for cell in row:
-                cell.style = 'Output'
+
+
+            a+=1
+
+        # for row in ws["A9:K" + str(a-1)]:
+        #     for cell in row:
+        #         cell.style = 'Output'
 
         response = HttpResponse(save_virtual_workbook(wb), content_type='application/vnd.ms-excel')
         response['Content-Disposition'] = 'attachment; filename=hod_dvizhenij.xlsx'

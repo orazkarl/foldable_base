@@ -69,7 +69,7 @@
                                         <td>{{ material.name }}</td>
                                         <td>{{ material.quantity }}</td>
                                         <td>{{ material.release_count }}</td>
-                                        <td>{{ material.quantity|sub:material.release_count }}</td>
+                                        <td>{{ material.remainder_count }}</td>
                                         <td>{{ material.units }}</td>
                                         <td>
                                             {% if material.instrument_code == None %}

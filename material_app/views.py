@@ -56,7 +56,7 @@ class AddMaterialView(generic.TemplateView):
         data = list(sheet.values)
         for item in data:
             if item[0] is None:
-               continue
+                continue
             name = item[0]
             quantuty = item[1]
             units = item[2]
@@ -143,6 +143,7 @@ class InvoicePaidMaterialsView(generic.TemplateView):
                 material.is_delivery = True
                 material.status = 'ок'
                 material.ok = material.quantity
+                material.remainder_count = material.quantity
                 material.marriage, material.shortage, material.inconsistency = 0, 0, 0
                 material.save()
         elif request.POST['submit'] == 'marriage':
@@ -178,8 +179,7 @@ def marriage_materials(request):
             invoice = material.invoice
         if request.POST['comment']:
             message += 'Примечение: ' + request.POST['comment'] + '\n'
-        construction_object = ConstructionObject.objects.get(
-            contract__request_for_material__invoice_for_payment=invoice)
+        construction_object = ConstructionObject.objects.get(contract__request_for_material__invoice_for_payment=invoice)
         if request.user.role == 'accountant' or request.user.role == 'purchaser' or construction_object not in list(
                 request.user.construction_objects.all()):
             return render(request, template_name='404.html')
@@ -288,12 +288,13 @@ def release_materials(request):
         for i in range(1, int(request.POST['count']) + 1):
             material = Material.objects.get(id=int(request.POST['material' + str(i)]))
             released_materials_count = int(request.POST['release' + str(i)])
-            material.remainder_count = material.quantity - material.release_count
             material.release_count = material.release_count + released_materials_count
+            material.remainder_count = material.remainder_count - released_materials_count
             is_instrument = material.is_instrument
             material.save()
             ReleasedMaterialItem.objects.create(released_material=released_material, material=material,
-                                                release_count=released_materials_count)
+                                                release_count=released_materials_count,
+                                                remainder_count=material.remainder_count + released_materials_count)
         unique_code = ''
         for i in construction_object.name.split(' '):
             if slugify(i) != None:
@@ -323,7 +324,6 @@ def release_materials(request):
             'materials': ReleasedMaterialItem.objects.filter(released_material=released_material),
             'indexs': indexs,
             'contract_name': contract.name,
-
         }
 
         tpl = DocxTemplate(os.path.join(BASE_DIR, 'mediafiles/nakladnaya.docx'))
@@ -377,10 +377,11 @@ class ReturnReleaseMaterialsView(generic.TemplateView):
             material = Material.objects.get(id=int(request.POST['material' + str(i)]))
             released_material_item = ReleasedMaterialItem.objects.get(material=material,
                                                                       released_material=released_material)
-            return_material = request.POST['return_mat' + str(i)]
-            material.release_count = material.release_count - int(return_material)
+            return_material_count = int(request.POST['return_mat' + str(i)])
+            material.release_count = material.release_count - return_material_count
+            material.remainder_count = material.remainder_count + return_material_count
             material.save()
-            released_material_item.return_count = return_material
+            released_material_item.return_count = return_material_count
             released_material_item.save()
 
             indexs = list(
@@ -474,7 +475,7 @@ class AddFinalWaybillView(generic.TemplateView):
         final_waybill = request.FILES['waybill']
         released_material.final_waybill = final_waybill
         released_material.save()
-        return redirect('/contract/'+ released_material.contract.slug + '/relesed_materials')
+        return redirect('/contract/' + released_material.contract.slug + '/relesed_materials')
 
 
 @method_decorator(login_required(login_url='/accounts/login/'), name='dispatch')

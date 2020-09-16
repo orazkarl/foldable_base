@@ -66,6 +66,7 @@ class ReleasedMaterialItem(models.Model):
                                          verbose_name='Отпускаемый материал')
     material = models.ForeignKey(Material, related_name='release_material_items', on_delete=models.CASCADE,
                                  verbose_name='Материал')
+    remainder_count = models.PositiveIntegerField('Сколько было?')
     release_count = models.PositiveIntegerField('Сколько отпустил?')
     return_count = models.PositiveIntegerField('Возвращено', default=0)
 

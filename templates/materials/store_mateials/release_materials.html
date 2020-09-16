@@ -44,7 +44,7 @@
                                     <td><input type="text" class="form-control" name="release{{ forloop.counter }}"
                                                value="0" id="release{{ forloop.counter }}"></td>
                                     <td><input type="text" class="form-control" id="quantity{{ forloop.counter }}"
-                                               value="{{ material.quantity|sub:material.release_count }}" disabled></td>
+                                               value="{{ material.remainder_count }}" disabled></td>
                                 </tr>
                             {% endfor %}
 

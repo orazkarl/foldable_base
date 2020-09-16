@@ -62,10 +62,10 @@
                                 <th>Название</th>
                                 <th>Работа</th>
                                 <th>Количество (Общее)</th>
-{#                                <th>Количество (Были)</th>#}
+                                <th>Количество (Были)</th>
                                 <th>Отпущено</th>
                                 <th>Возврат</th>
-<th>Остаток</th>
+                                <th>Остаток</th>
                                 <th>ед. изм.</th>
                                 <th>Код инструмента</th>
                                 {#                            <th>Цена</th>#}
@@ -74,10 +74,10 @@
                             </thead>
                             <tbody id="materials_list">
                             <input type="text" name="count_release_material" value="{{ filter.qs.count }}"
-                                           style="display:none;">
+                                   style="display:none;">
                             {% for release_material in filter.qs %}
                                 <input type="text" name="release_material{{ forloop.counter }}"
-                                               value="{{ release_material.id }}" style="display: none">
+                                       value="{{ release_material.id }}" style="display: none">
 
                                 <tr>
                                     <th>{{ release_material.unique_code }}</th>
@@ -97,9 +97,10 @@
                                         <td>{{ material.material.name }}</td>
                                         <td>{{ release_material.contract }}</td>
                                         <td>{{ material.material.quantity }}</td>
+                                        <td>{{ material.remainder_count }}</td>
                                         <td>{{ material.release_count }}</td>
                                         <td>{{ material.return_count }}</td>
-                                        <td>{{ material.material.quantity|sub:material.material.release_count }}</td>
+                                        <td>{{ material.remainder_count|sub:material.release_count|add:material.return_count }}</td>
                                         <td>{{ material.material.units }}</td>
                                         <td>
                                             {% if material.material.instrument_code == None %}
@@ -108,7 +109,6 @@
                                                 {{ material.material.instrument_code }}
                                             {% endif %}
                                         </td>
-                                        {#                                    <td>{{ material.material.price }}</td>#}
 
                                     </tr>
 

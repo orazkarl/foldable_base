@@ -24,11 +24,13 @@
 
                     <div class="form-group">
                         <label>Материалы</label>
-                        <div style="position: fixed; width: 100%;">
-                            <p style="margin-top: 50px; width: 300px; margin-left: 10px ">Перетащите сюда файл, чтобы прикрепить их</p>
+                        <input type="file" name="doc_file" class="form-control" style="height: 200px;" required>
+                        <div style="position: absolute; margin-top: -200px;pointer-events: none">
+                            <p style="margin-top: 50px; width: 300px; margin-left: 10px; ">Перетащите сюда файл, чтобы
+                                прикрепить их</p>
                         </div>
-                        <input type="file" name="doc_file" class="form-control" style="height: 200px"
-                               data-title="Drag and drop a file" required>
+
+
                     </div>
 
                     {% csrf_token %}
