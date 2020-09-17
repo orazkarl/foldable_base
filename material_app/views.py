@@ -208,6 +208,7 @@ def return_materials(request):
                 material.quantity = material.quantity - return_materials_count
                 material.marriage, material.shortage, material.inconsistency = 0, 0, 0
                 material.ok = material.quantity
+                material.remainder_count = material.quantity
                 material.status = 'ок'
                 material.save()
             message += str(i) + '. ' + material.name + '\n' + 'Количество: ' + str(
