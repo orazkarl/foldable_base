@@ -17,11 +17,21 @@
                         <p>Работа: {{ materials.first.invoice.request_for_material.contract }}</p>
                     </div>
 
-                    {% if materials.first.release_material_items.all %}
-                        <div class="col-md-3"><a type="button"
-                                                 href="{% url 'relesed_materials' materials.first.invoice.request_for_material.contract.slug %}"
-                                                 class="btn btn-primary">Отпущенные материалы</a></div>
-                    {% endif %}
+                    {% for material in materials %}
+                        {% if material.release_material_items.all %}
+                            <div class="col-md-3"><a type="button"
+                                                     href="{% url 'relesed_materials' materials.first.invoice.request_for_material.contract.slug %}"
+                                                     class="btn btn-primary">Отпущенные материалы</a></div>
+                               {{ "<!--" }}
+
+
+                        {% endif %}
+
+
+                    {% endfor %}
+                {{ "-->" }}
+
+
                 </div>
 
 

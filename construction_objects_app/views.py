@@ -248,6 +248,7 @@ class InvoiceForPaymentAddView(generic.TemplateView):
         self.extra_context = {
             'request_for_material': request_for_material,
             'construction_object': construction_object,
+            'invoices': InvoiceForPayment.objects.all().values_list('bin', 'name_company').distinct(),
         }
         return super().get(request, *args, **kwargs)
 

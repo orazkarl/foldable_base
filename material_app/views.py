@@ -258,6 +258,7 @@ class MaterialsView(generic.TemplateView):
         materials = Material.objects.filter(invoice__request_for_material__contract__slug=self.kwargs['slug'],
                                             is_delivery=True, invoice__is_done=True, instrument_code=None)
 
+
         self.extra_context = {
             'construction_object': construction_object,
             'materials': materials,
@@ -346,8 +347,9 @@ class ReleasedMaterialsView(generic.TemplateView):
         self.extra_context = {
             'construction_object': construction_object,
             'relesed_materials': ReleasedMaterial.objects.filter(contract__slug=self.kwargs['slug'],
-                                                                 items__material__instrument_code=None).order_by(
-                '-id').distinct()
+                                                                 items__material__instrument_code=None).order_by('-id').distinct(),
+
+
         }
         return super().get(request, *args, **kwargs)
 
