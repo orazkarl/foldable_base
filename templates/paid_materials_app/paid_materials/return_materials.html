@@ -1,0 +1,98 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load mathfilters %}
+{% block content %}
+
+        <div class="container-fluid">
+            <div class="card">
+                <div class="card-header d-block">
+                    <a href="/construction_objects/invoice/{{ materials.first.invoice.id }}/materials" class="btn btn-light"><i
+                        class="ik ik-arrow-left"></i>Назад</a>
+                    <div class="row">
+                        <div class="col-md-10">
+                            <h2>Возврат материалов</h2>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body p-0 table-border-style">
+                    <div class="table-responsive">
+                        <form action="{% url 'return_materials' %}" method="post"
+                              onsubmit="return mySubmit({{ materials.count }});">
+                            <table class="table">
+                                <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>название</th>
+                                    <th>ок</th>
+                                    <th>возрат</th>
+                                    <th>общий</th>
+                                    {#                                    <th>Создан</th>#}
+                                    {#                                    <th>Изменен</th>#}
+                                    <th></th>
+                                </tr>
+                                </thead>
+                                <tbody>
+
+                                {% csrf_token %}
+                                <input type="text" name="count" value="{{ materials.count }}" style="display: none">
+                                {% for material in materials %}
+                                    <tr>
+                                        <th scope="row">{{ forloop.counter }}</th>
+                                        <td>{{ material.name }}</td>
+                                        <td>{{ material.ok }}</td>
+                                        <input type="text" style="display: none" name="material{{ forloop.counter }}"
+                                               value="{{ material.id }}">
+                                        <td><input type="text" class="form-control" name="return{{ forloop.counter }}"
+                                                   value="{{ material.quantity|sub:material.ok }}" id="return{{ forloop.counter }}"></td>
+                                        <td><input type="text" class="form-control" id="quantity{{ forloop.counter }}" value="{{ material.quantity }}" disabled></td>
+                                        {#                                        <td>{{ material.created_at }}</td>#}
+                                        {#                                        <td>{{ material.updated_at }}</td>#}
+                                        {#                                        <td><input type="checkbox" name="paid_materials_app" value="{{ material.id }}"></td>#}
+                                    </tr>
+                                {% endfor %}
+
+                                </tbody>
+                            </table>
+                            <div class="row" style="margin-left: 20px">
+                                <div class="col-md-4">
+                                    <div class="form-group">
+
+                                        <textarea name="comment" class="form-control" rows="5"
+                                                  placeholder="Примечение"></textarea>
+                                    </div>
+                                </div>
+                                <div class="col-md-8">
+                                    <div class="form-group">
+                                        <button class="btn btn-primary">Подтвердить</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </form>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+{% endblock %}
+
+{% block script %}
+    <script>
+        function mySubmit(n) {
+            var i;
+            for (i = 1; i <= parseInt(n); i++) {
+                var return_count = document.getElementById('return' + i);
+                var quantity = document.getElementById('quantity' + i);
+                if (parseInt(return_count.value) > parseInt(quantity.value)) {
+                    console.log(return_count.value, quantity.value);
+                    return false;
+                }
+                if (return_count.value === ''){
+                    return false;
+                }
+            }
+            return true;
+        }
+    </script>
+{% endblock %}

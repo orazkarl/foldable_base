@@ -1,7 +1,8 @@
 from django.shortcuts import render, redirect, HttpResponse
 from django.views import generic
-from .models import ConstructionObject, Contract, RequestForMaterial, InvoiceForPayment
-from material_app.views import Material
+from .models import ConstructionObject
+from contracts_app.models import Contract, InvoiceForPayment, RequestForMaterial
+from paid_material_app.views import Material
 from transliterate import slugify
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
@@ -22,7 +23,7 @@ class HomeView(generic.ListView):
 
 @method_decorator(login_required(login_url='/accounts/login/'), name='dispatch')
 class ConstructionObjectDetailView(generic.TemplateView):
-    template_name = 'construction_objects/object_detail.html'
+    template_name = 'construction_objects_app/object_detail.html'
 
     def get(self, request, *args, **kwargs):
         construction_object = ConstructionObject.objects.get(slug=self.kwargs['slug'])
@@ -41,7 +42,7 @@ class ConstructionObjectDetailView(generic.TemplateView):
 
 @method_decorator(login_required(login_url='/accounts/login/'), name='dispatch')
 class ContractDetailView(generic.TemplateView):
-    template_name = 'construction_objects/contract/detail.html'
+    template_name = 'construction_objects_app/contract/detail.html'
 
     def get(self, request, *args, **kwargs):
         contract = Contract.objects.get(slug=self.kwargs['slug'])
@@ -64,47 +65,12 @@ class ContractDetailView(generic.TemplateView):
         return super().get(request, *args, **kwargs)
 
 
-@method_decorator(login_required(login_url='/accounts/login/'), name='dispatch')
-class ContractAddView(generic.TemplateView):
-    template_name = 'construction_objects/contract/add.html'
 
-    def get(self, request, *args, **kwargs):
-        construction_object = ConstructionObject.objects.get(slug=self.kwargs['slug'])
-        if request.user.role == 'accountant' or request.user.role == 'manager' or construction_object not in list(
-                request.user.construction_objects.all()):
-            return render(request, template_name='404.html')
-        self.extra_context = {
-            'construction_object': construction_object,
-        }
-        return super().get(request, *args, **kwargs)
-
-    def post(self, request, *args, **kwargs):
-        construction_object_id = request.POST['construction_object']
-        name = request.POST['name_contract']
-        contractor = request.POST['contractor']
-        doc_file = request.FILES['doc_file_contract']
-        number_contract = request.POST['number_contract']
-        status = request.POST['status_contract']
-        bin = request.POST['bin_contract']
-        date_contract = request.POST['date_contract']
-        if slugify(name) == None:
-            slug = name
-        else:
-            slug = slugify(name)
-
-        Contract.objects.create(construction_object_id=construction_object_id, name=name, slug=slug,
-                                contract_file=doc_file,
-                                contractor=contractor, number_contract=number_contract, status=status,
-                                date_contract=date_contract, bin=bin)
-
-        return redirect(
-            '/construction_objects/' + ConstructionObject.objects.get(id=construction_object_id).slug + '/' + str(
-                status))
 
 
 @method_decorator(login_required(login_url='/accounts/login/'), name='dispatch')
 class ContractEditView(generic.TemplateView):
-    template_name = 'construction_objects/contract/edit.html'
+    template_name = 'construction_objects_app/contract/edit.html'
 
     def get(self, request, *args, **kwargs):
         construction_object = ConstructionObject.objects.get(contract__slug=self.kwargs['slug'])
@@ -142,15 +108,20 @@ class ContractEditView(generic.TemplateView):
         contract.bin = bin
         contract.date_contract = date_contract
         contract.save()
-
+        if status == '2' or status == '4':
+            for request_mat in contract.request_for_material.all():
+                for invoice in request_mat.invoice_for_payment.all():
+                    for material in invoice.material.all():
+                        material.is_remainder = True
+                        material.save()
         return redirect(
-            '/construction_objects/' + ConstructionObject.objects.get(id=construction_object_id).slug + '/' + str(
+            '/construction_objects_app/' + ConstructionObject.objects.get(id=construction_object_id).slug + '/' + str(
                 status))
 
 
 @method_decorator(login_required(login_url='/accounts/login/'), name='dispatch')
 class RequestForMaterialAddView(generic.TemplateView):
-    template_name = 'construction_objects/contract/request/add.html'
+    template_name = 'construction_objects_app/contract/request/add.html'
 
     def get(self, request, *args, **kwargs):
         contract = Contract.objects.get(slug=self.kwargs['slug'])
@@ -180,7 +151,7 @@ class RequestForMaterialAddView(generic.TemplateView):
 
 @method_decorator(login_required(login_url='/accounts/login/'), name='dispatch')
 class RequestForMaterialEditView(generic.TemplateView):
-    template_name = 'construction_objects/contract/request/edit.html'
+    template_name = 'construction_objects_app/contract/request/edit.html'
 
     def get(self, request, *args, **kwargs):
         request_for_material = RequestForMaterial.objects.get(id=self.kwargs['id'])
@@ -214,7 +185,7 @@ class RequestForMaterialEditView(generic.TemplateView):
 
 @method_decorator(login_required(login_url='/accounts/login/'), name='dispatch')
 class RequestForMaterialDetailView(generic.TemplateView):
-    template_name = 'construction_objects/contract/request/detail.html'
+    template_name = 'construction_objects_app/contract/request/detail.html'
 
     def get(self, request, *args, **kwargs):
         request_for_material = RequestForMaterial.objects.get(id=self.kwargs['id'])
@@ -236,7 +207,7 @@ class RequestForMaterialDetailView(generic.TemplateView):
 
 @method_decorator(login_required(login_url='/accounts/login/'), name='dispatch')
 class InvoiceForPaymentAddView(generic.TemplateView):
-    template_name = 'construction_objects/contract/request/invoice/add.html'
+    template_name = 'construction_objects_app/contract/request/invoice/add.html'
 
     def get(self, request, *args, **kwargs):
         request_for_material = RequestForMaterial.objects.get(id=self.kwargs['id'])
@@ -278,7 +249,7 @@ class InvoiceForPaymentAddView(generic.TemplateView):
 
 @method_decorator(login_required(login_url='/accounts/login/'), name='dispatch')
 class InvoiceForPaymentEditView(generic.TemplateView):
-    template_name = 'construction_objects/contract/request/invoice/edit.html'
+    template_name = 'construction_objects_app/contract/request/invoice/edit.html'
 
     def get(self, request, *args, **kwargs):
         invoice = InvoiceForPayment.objects.get(id=int(self.kwargs['id']))
@@ -329,7 +300,7 @@ def invoice_delete(request):
 
 @method_decorator(login_required(login_url='/accounts/login/'), name='dispatch')
 class InvoiceForPaymentDetailView(generic.TemplateView):
-    template_name = 'construction_objects/contract/request/invoice/detail.html'
+    template_name = 'construction_objects_app/contract/request/invoice/detail.html'
 
     def get(self, request, *args, **kwargs):
         invoice_for_payment = InvoiceForPayment.objects.get(id=int(self.kwargs['id']))
@@ -343,7 +314,7 @@ class InvoiceForPaymentDetailView(generic.TemplateView):
         self.extra_context = {
             'construction_object': construction_object,
             'invoice': invoice_for_payment,
-            'materials': materials
+            'paid_materials_app': materials
 
         }
 
@@ -352,7 +323,7 @@ class InvoiceForPaymentDetailView(generic.TemplateView):
 
 @method_decorator(login_required(login_url='/accounts/login/'), name='dispatch')
 class MaterialAddView(generic.TemplateView):
-    template_name = 'construction_objects/contract/request/invoice/material/add.html'
+    template_name = 'construction_objects_app/contract/request/invoice/material/add.html'
 
     def get(self, request, *args, **kwargs):
         invoice_for_payment = InvoiceForPayment.objects.get(id=int(self.kwargs['id']))
@@ -405,7 +376,7 @@ class MaterialAddView(generic.TemplateView):
 
 @method_decorator(login_required(login_url='/accounts/login/'), name='dispatch')
 class MaterialEditView(generic.TemplateView):
-    template_name = 'construction_objects/contract/request/invoice/material/edit.html'
+    template_name = 'construction_objects_app/contract/request/invoice/material/edit.html'
 
     def get(self, request, *args, **kwargs):
         material = Material.objects.get(id=int(self.kwargs['id']))
@@ -473,7 +444,7 @@ def material_delete(request):
 
 @method_decorator(login_required(login_url='/accounts/login/'), name='dispatch')
 class InvoiceForPaymentView(generic.TemplateView):
-    template_name = 'construction_objects/invoices.html'
+    template_name = 'construction_objects_app/invoices.html'
 
     def get(self, request, *args, **kwargs):
         construction_object = ConstructionObject.objects.get(slug=self.kwargs['slug'])

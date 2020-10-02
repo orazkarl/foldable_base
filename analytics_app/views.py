@@ -3,8 +3,10 @@ from django.http import HttpResponse, FileResponse
 from django.views import generic
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
-from construction_objects_app.models import ConstructionObject, Contract, RequestForMaterial
-from material_app.models import Material, ReleasedMaterial
+from construction_objects_app.models import ConstructionObject
+from contracts_app.models import Contract, RequestForMaterial
+from paid_material_app.models import Material
+from store_materials_app.models import ReleasedMaterial
 from .filters import MaterialFilter, ReleasedMaterialFilter
 from django.db.models import Sum
 import datetime
@@ -20,7 +22,7 @@ from foldable_base.settings import BASE_DIR
 
 @method_decorator(login_required(login_url='/accounts/login/'), name='dispatch')
 class AnalyticsView(generic.ListView):
-    template_name = 'analytics/analytics.html'
+    template_name = 'analytics_app/analytics.html'
     model = Material
 
     def get_context_data(self, **kwargs):
@@ -46,7 +48,7 @@ class AnalyticsView(generic.ListView):
 
 @method_decorator(login_required(login_url='/accounts/login/'), name='dispatch')
 class TotalStats(generic.TemplateView):
-    template_name = 'analytics/total_stats.html'
+    template_name = 'analytics_app/total_stats.html'
 
     def get(self, request, *args, **kwargs):
         construction_object = ConstructionObject.objects.get(slug=self.kwargs['slug'])
@@ -59,7 +61,7 @@ class TotalStats(generic.TemplateView):
             'construction_object': construction_object,
             'contracts': contracts,
             'request_mats': request_mats,
-            'materials': materials,
+            'paid_materials_app': materials,
 
         }
         if list(materials)!=[]:
@@ -93,6 +95,19 @@ class TotalStats(generic.TemplateView):
                 check = contracts.filter(status='4')
                 is_done_request_mat = request_mats.filter(is_done=True)
                 total_sum_price = materials.aggregate(Sum('sum_price'))['sum_price__sum']
+
+                self.extra_context.update({
+                    'total_sum_price': total_sum_price,
+                    'start_date_default': start_date_default,
+                    'end_date_default': end_date_default,
+                    'in_work': in_work,
+                    'finished': finished,
+                    'not_finished': not_finished,
+                    'check': check,
+                    'is_done_request_mat': is_done_request_mat,
+                    'is_cash_total_sum_price': is_cash_total_sum_price
+                })
+            else:
                 self.extra_context.update({
                     'total_sum_price': total_sum_price,
                     'start_date_default': start_date_default,
@@ -105,13 +120,12 @@ class TotalStats(generic.TemplateView):
                     'is_cash_total_sum_price': is_cash_total_sum_price
                 })
 
-
         return super().get(request, *args, **kwargs)
 
 
 @method_decorator(login_required(login_url='/accounts/login/'), name='dispatch')
 class ReleasedMaterialsStats(generic.ListView):
-    template_name = 'analytics/release_mat_stats.html'
+    template_name = 'analytics_app/release_mat_stats.html'
     model = ReleasedMaterial
 
     def get_context_data(self, **kwargs):
@@ -149,7 +163,7 @@ def export_analytics(request, slug):
         start_date = start_date[2] + '.' + start_date[1] + '.' + start_date[0]
         end_date = str(end_date).split('-')
         end_date = end_date[2] + '.' + end_date[1] + '.' + end_date[0]
-        wb = load_workbook('mediafiles/analytics.xlsx')
+        wb = load_workbook('mediafiles/analytics_app.xlsx')
         ws = wb.active
 
         count_materials = int(request.POST['count_materials'])
@@ -191,7 +205,7 @@ def export_analytics(request, slug):
         ws['M' + str(count_materials + 9)] = request.POST['total_sum_price']
 
         response = HttpResponse(save_virtual_workbook(wb), content_type='application/vnd.ms-excel')
-        response['Content-Disposition'] = 'attachment; filename=analytics.xlsx'
+        response['Content-Disposition'] = 'attachment; filename=analytics_app.xlsx'
         return response
 
 
@@ -277,4 +291,4 @@ def export_release_mat_stats(request):
         response = HttpResponse(save_virtual_workbook(wb), content_type='application/vnd.ms-excel')
         response['Content-Disposition'] = 'attachment; filename=hod_dvizhenij.xlsx'
         return response
-        # return redirect('/construction_objects/nurly-tau/released_material_stats')
+        # return redirect('/construction_objects_app/nurly-tau/released_material_stats')

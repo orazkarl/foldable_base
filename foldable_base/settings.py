@@ -40,9 +40,10 @@ INSTALLED_APPS = [
 
     'construction_objects_app.apps.AppbaseConfig',
     'user_auth_app.apps.UserAuthConfig',
-    'material_app.apps.MaterialAppConfig',
+    'paid_material_app.apps.MaterialAppConfig',
     'analytics_app.apps.AnalyticsAppConfig',
-
+    'store_materials_app.apps.StoreMaterialsAppConfig',
+    'contracts_app.apps.ContractsAppConfig',
     'allauth',
     'allauth.account',
     'allauth.socialaccount',

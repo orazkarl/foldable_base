@@ -6,9 +6,6 @@ urlpatterns = [
     path('', views.HomeView.as_view(), name='home'),
     path('construction_objects/<slug:slug>/<int:pk>', views.ConstructionObjectDetailView.as_view(), name='construction_object_detail'),
 
-    path('contract/detail/<slug:slug>', views.ContractDetailView.as_view(), name='contract_detail'),
-    path('contract/edit/<slug:slug>', views.ContractEditView.as_view(), name='contract_edit'),
-    path('contract/<slug:slug>/add', views.ContractAddView.as_view(), name='contract_add'),
 
     path('request_for_material/detail/<int:id>', views.RequestForMaterialDetailView.as_view(), name='request_for_material_detail'),
     path('request_for_material/edit/<int:id>', views.RequestForMaterialEditView.as_view(), name='request_for_material_edit'),

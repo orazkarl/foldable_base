@@ -1,5 +1,5 @@
 import django_filters
-from construction_objects_app.models import Contract
+from contracts_app.models import Contract
 from django import forms
 
 
