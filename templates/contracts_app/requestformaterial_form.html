@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+
+    <div class="container-fluid">
+        <div class="card">
+            <div class="card-header d-block"><a href="/{{ contract.slug }}/detail/contract" class="btn btn-light"><i
+                    class="ik ik-arrow-left"></i>Назад</a>
+                <h2>Заявка</h2></div>
+            <div class="card-body">
+                <form class="forms-sample" action="" method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    {{ form.as_p }}
+                    <button type="submit" class="btn btn-primary mr-2">Сохранить</button>
+
+                </form>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

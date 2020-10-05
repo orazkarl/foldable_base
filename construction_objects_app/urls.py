@@ -7,9 +7,9 @@ urlpatterns = [
     path('construction_objects/<slug:slug>/<int:pk>', views.ConstructionObjectDetailView.as_view(), name='construction_object_detail'),
 
 
-    path('request_for_material/detail/<int:id>', views.RequestForMaterialDetailView.as_view(), name='request_for_material_detail'),
-    path('request_for_material/edit/<int:id>', views.RequestForMaterialEditView.as_view(), name='request_for_material_edit'),
-    path('contract/<slug:slug>/request_for_material/add', views.RequestForMaterialAddView.as_view(), name='request_for_material_add'),
+    # path('request_for_material/detail/<int:id>', views.RequestForMaterialDetailView.as_view(), name='request_for_material_detail'),
+    # path('request_for_material/edit/<int:id>', views.RequestForMaterialEditView.as_view(), name='request_for_material_edit'),
+    # path('contract/<slug:slug>/request_for_material/add', views.RequestForMaterialAddView.as_view(), name='request_for_material_add'),
 
     path('request_for_material/<int:id>/invoice/add', views.InvoiceForPaymentAddView.as_view(), name='invoice_add'),
     path('invoice/edit/<int:id>', views.InvoiceForPaymentEditView.as_view(), name='invoice_edit'),

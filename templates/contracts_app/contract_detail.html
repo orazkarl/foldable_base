@@ -34,7 +34,7 @@
                     </div>
                 {% if contract.status == '1' %}
                     <div class="col-md-2">
-                        <a href="{% url 'request_for_material_add' contract.slug %}" class="btn btn-primary">Новая
+                        <a href="{% url 'request_for_material_create' contract.slug %}" class="btn btn-primary">Новая
                             заявка</a>
                     </div>
                 {% endif %}
@@ -54,12 +54,12 @@
                         </tr>
                         </thead>
                         <tbody>
-                        {% for request_for_material in requests_for_materirals %}
+                        {% for request_for_material in contract.request_for_material.all %}
                             <tr>
                                 <th scope="row">{{ forloop.counter }}</th>
                                 <td>
                                     {% if request.user.role == 'admin' or request.user.role == 'purchaser' %}
-                                        <a href="{% url 'request_for_material_detail'  request_for_material.id %}"
+                                        <a href="{% url 'request_for_material_detail' request_for_material.id %}"
                                            style="color: #4da3ff">{{ request_for_material.name }}</a>
                                     {% else %}
                                         {{ request_for_material.name }}
@@ -81,8 +81,7 @@
                                 <td>{% if request_for_material.is_done %}
                                     Заявка обработана
                                 {% else %}
-                                    <a href="{% url 'request_for_material_edit' request_for_material.id %}"
-                                       class="btn btn-danger">Изменить</a>
+                                    <a href="{% url 'request_for_material_update' request_for_material.id %}" class="btn btn-danger">Изменить</a>
                                 {% endif %}
                                 </td>
                             </tr>

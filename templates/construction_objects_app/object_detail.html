@@ -39,7 +39,7 @@
                             <tr>
                                 <th scope="row">{{ forloop.counter }}</th>
                                 <td>
-                                    <a href=""
+                                    <a href="{% url 'contract_detail' contract.slug %}"
                                        style="color: #4da3ff">{{ contract.name }}</a>
 
                                 </td>
@@ -65,7 +65,7 @@
                                 {% if request.user.role == 'admin' or request.user.role == 'purchaser' %}
                                     {% if contract.status == '1' %}
                                     <td>
-                                        <a href="" class="btn btn-danger">
+                                        <a href="{% url 'contract_update' contract.slug %}" class="btn btn-danger">
                                             Изменить</a>
                                     </td>
                                     {% endif %}

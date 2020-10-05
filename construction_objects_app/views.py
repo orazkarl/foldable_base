@@ -39,170 +39,90 @@ class ConstructionObjectDetailView(generic.TemplateView):
         }
         return super().get(request, *args, **kwargs)
 
-
-@method_decorator(login_required(login_url='/accounts/login/'), name='dispatch')
-class ContractDetailView(generic.TemplateView):
-    template_name = 'construction_objects_app/contract/detail.html'
-
-    def get(self, request, *args, **kwargs):
-        contract = Contract.objects.get(slug=self.kwargs['slug'])
-        construction_object = contract.construction_object
-        requests_for_materirals = RequestForMaterial.objects.filter(contract=contract)
-        if request.user.role == 'accountant' or construction_object not in list(
-                request.user.construction_objects.all()):
-            return render(request, template_name='404.html')
-
-        for request_for_material in requests_for_materirals:
-            if all(invoice.is_done == True for invoice in request_for_material.invoice_for_payment.all()) and list(
-                    request_for_material.invoice_for_payment.all()) != []:
-                request_for_material.is_done = True
-                request_for_material.save()
-        self.extra_context = {
-            'contract': contract,
-            'requests_for_materirals': requests_for_materirals,
-            'construction_object': construction_object,
-        }
-        return super().get(request, *args, **kwargs)
-
-
-
-
-
-@method_decorator(login_required(login_url='/accounts/login/'), name='dispatch')
-class ContractEditView(generic.TemplateView):
-    template_name = 'construction_objects_app/contract/edit.html'
-
-    def get(self, request, *args, **kwargs):
-        construction_object = ConstructionObject.objects.get(contract__slug=self.kwargs['slug'])
-        contract = Contract.objects.get(slug=self.kwargs['slug'])
-        if request.user.role == 'accountant' or request.user.role == 'manager' or construction_object not in list(
-                request.user.construction_objects.all()):
-            return render(request, template_name='404.html')
-
-        self.extra_context = {
-            'construction_object': construction_object,
-            'contract': contract
-        }
-        return super().get(request, *args, **kwargs)
-
-    def post(self, request, *args, **kwargs):
-        contract = Contract.objects.get(slug=self.kwargs['slug'])
-        construction_object_id = request.POST['construction_object']
-        name = request.POST['name_contract']
-        contractor = request.POST['contractor']
-        number_contract = request.POST['number_contract']
-        status = request.POST['status_contract']
-        bin = request.POST['bin_contract']
-        date_contract = request.POST['date_contract']
-        slug = slugify(name)
-        if request.FILES:
-            contract_file = request.FILES['doc_file_contract']
-        else:
-            contract_file = contract.contract_file
-
-        contract.name = name
-        contract.contract = contractor
-        contract.contract_file = contract_file
-        contract.number_contract = number_contract
-        contract.status = status
-        contract.bin = bin
-        contract.date_contract = date_contract
-        contract.save()
-        if status == '2' or status == '4':
-            for request_mat in contract.request_for_material.all():
-                for invoice in request_mat.invoice_for_payment.all():
-                    for material in invoice.material.all():
-                        material.is_remainder = True
-                        material.save()
-        return redirect(
-            '/construction_objects_app/' + ConstructionObject.objects.get(id=construction_object_id).slug + '/' + str(
-                status))
-
-
-@method_decorator(login_required(login_url='/accounts/login/'), name='dispatch')
-class RequestForMaterialAddView(generic.TemplateView):
-    template_name = 'construction_objects_app/contract/request/add.html'
-
-    def get(self, request, *args, **kwargs):
-        contract = Contract.objects.get(slug=self.kwargs['slug'])
-        construction_object = ConstructionObject.objects.get(contract=contract)
-        if request.user.role == 'accountant' or construction_object not in list(
-                request.user.construction_objects.all()):
-            return render(request, template_name='404.html')
-        self.extra_context = {
-            'contract': contract,
-            'construction_object': construction_object,
-        }
-        return super().get(request, *args, **kwargs)
-
-    def post(self, request, *args, **kwargs):
-        contract = Contract.objects.get(id=request.POST['contract'])
-        name = request.POST['name']
-        doc_file = request.FILES['doc_file']
-        message = '🔔🔔🔔🔔🔔🔔🔔🔔🔔🔔🔔🔔🔔🔔🔔🔔\n'
-        message += 'Новая заявка!\n'
-        message += 'Работа: ' + contract.name + '\n'
-        general_bot.send_message(channel_id, text=message)
-        general_bot.send_document(channel_id, doc_file)
-        RequestForMaterial.objects.create(contract=contract, name=name, doc_file=doc_file, is_done=False)
-
-        return redirect('/contract/detail/' + contract.slug)
-
-
-@method_decorator(login_required(login_url='/accounts/login/'), name='dispatch')
-class RequestForMaterialEditView(generic.TemplateView):
-    template_name = 'construction_objects_app/contract/request/edit.html'
-
-    def get(self, request, *args, **kwargs):
-        request_for_material = RequestForMaterial.objects.get(id=self.kwargs['id'])
-        construction_object = ConstructionObject.objects.get(contract__request_for_material=request_for_material)
-        if request.user.role == 'accountant' or construction_object not in list(
-                request.user.construction_objects.all()):
-            return render(request, template_name='404.html')
-
-        self.extra_context = {
-            'request_for_material': request_for_material,
-            'construction_object': construction_object,
-        }
-
-        return super().get(request, *args, **kwargs)
-
-    def post(self, request, *args, **kwargs):
-        request_for_material = RequestForMaterial.objects.get(id=request.POST['id'])
-
-        name = request.POST['name']
-        if request.FILES:
-            doc_file = request.FILES['doc_file']
-        else:
-            doc_file = request_for_material.doc_file
-
-        request_for_material.name = name
-        request_for_material.doc_file = doc_file
-        request_for_material.save()
-
-        return redirect('/contract/detail/' + request_for_material.contract.slug)
-
-
-@method_decorator(login_required(login_url='/accounts/login/'), name='dispatch')
-class RequestForMaterialDetailView(generic.TemplateView):
-    template_name = 'construction_objects_app/contract/request/detail.html'
-
-    def get(self, request, *args, **kwargs):
-        request_for_material = RequestForMaterial.objects.get(id=self.kwargs['id'])
-        construction_object = ConstructionObject.objects.get(contract__request_for_material=request_for_material)
-        if request.user.role == 'accountant' or construction_object not in list(
-                request.user.construction_objects.all()):
-            return render(request, template_name='404.html')
-
-        # if all(invoice.is_done == True for invoice in request_for_material.invoice_for_payment.all()) and list(request_for_material.invoice_for_payment.all()) != []:
-        #     request_for_material.is_done = True
-        #     request_for_material.save()
-
-        self.extra_context = {
-            'request_for_material': request_for_material,
-            'construction_object': construction_object,
-        }
-        return super().get(request, *args, **kwargs)
+# @method_decorator(login_required(login_url='/accounts/login/'), name='dispatch')
+# class RequestForMaterialAddView(generic.TemplateView):
+#     template_name = 'construction_objects_app/contract/request/add.html'
+#
+#     def get(self, request, *args, **kwargs):
+#         contract = Contract.objects.get(slug=self.kwargs['slug'])
+#         construction_object = ConstructionObject.objects.get(contract=contract)
+#         if request.user.role == 'accountant' or construction_object not in list(
+#                 request.user.construction_objects.all()):
+#             return render(request, template_name='404.html')
+#         self.extra_context = {
+#             'contract': contract,
+#             'construction_object': construction_object,
+#         }
+#         return super().get(request, *args, **kwargs)
+#
+#     def post(self, request, *args, **kwargs):
+#         contract = Contract.objects.get(id=request.POST['contract'])
+#         name = request.POST['name']
+#         doc_file = request.FILES['doc_file']
+#         message = '🔔🔔🔔🔔🔔🔔🔔🔔🔔🔔🔔🔔🔔🔔🔔🔔\n'
+#         message += 'Новая заявка!\n'
+#         message += 'Работа: ' + contract.name + '\n'
+#         general_bot.send_message(channel_id, text=message)
+#         general_bot.send_document(channel_id, doc_file)
+#         RequestForMaterial.objects.create(contract=contract, name=name, doc_file=doc_file, is_done=False)
+#
+#         return redirect('/contract/detail/' + contract.slug)
+#
+#
+# @method_decorator(login_required(login_url='/accounts/login/'), name='dispatch')
+# class RequestForMaterialEditView(generic.TemplateView):
+#     template_name = 'construction_objects_app/contract/request/edit.html'
+#
+#     def get(self, request, *args, **kwargs):
+#         request_for_material = RequestForMaterial.objects.get(id=self.kwargs['id'])
+#         construction_object = ConstructionObject.objects.get(contract__request_for_material=request_for_material)
+#         if request.user.role == 'accountant' or construction_object not in list(
+#                 request.user.construction_objects.all()):
+#             return render(request, template_name='404.html')
+#
+#         self.extra_context = {
+#             'request_for_material': request_for_material,
+#             'construction_object': construction_object,
+#         }
+#
+#         return super().get(request, *args, **kwargs)
+#
+#     def post(self, request, *args, **kwargs):
+#         request_for_material = RequestForMaterial.objects.get(id=request.POST['id'])
+#
+#         name = request.POST['name']
+#         if request.FILES:
+#             doc_file = request.FILES['doc_file']
+#         else:
+#             doc_file = request_for_material.doc_file
+#
+#         request_for_material.name = name
+#         request_for_material.doc_file = doc_file
+#         request_for_material.save()
+#
+#         return redirect('/contract/detail/' + request_for_material.contract.slug)
+#
+#
+# @method_decorator(login_required(login_url='/accounts/login/'), name='dispatch')
+# class RequestForMaterialDetailView(generic.TemplateView):
+#     template_name = 'construction_objects_app/contract/request/detail.html'
+#
+#     def get(self, request, *args, **kwargs):
+#         request_for_material = RequestForMaterial.objects.get(id=self.kwargs['id'])
+#         construction_object = ConstructionObject.objects.get(contract__request_for_material=request_for_material)
+#         if request.user.role == 'accountant' or construction_object not in list(
+#                 request.user.construction_objects.all()):
+#             return render(request, template_name='404.html')
+#
+#         # if all(invoice.is_done == True for invoice in request_for_material.invoice_for_payment.all()) and list(request_for_material.invoice_for_payment.all()) != []:
+#         #     request_for_material.is_done = True
+#         #     request_for_material.save()
+#
+#         self.extra_context = {
+#             'request_for_material': request_for_material,
+#             'construction_object': construction_object,
+#         }
+#         return super().get(request, *args, **kwargs)
 
 
 @method_decorator(login_required(login_url='/accounts/login/'), name='dispatch')

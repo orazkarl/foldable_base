@@ -50,7 +50,9 @@ INSTALLED_APPS = [
 
     'mathfilters',
     'django_filters',
-    'django.contrib.humanize'
+    'django.contrib.humanize',
+    'tempus_dominus',
+
 ]
 
 MIDDLEWARE = [
