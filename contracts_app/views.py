@@ -72,17 +72,24 @@ class ContractUpdateView(generic.UpdateView):
 class ContractDetailView(generic.DetailView):
     model = Contract
 
-    def get(self, request, *args, **kwargs):
-        construction_object = ConstructionObject.objects.get(contract__slug=self.kwargs['slug'])
-        if check_user(request.user, ['accountant'], construction_object) == 404:
-            return render(request, '404.html')
-        return super().get(request, *args, **kwargs)
-
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+
         construction_object = ConstructionObject.objects.get(contract__slug=self.kwargs['slug'])
         context['construction_object'] = construction_object
         return context
+    def get(self, request, *args, **kwargs):
+        construction_object = ConstructionObject.objects.get(contract__slug=self.kwargs['slug'])
+        contract =  self.get_object()
+        request_for_materials = RequestForMaterial.objects.filter(contract=contract)
+        for request_for_material in request_for_materials:
+            if all(invoice.is_done == True for invoice in request_for_material.invoice_for_payment.all()) and list(
+                    request_for_material.invoice_for_payment.all()) != []:
+                request_for_material.is_done = True
+                request_for_material.save()
+        if check_user(request.user, ['accountant'], construction_object) == 404:
+            return render(request, '404.html')
+        return super().get(request, *args, **kwargs)
 
 
 @method_decorator(login_required(login_url='/accounts/login/'), name='dispatch')
@@ -200,7 +207,8 @@ class InvoiceForPaymentUpdateView(generic.UpdateView):
     form_class = InvoiceForPaymentForm
 
     def get_success_url(self, **kwargs):
-        return reverse('request_for_material_detail',kwargs={'slug': RequestForMaterial.objects.get(invoice_for_payment__id=self.kwargs['pk'])})
+        return reverse('request_for_material_detail',
+                       kwargs={'slug': RequestForMaterial.objects.get(invoice_for_payment__id=self.kwargs['pk'])})
 
     def get(self, request, *args, **kwargs):
         construction_object = ConstructionObject.objects.get(contract__request_for_material__id=self.kwargs['pk'])
@@ -210,7 +218,8 @@ class InvoiceForPaymentUpdateView(generic.UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        construction_object = ConstructionObject.objects.get(contract__request_for_material__invoice_for_payment__id=self.kwargs['pk'])
+        construction_object = ConstructionObject.objects.get(
+            contract__request_for_material__invoice_for_payment__id=self.kwargs['pk'])
         request_for_material = RequestForMaterial.objects.get(invoice_for_payment__id=self.kwargs['pk'])
         context['construction_object'] = construction_object
         context['request_for_material'] = request_for_material
@@ -235,13 +244,15 @@ class InvoiceForPaymentDetailView(generic.DetailView):
     model = InvoiceForPayment
 
     def get(self, request, *args, **kwargs):
-        construction_object = ConstructionObject.objects.get(contract__request_for_material__invoice_for_payment__id=self.kwargs['pk'])
+        construction_object = ConstructionObject.objects.get(
+            contract__request_for_material__invoice_for_payment__id=self.kwargs['pk'])
         if check_user(request.user, ['accountant'], construction_object) == 404:
             return render(request, '404.html')
         return super().get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        construction_object = ConstructionObject.objects.get(contract__request_for_material__invoice_for_payment__id=self.kwargs['pk'])
+        construction_object = ConstructionObject.objects.get(
+            contract__request_for_material__invoice_for_payment__id=self.kwargs['pk'])
         context['construction_object'] = construction_object
         return context
