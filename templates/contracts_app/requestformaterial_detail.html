@@ -1,11 +1,9 @@
 {% extends 'base.html' %}
 {% load static %}
 {% block content %}
-
     <div class="container-fluid">
         <div class="card">
             <div class="card-header d-block">
-
                 <a href="{% url 'contract_detail' requestformaterial.contract.slug %}"
                    class="btn btn-light"><i class="ik ik-arrow-left"></i>Назад</a>
                 <div class="row">
@@ -13,29 +11,26 @@
                         <h2>{{ requestformaterial.name }}</h2>
                         <p>Заявка:
                             <a href=
-                                    {% if '.doc' in requestformaterial.doc_file.url %}
+                                       {% if '.doc' in requestformaterial.doc_file.url %}
                                            "https://docs.google.com/gview?url={{ request.META.HTTP_HOST }}{{ requestformaterial.doc_file.url }}"
                                        {% else %}
                                            "{{ requestformaterial.doc_file.url }}"
                                        {% endif %} style="color: #4da3ff; " target="_blank">посмотреть
-
-
                             </a>
                         </p>
                     </div>
                     <div class="col-md-2">
-
                         {% if request.user.role == 'admin' or request.user.role == 'purchaser' %}
                             {% if requestformaterial.is_done == False %}
                                 {% if requestformaterial.contract.status == '1' %}
-                                    <a href="{% url 'invoice_add' requestformaterial.id %}" class="btn btn-primary">Новый
+                                    <a href="{% url 'invoice_for_payment_create' requestformaterial.id %}"
+                                       class="btn btn-primary">Новый
                                         счет</a>
                                 {% endif %}
                             {% endif %}
                         {% endif %}
                     </div>
                 </div>
-
             </div>
             <div class="card-body p-0 ">
                 <div class="table-responsive">
@@ -52,7 +47,6 @@
                             <th></th>
                             <th></th>
                             <th></th>
-
                         </tr>
                         </thead>
                         <tbody>
@@ -79,7 +73,7 @@
                                             {% if invoice.status == 'да' and invoice.is_paid %}
                                                 {% if invoice.material.all %}
                                                     <td>
-                                                        <a href="{% url 'invoice_detail' invoice.id %}"
+                                                        <a href="{% url 'invoice_for_payment_detail' invoice.id %}"
                                                            class="btn btn-success">Материалы</a>
                                                     </td>
                                                 {% else %}
@@ -91,7 +85,6 @@
                                                 {% endif %}
                                             {% endif %}
                                             {% if invoice.is_cash == False %}
-
                                                 {% if invoice.is_paid == False %}
                                                     <td>
                                                         <form action="{% url 'send_telegram' %}" method="post">
@@ -104,12 +97,20 @@
                                                         </form>
                                                     </td>
                                                     <td>
-                                                        <a href="{% url 'invoice_edit' invoice.id %}"
-                                                           class="btn btn-danger">Изменить</a>
+                                                        <a href="{% url 'invoice_for_payment_update' invoice.id %}"
+                                                           class="btn btn-success">Изменить</a>
+                                                    </td>
+                                                    <td>
+                                                        <form action="{% url 'invoice_for_payment_delete' %} "
+                                                              method="post">
+                                                            {% csrf_token %}
+                                                            <input type="text" name="id" value="{{ invoice.id }}"
+                                                                   style="display: none">
+                                                            <button class="btn btn-danger" type="submit">Удалить
+                                                            </button>
+                                                        </form>
                                                     </td>
                                                 {% endif %}
-
-
 
                                             {% endif %}
                                         {% endif %}

@@ -79,8 +79,9 @@ class AddMaterialView(generic.TemplateView):
                 material.instrument_code = instriment_code + str(material.id)
                 material.is_instrument = True
             material.save()
+        return redirect('/request/' + str(invoice.request_for_material.id) + '/detail/')
 
-        return redirect('/request_for_material/detail/' + str(invoice.request_for_material.id))
+
 
 
 @method_decorator(login_required(login_url='/accounts/login/'), name='dispatch')
@@ -180,7 +181,8 @@ def marriage_materials(request):
             invoice = material.invoice
         if request.POST['comment']:
             message += 'Примечение: ' + request.POST['comment'] + '\n'
-        construction_object = ConstructionObject.objects.get(contract__request_for_material__invoice_for_payment=invoice)
+        construction_object = ConstructionObject.objects.get(
+            contract__request_for_material__invoice_for_payment=invoice)
         if request.user.role == 'accountant' or request.user.role == 'purchaser' or construction_object not in list(
                 request.user.construction_objects.all()):
             return render(request, template_name='404.html')
@@ -228,5 +230,3 @@ def return_materials(request):
         bot = telebot.TeleBot(GENERAL_BOT_TOKEN)
         bot.send_document(channel_id, invoice.doc_file)
     return redirect(request.META.get('HTTP_REFERER'))
-
-
