@@ -19,7 +19,7 @@
                     <div class="col-md-2">
                         {% if object.is_done == False %}
                             {% if object.request_for_material.contract.status == '1' %}
-                                <a href="{% url 'material_add' object.id %}" class="btn btn-primary">Добавить
+                                <a href="{% url 'material_create' object.id %}" class="btn btn-primary">Добавить
                                     материал</a>
                             {% endif %}
                         {% endif %}
@@ -60,7 +60,7 @@
                                 {% endif %}
                                 </td>
                                 {% if object.request_for_material.contract.status == '1' %}
-                                    <td><a href="{% url 'material_edit' material.id %}" class="btn btn-primary">
+                                    <td><a href="{% url 'material_update' material.id %}" class="btn btn-primary">
                                         Изменить
                                     </a>
                                     </td>

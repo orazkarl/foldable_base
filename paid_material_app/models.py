@@ -1,6 +1,8 @@
+import datetime
+
 from django.db import models
 from contracts_app.models import InvoiceForPayment, Contract
-
+from transliterate import slugify
 
 
 class Material(models.Model):
@@ -33,6 +35,25 @@ class Material(models.Model):
 
     def save(self, *args, **kwargs):
         self.sum_price = self.quantity * self.price
+        construction_object = self.invoice.request_for_material.contract.construction_object
+        instrument_code = ''
+        for item in construction_object.name.split(' '):
+            if (slugify(item)) != None:
+                item = slugify(item)
+            instrument_code += item[0]
+        instrument_code = instrument_code.upper()
+        if self.is_instrument == True:
+            if self.id is None:
+                try:
+                    qslist = []
+                    for item in Material.objects.all():
+                        qslist.append(item.id)
+                    newid = int(max(qslist) + 1)
+                except:
+                    newid = 1
+            else:
+                newid = self.id
+            self.instrument_code = 'I' + instrument_code + '-' + str(datetime.datetime.now().year) + '-' + str(newid)
         return super(Material, self).save(*args, **kwargs)
 
     def __str__(self):
@@ -41,5 +62,3 @@ class Material(models.Model):
     class Meta:
         verbose_name = 'Материал'
         verbose_name_plural = 'Материалы'
-
-

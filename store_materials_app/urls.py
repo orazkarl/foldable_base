@@ -2,9 +2,9 @@ from django.urls import path, include
 from . import views
 
 urlpatterns = [
-    path('construction_objects_app/<slug:slug>/contract/paid_materials_app', views.ContractMaterialsView.as_view(),
+    path('construction_objects_app/<slug:slug>/contract/paid_material_app', views.ContractMaterialsView.as_view(),
          name='contract_materials'),
-    path('contract/<slug:slug>/paid_materials_app', views.MaterialsView.as_view(), name='contract_list_materials'),
+    path('contract/<slug:slug>/paid_material_app', views.MaterialsView.as_view(), name='contract_list_materials'),
     # path('contract/<slug:slug>/search_materials', views.search_materials, name='search_materials'),
     path('release_materials/', views.release_materials, name='release_materials'),
     path('contract/<slug:slug>/relesed_materials', views.ReleasedMaterialsView.as_view(), name='relesed_materials'),

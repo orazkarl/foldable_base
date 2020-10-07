@@ -2,28 +2,27 @@ from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from django.views import generic
 from construction_objects_app.models import ConstructionObject
-from contracts_app.models import InvoiceForPayment, Contract
+from contracts_app.models import InvoiceForPayment
 from .models import Material
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from openpyxl import load_workbook
 import requests
 from django.db.models import F, Q
-from transliterate import slugify
-import telebot
-import datetime
 
-import os
-from foldable_base.settings import BASE_DIR
-from docxtpl import DocxTemplate
+import telebot
+
+from .forms import MaterialForm
+from django.urls import reverse
+from contracts_app.views import check_user
 
 GENERAL_BOT_TOKEN = '1270115367:AAGCRLBP1iSZhpTniwVYQ9p9fqLysY668ew'
 channel_id = '-1001342160485'
 
 
 @method_decorator(login_required(login_url='/accounts/login/'), name='dispatch')
-class AddMaterialView(generic.TemplateView):
-    template_name = 'construction_objects_app/contract/request/invoice/add_material.html'
+class AddMaterialsExcelView(generic.TemplateView):
+    template_name = 'paid_material_app/add_materials_excel.html'
 
     def get(self, request, *args, **kwargs):
         construction_object = ConstructionObject.objects.get(
@@ -41,15 +40,6 @@ class AddMaterialView(generic.TemplateView):
     def post(self, request, *args, **kwargs):
 
         invoice = InvoiceForPayment.objects.get(id=int(request.POST['id']))
-        object_name = invoice.request_for_material.contract.construction_object.name
-        object_name = object_name.split(' ')
-        object_slug = ''
-
-        for i in object_name:
-            if slugify(i) != None:
-                i = slugify(i)
-            object_slug += i[0]
-        object_slug = object_slug.upper()
         doc_file = request.FILES['doc_file']
         wb = load_workbook(doc_file)
         sheet_name = wb.sheetnames[0]
@@ -75,18 +65,83 @@ class AddMaterialView(generic.TemplateView):
                                                sum_price=int(sum_price))
 
             if instriment_code == 1:
-                instriment_code = 'I' + object_slug + '-' + str(datetime.datetime.now().year) + '-'
-                material.instrument_code = instriment_code + str(material.id)
                 material.is_instrument = True
             material.save()
         return redirect('/request/' + str(invoice.request_for_material.id) + '/detail/')
 
 
+@method_decorator(login_required(login_url='/accounts/login/'), name='dispatch')
+class MaterialCreateView(generic.CreateView):
+    model = Material
+    form_class = MaterialForm
+
+    def get_success_url(self, **kwargs):
+        return reverse('invoice_for_payment_detail', kwargs={'pk': self.kwargs['pk']})
+
+    def form_valid(self, form):
+        invoice = InvoiceForPayment.objects.get(id=self.kwargs['pk'])
+        form.instance.invoice = invoice
+        return super(MaterialCreateView, self).form_valid(form)
+
+    def get(self, request, *args, **kwargs):
+        construction_object = ConstructionObject.objects.get(
+            contract__request_for_material__invoice_for_payment__id=self.kwargs['pk'])
+        if check_user(request.user, ['accountant', 'manager'], construction_object) == 404:
+            return render(request, '404.html')
+        return super().get(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        construction_object = ConstructionObject.objects.get(
+            contract__request_for_material__invoice_for_payment__id=self.kwargs['pk'])
+        invoice = InvoiceForPayment.objects.get(id=self.kwargs['pk'])
+        context['construction_object'] = construction_object
+        context['invoice'] = invoice
+        return context
+
+
+@method_decorator(login_required(login_url='/accounts/login/'), name='dispatch')
+class MaterialUpdateView(generic.UpdateView):
+    model = Material
+    form_class = MaterialForm
+
+    def get_success_url(self, **kwargs):
+        return reverse('invoice_for_payment_detail',
+                       kwargs={'pk': InvoiceForPayment.objects.get(material__id=self.kwargs['pk']).id})
+
+    def get(self, request, *args, **kwargs):
+        construction_object = ConstructionObject.objects.get(
+            contract__request_for_material__invoice_for_payment__material__id=self.kwargs['pk'])
+        if check_user(request.user, ['accountant', 'manager'], construction_object) == 404:
+            return render(request, '404.html')
+        return super().get(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        construction_object = ConstructionObject.objects.get(
+            contract__request_for_material__invoice_for_payment__material__id=self.kwargs['pk'])
+        invoice = InvoiceForPayment.objects.get(material__id=self.kwargs['pk'])
+        context['construction_object'] = construction_object
+        context['invoice'] = invoice
+        return context
+
+
+@login_required(login_url='/accounts/login/')
+def material_delete(request):
+    material = Material.objects.get(id=int(request.POST['material_id']))
+    invoice = material.invoice
+    construction_object = invoice.request_for_material.contract.construction_object
+    if request.user.role == 'accountant' or request.user.role == 'manager' or construction_object not in list(
+            request.user.construction_objects.all()):
+        return render(request, template_name='404.html')
+    red = '/invoice/' + str(invoice.id) + '/detail/'
+    material.delete()
+    return redirect(red)
 
 
 @method_decorator(login_required(login_url='/accounts/login/'), name='dispatch')
 class PaidMaterailsView(generic.TemplateView):
-    template_name = 'paid_materials_app/paid_materials/invoices.html'
+    template_name = 'paid_material_app/paid_materials/invoices.html'
 
     def get(self, request, *args, **kwargs):
         construction_object = ConstructionObject.objects.get(slug=self.kwargs['slug'])
@@ -106,7 +161,7 @@ class PaidMaterailsView(generic.TemplateView):
 
 @method_decorator(login_required(login_url='/accounts/login/'), name='dispatch')
 class InvoicePaidMaterialsView(generic.TemplateView):
-    template_name = 'paid_materials_app/paid_materials/paid_materials.html'
+    template_name = 'paid_material_app/paid_materials/paid_materials.html'
 
     def get(self, request, *args, **kwargs):
         construction_object = ConstructionObject.objects.get(
@@ -123,7 +178,7 @@ class InvoicePaidMaterialsView(generic.TemplateView):
 
         self.extra_context = {
             'construction_object': construction_object,
-            'paid_materials_app': materials,
+            'paid_material_app': materials,
             'invoice': invoice
         }
         return super().get(request, *args, **kwargs)
@@ -134,10 +189,10 @@ class InvoicePaidMaterialsView(generic.TemplateView):
         if request.user.role == 'accountant' or request.user.role == 'purchaser' or construction_object not in list(
                 request.user.construction_objects.all()):
             return render(request, template_name='404.html')
-        materials = request.POST.getlist('paid_materials_app')
+        materials = request.POST.getlist('paid_material_app')
         materials = Material.objects.filter(id__in=materials)
         context = {
-            'paid_materials_app': materials,
+            'paid_material_app': materials,
             'construction_object': construction_object,
         }
         if request.POST['submit'] == 'delivered':
@@ -149,13 +204,13 @@ class InvoicePaidMaterialsView(generic.TemplateView):
                 material.marriage, material.shortage, material.inconsistency = 0, 0, 0
                 material.save()
         elif request.POST['submit'] == 'marriage':
-            return render(request, template_name='paid_materials_app/paid_materials/marriage_materials.html',
+            return render(request, template_name='paid_material_app/paid_materials/marriage_materials.html',
                           context=context)
 
         elif request.POST['submit'] == 'return':
-            return render(request, template_name='paid_materials_app/paid_materials/return_materials.html',
+            return render(request, template_name='paid_material_app/paid_materials/return_materials.html',
                           context=context)
-        return redirect('/construction_objects_app/invoice/' + str(self.kwargs['id']) + '/paid_materials_app')
+        return redirect('/construction_objects_app/invoice/' + str(self.kwargs['id']) + '/paid_material_app')
 
 
 def marriage_materials(request):

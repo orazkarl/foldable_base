@@ -85,3 +85,10 @@ class InvoiceForPayment(models.Model):
 
     def __str__(self):
         return self.name_company
+
+    def save(self, *args, **kwargs):
+        if self.is_cash:
+            self.is_paid = True
+            self.is_looked = True
+            self.status = 'да'
+        return super(InvoiceForPayment, self).save(*args, **kwargs)

@@ -61,7 +61,7 @@ class TotalStats(generic.TemplateView):
             'construction_object': construction_object,
             'contracts': contracts,
             'request_mats': request_mats,
-            'paid_materials_app': materials,
+            'paid_material_app': materials,
 
         }
         if list(materials)!=[]:

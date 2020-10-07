@@ -39,7 +39,7 @@
             <div class="card-body p-0 table-border-style">
                 <div class="table-responsive">
                     <div style="margin: 10px" class="col-md-6">
-                        {#                        <form action="/contract/{{ paid_materials_app.first.invoice.request_mat.contract.slug }}/paid_materials_app"#}
+                        {#                        <form action="/contract/{{ paid_material_app.first.invoice.request_mat.contract.slug }}/paid_material_app"#}
                         {#                              method="get">#}
                         <div class="" style="display: inline-flex">
                             <input type="search" id="search" class="form-control" placeholder="Поиск"
@@ -215,7 +215,7 @@
         {#        console.log($('#search').val());#}
         {#        var materials_list = document.getElementById('materials_list').style.display = 'none';#}
         {#        document#}
-        {#        for (i = 1; i <= {{ paid_materials_app.count }}; i++) {#}
+        {#        for (i = 1; i <= {{ paid_material_app.count }}; i++) {#}
         {#            var mat_checbox = document.getElementById('material_checkbox' + i);#}
         {#            if (mat_checbox.checked === true) {#}
         {#                mat_checbox.checked = false;#}
@@ -224,7 +224,7 @@
         {#        }#}
         {#        $.ajax({ #}
         {#            type: "GET",#}
-        {#            url: "/contract/{{ paid_materials_app.first.invoice.request_mat.contract.slug }}/paid_materials_app",#}
+        {#            url: "/contract/{{ paid_material_app.first.invoice.request_mat.contract.slug }}/paid_material_app",#}
         {#            data: {#}
         {#                'q': $('#search').val(),#}
         {#                'csrfmiddlewaretoken': $("input[name=csrfmiddlewaretoken]").val()#}

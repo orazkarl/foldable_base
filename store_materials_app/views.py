@@ -16,7 +16,7 @@ from foldable_base.settings import BASE_DIR
 from docxtpl import DocxTemplate
 @method_decorator(login_required(login_url='/accounts/login/'), name='dispatch')
 class ContractMaterialsView(generic.TemplateView):
-    template_name = 'paid_materials_app/store_mateials/contracts.html'
+    template_name = 'paid_material_app/store_mateials/contracts.html'
 
     def get(self, request, *args, **kwargs):
         construction_object = ConstructionObject.objects.get(slug=self.kwargs['slug'])
@@ -33,7 +33,7 @@ class ContractMaterialsView(generic.TemplateView):
 
 @method_decorator(login_required(login_url='/accounts/login/'), name='dispatch')
 class MaterialsView(generic.TemplateView):
-    template_name = 'paid_materials_app/store_mateials/materials.html'
+    template_name = 'paid_material_app/store_mateials/materials.html'
 
     def get(self, request, *args, **kwargs):
         construction_object = ConstructionObject.objects.get(contract__slug=self.kwargs['slug'])
@@ -46,19 +46,19 @@ class MaterialsView(generic.TemplateView):
 
         self.extra_context = {
             'construction_object': construction_object,
-            'paid_materials_app': materials,
+            'paid_material_app': materials,
         }
         return super().get(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
-        materials = request.POST.getlist('paid_materials_app')
+        materials = request.POST.getlist('paid_material_app')
         materials = Material.objects.filter(id__in=materials)
         construction_object = ConstructionObject.objects.get(contract__slug=self.kwargs['slug'])
         context = {
-            'paid_materials_app': materials,
+            'paid_material_app': materials,
             'construction_object': construction_object,
         }
-        return render(request, template_name='paid_materials_app/store_mateials/release_materials.html', context=context)
+        return render(request, template_name='paid_material_app/store_mateials/release_materials.html', context=context)
 
 
 def release_materials(request):
@@ -109,7 +109,7 @@ def release_materials(request):
             'role': request.user.get_role_display(),
             'name': request.user.first_name + ' ' + request.user.last_name,
             'contract_contractor': contract.contractor,
-            'paid_materials_app': ReleasedMaterialItem.objects.filter(released_material=released_material),
+            'paid_material_app': ReleasedMaterialItem.objects.filter(released_material=released_material),
             'indexs': indexs,
             'contract_name': contract.name,
         }
@@ -123,7 +123,7 @@ def release_materials(request):
 
 @method_decorator(login_required(login_url='/accounts/login/'), name='dispatch')
 class ReleasedMaterialsView(generic.TemplateView):
-    template_name = 'paid_materials_app/store_mateials/released_materials_list.html'
+    template_name = 'paid_material_app/store_mateials/released_materials_list.html'
 
     def get(self, request, *args, **kwargs):
         construction_object = ConstructionObject.objects.get(contract__slug=self.kwargs['slug'])
@@ -142,7 +142,7 @@ class ReleasedMaterialsView(generic.TemplateView):
 
 @method_decorator(login_required(login_url='/accounts/login/'), name='dispatch')
 class ReturnReleaseMaterialsView(generic.TemplateView):
-    template_name = 'paid_materials_app/store_mateials/return_release_mat.html'
+    template_name = 'paid_material_app/store_mateials/return_release_mat.html'
 
     def get(self, request, *args, **kwargs):
         released_material = ReleasedMaterial.objects.get(id=int(self.kwargs['id']))
@@ -185,7 +185,7 @@ class ReturnReleaseMaterialsView(generic.TemplateView):
                 'role': request.user.get_role_display(),
                 'name': request.user.first_name + ' ' + request.user.last_name,
                 'contract_contractor': contract.contractor,
-                'paid_materials_app': ReleasedMaterialItem.objects.filter(released_material=released_material),
+                'paid_material_app': ReleasedMaterialItem.objects.filter(released_material=released_material),
                 'indexs': indexs,
                 'contract_name': contract.name,
             }
@@ -201,7 +201,7 @@ class ReturnReleaseMaterialsView(generic.TemplateView):
 
 @method_decorator(login_required(login_url='/accounts/login/'), name='dispatch')
 class DetailReleaseMaterialsView(generic.TemplateView):
-    template_name = 'paid_materials_app/store_mateials/detial_released_mat.html'
+    template_name = 'paid_material_app/store_mateials/detial_released_mat.html'
 
     def get(self, request, *args, **kwargs):
         released_material = ReleasedMaterial.objects.get(id=int(self.kwargs['id']))
@@ -219,7 +219,7 @@ class DetailReleaseMaterialsView(generic.TemplateView):
 
 @method_decorator(login_required(login_url='/accounts/login/'), name='dispatch')
 class AddReleaseWaybillView(generic.TemplateView):
-    template_name = 'paid_materials_app/store_mateials/waybill/add_release_waybill.html'
+    template_name = 'paid_material_app/store_mateials/waybill/add_release_waybill.html'
 
     def get(self, request, *args, **kwargs):
         released_material = ReleasedMaterial.objects.get(id=int(self.kwargs['id']))
@@ -244,7 +244,7 @@ class AddReleaseWaybillView(generic.TemplateView):
 
 @method_decorator(login_required(login_url='/accounts/login/'), name='dispatch')
 class AddFinalWaybillView(generic.TemplateView):
-    template_name = 'paid_materials_app/store_mateials/waybill/add_final_waybill.html'
+    template_name = 'paid_material_app/store_mateials/waybill/add_final_waybill.html'
 
     def get(self, request, *args, **kwargs):
         released_material = ReleasedMaterial.objects.get(id=int(self.kwargs['id']))
@@ -269,7 +269,7 @@ class AddFinalWaybillView(generic.TemplateView):
 
 @method_decorator(login_required(login_url='/accounts/login/'), name='dispatch')
 class InstrumentMateriralView(generic.TemplateView):
-    template_name = 'paid_materials_app/store_mateials/instruments/instruments.html'
+    template_name = 'paid_material_app/store_mateials/instruments/instruments.html'
 
     def get(self, request, *args, **kwargs):
         contstruction_object = ConstructionObject.objects.get(slug=self.kwargs['slug'])
@@ -283,24 +283,24 @@ class InstrumentMateriralView(generic.TemplateView):
 
         self.extra_context = {
             'construction_object': contstruction_object,
-            'paid_materials_app': materials,
+            'paid_material_app': materials,
         }
         return super().get(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
-        materials = request.POST.getlist('paid_materials_app')
+        materials = request.POST.getlist('paid_material_app')
         materials = Material.objects.filter(id__in=materials)
         construction_object = ConstructionObject.objects.get(slug=self.kwargs['slug'])
         context = {
-            'paid_materials_app': materials,
+            'paid_material_app': materials,
             'construction_object': construction_object,
         }
-        return render(request, template_name='paid_materials_app/store_mateials/release_materials.html', context=context)
+        return render(request, template_name='paid_material_app/store_mateials/release_materials.html', context=context)
 
 
 @method_decorator(login_required(login_url='/accounts/login/'), name='dispatch')
 class ReleasedInstruments(generic.TemplateView):
-    template_name = 'paid_materials_app/store_mateials/instruments/released_instruments.html'
+    template_name = 'paid_material_app/store_mateials/instruments/released_instruments.html'
 
     def get(self, request, *args, **kwargs):
         construction_object = ConstructionObject.objects.get(slug=self.kwargs['slug'])
@@ -317,7 +317,7 @@ class ReleasedInstruments(generic.TemplateView):
 
 @method_decorator(login_required(login_url='/accounts/login/'), name='dispatch')
 class GeneralBaseView(generic.TemplateView):
-    template_name = 'paid_materials_app/store_mateials/general_base.html'
+    template_name = 'paid_material_app/store_mateials/general_base.html'
 
     def get(self, request, *args, **kwargs):
         construction_object = ConstructionObject.objects.get(slug=self.kwargs['slug'])
@@ -329,14 +329,14 @@ class GeneralBaseView(generic.TemplateView):
                                             invoice__request_for_material__contract__construction_object=construction_object)
         self.extra_context = {
             'construction_object': construction_object,
-            'paid_materials_app': materials,
+            'paid_material_app': materials,
         }
         return super().get(request, *args, **kwargs)
 
 
 @method_decorator(login_required(login_url='/accounts/login/'), name='dispatch')
 class RemainderMaterialsView(generic.TemplateView):
-    template_name = 'paid_materials_app/store_mateials/remainder_materials.html'
+    template_name = 'paid_material_app/store_mateials/remainder_materials.html'
 
     def get(self, request, *args, **kwargs):
         construction_object = ConstructionObject.objects.get(slug=self.kwargs['slug'])
@@ -348,16 +348,16 @@ class RemainderMaterialsView(generic.TemplateView):
                                             invoice__request_for_material__contract__construction_object=construction_object, is_remainder=True)
         self.extra_context = {
             'construction_object': construction_object,
-            'paid_materials_app': materials,
+            'paid_material_app': materials,
         }
         return super().get(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
-        materials = request.POST.getlist('paid_materials_app')
+        materials = request.POST.getlist('paid_material_app')
         materials = Material.objects.filter(id__in=materials)
         construction_object = ConstructionObject.objects.get(slug=self.kwargs['slug'])
         context = {
-            'paid_materials_app': materials,
+            'paid_material_app': materials,
             'construction_object': construction_object,
         }
-        return render(request, template_name='paid_materials_app/store_mateials/release_materials.html', context=context)
+        return render(request, template_name='paid_material_app/store_mateials/release_materials.html', context=context)
