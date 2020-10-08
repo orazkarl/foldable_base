@@ -13,12 +13,15 @@ class ConstructionObject(models.Model):
     created_at = models.DateTimeField('Создан', auto_now_add=True)
     updated_at = models.DateTimeField('Изменен', auto_now=True)
 
-    def save(self, *args, **kwargs):
-        # self.contract_set.create
-        contract = self.contract_set.create(construction_object=self, name=self.name)
-        request_for_material = contract.request_for_material.create(contract=contract, name=self.name, is_done=True)
-        invoice = request_for_material.invoice_for_payment.create(request_for_material=request_for_material, name_company=self.name, is_paid=True, is_done=True, is_looked=True, status='да')
-        return super(ConstructionObject, self).save(*args, **kwargs)
+
+
+    # def save(self, *args, **kwargs):
+
+        # contract = self.contract.create(construction_object=self, name=self.name)
+        # contract.save()
+        # request_for_material = contract.request_for_material.create(contract=contract, name=self.name, is_done=True)
+        # invoice = request_for_material.invoice_for_payment.create(request_for_material=request_for_material, name_company=self.name, is_paid=True, is_done=True, is_looked=True, status='да')
+        # super(ConstructionObject, self).save(*args, **kwargs)
 
     def __str__(self):
         return self.name
@@ -26,7 +29,14 @@ class ConstructionObject(models.Model):
     class Meta:
         verbose_name = 'Объект'
         verbose_name_plural = 'Обьекты'
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 
 
-
-
+@receiver(post_save, sender=ConstructionObject, dispatch_uid="update_stock_count")
+def update_stock(sender, instance, **kwargs):
+    print(list(instance.contract.filter(name=instance.name) )== [])
+    if list(instance.contract.filter(name=instance.name) )== []:
+        contract = instance.contract.create(construction_object=instance, name=instance.name)
+        request_for_material = contract.request_for_material.create(contract=contract, name=instance.name, is_done=True)
+        invoice = request_for_material.invoice_for_payment.create(request_for_material=request_for_material, name_company=instance.name, is_paid=True, is_done=True, is_looked=True, status='да')

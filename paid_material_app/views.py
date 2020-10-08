@@ -212,7 +212,7 @@ class InvoicePaidMaterialsView(generic.TemplateView):
         elif request.POST['submit'] == 'return':
             return render(request, template_name='paid_material_app/return_materials.html',
                           context=context)
-        return redirect('/construction_objects/invoice/' + str(self.kwargs['id']) + '/paid_materials')
+        return redirect('/construction_objects/invoice/' + str(self.kwargs['id']) + '/materials')
 
 
 def marriage_materials(request):

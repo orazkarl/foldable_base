@@ -8,6 +8,7 @@ import datetime
 import telebot
 from telebot import types
 
+from django.db.models import  Q
 GENERAL_BOT_TOKEN = '1270115367:AAGCRLBP1iSZhpTniwVYQ9p9fqLysY668ew'
 general_bot = telebot.TeleBot(GENERAL_BOT_TOKEN)
 channel_id = '-1001342160485'
@@ -48,8 +49,7 @@ class InvoiceForPaymentView(generic.TemplateView):
                 request.user.construction_objects.all()):
             return render(request, template_name='404.html')
 
-        invoices = InvoiceForPayment.objects.filter(status='да',
-                                                    request_for_material__contract__construction_object=construction_object)
+        invoices = InvoiceForPayment.objects.filter(status='да',request_for_material__contract__construction_object=construction_object).filter(~Q(name_company=construction_object.name))
 
         self.extra_context = {
             'construction_object': construction_object,

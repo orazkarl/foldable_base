@@ -16,7 +16,7 @@ class Contract(models.Model):
     ]
 
     construction_object = models.ForeignKey(ConstructionObject, on_delete=models.CASCADE,
-                                            verbose_name='Строительный объект')
+                                            verbose_name='Строительный объект', related_name='contract')
     name = models.CharField('Название работы', max_length=250, unique=True)
     slug = models.SlugField(max_length=250, null=True, blank=True, help_text=slug_help_text, db_index=True, unique=True)
     contractor = models.CharField('Подрядчик', max_length=250, null=True)
@@ -44,7 +44,7 @@ class Contract(models.Model):
                         material.invoice = InvoiceForPayment.objects.get(name_company=self.construction_object.name)
                         material.is_remainder = True
                         material.save()
-        super(Contract, self).save(*args, **kwargs)
+        return super(Contract, self).save(*args, **kwargs)
 
 
 class RequestForMaterial(models.Model):
@@ -101,3 +101,6 @@ class InvoiceForPayment(models.Model):
             self.is_looked = True
             self.status = 'да'
         return super(InvoiceForPayment, self).save(*args, **kwargs)
+
+
+

@@ -20,6 +20,8 @@ import io
 from foldable_base.settings import BASE_DIR
 
 
+from django.db.models import  Q
+
 @method_decorator(login_required(login_url='/accounts/login/'), name='dispatch')
 class AnalyticsView(generic.ListView):
     template_name = 'analytics_app/analytics.html'
@@ -52,8 +54,8 @@ class TotalStats(generic.TemplateView):
 
     def get(self, request, *args, **kwargs):
         construction_object = ConstructionObject.objects.get(slug=self.kwargs['slug'])
-        contracts = Contract.objects.filter(construction_object=construction_object)
-        request_mats = RequestForMaterial.objects.filter(contract__construction_object=construction_object)
+        contracts = Contract.objects.filter(construction_object=construction_object).filter(~Q(name=construction_object.name))
+        request_mats = RequestForMaterial.objects.filter(contract__construction_object=construction_object).filter(~Q(name=construction_object.name))
         materials = Material.objects.filter(
             invoice__request_for_material__contract__construction_object=construction_object, is_delivery=True,
             invoice__is_done=True)
@@ -67,8 +69,7 @@ class TotalStats(generic.TemplateView):
         if list(materials)!=[]:
             total_sum_price = round(materials.aggregate(Sum('sum_price'))['sum_price__sum'])
 
-            is_cash_total_sum_price = round(
-                materials.filter(invoice__is_cash=True).aggregate(Sum('sum_price'))['sum_price__sum'])
+            is_cash_total_sum_price = (materials.filter(invoice__is_cash=True).aggregate(Sum('sum_price'))['sum_price__sum'])
 
             start_date_default = datetime.datetime(2020, 8, 1, tzinfo=pytz.UTC)
             end_date_default = datetime.datetime.today().date()
@@ -163,7 +164,7 @@ def export_analytics(request, slug):
         start_date = start_date[2] + '.' + start_date[1] + '.' + start_date[0]
         end_date = str(end_date).split('-')
         end_date = end_date[2] + '.' + end_date[1] + '.' + end_date[0]
-        wb = load_workbook('mediafiles/analytics_app.xlsx')
+        wb = load_workbook('mediafiles/analytics.xlsx')
         ws = wb.active
 
         count_materials = int(request.POST['count_materials'])

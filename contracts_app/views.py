@@ -208,10 +208,10 @@ class InvoiceForPaymentUpdateView(generic.UpdateView):
 
     def get_success_url(self, **kwargs):
         return reverse('request_for_material_detail',
-                       kwargs={'slug': RequestForMaterial.objects.get(invoice_for_payment__id=self.kwargs['pk'])})
+                       kwargs={'pk': RequestForMaterial.objects.get(invoice_for_payment__id=self.kwargs['pk']).id})
 
     def get(self, request, *args, **kwargs):
-        construction_object = ConstructionObject.objects.get(contract__request_for_material__id=self.kwargs['pk'])
+        construction_object = ConstructionObject.objects.get(contract__request_for_material__invoice_for_payment__id=self.kwargs['pk'])
         if check_user(request.user, ['accountant', 'manager'], construction_object) == 404:
             return render(request, '404.html')
         return super().get(request, *args, **kwargs)
