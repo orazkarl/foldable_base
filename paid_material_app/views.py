@@ -141,7 +141,7 @@ def material_delete(request):
 
 @method_decorator(login_required(login_url='/accounts/login/'), name='dispatch')
 class PaidMaterailsView(generic.TemplateView):
-    template_name = 'paid_material_app/paid_materials/invoices.html'
+    template_name = 'paid_material_app/invoices.html'
 
     def get(self, request, *args, **kwargs):
         construction_object = ConstructionObject.objects.get(slug=self.kwargs['slug'])
@@ -161,7 +161,7 @@ class PaidMaterailsView(generic.TemplateView):
 
 @method_decorator(login_required(login_url='/accounts/login/'), name='dispatch')
 class InvoicePaidMaterialsView(generic.TemplateView):
-    template_name = 'paid_material_app/paid_materials/paid_materials.html'
+    template_name = 'paid_material_app/paid_materials.html'
 
     def get(self, request, *args, **kwargs):
         construction_object = ConstructionObject.objects.get(
@@ -170,6 +170,8 @@ class InvoicePaidMaterialsView(generic.TemplateView):
                 request.user.construction_objects.all()):
             return render(request, template_name='404.html')
         materials = Material.objects.filter(invoice__id=int(self.kwargs['id'])).filter(~Q(ok=F('quantity')))
+        # materials = Material.objects.filter(invoice__id=int(self.kwargs['id']), is_delivery=False)
+
         invoice = InvoiceForPayment.objects.get(id=self.kwargs['id'])
 
         if list(materials) == [] and list(invoice.material.all()) != []:
@@ -178,7 +180,7 @@ class InvoicePaidMaterialsView(generic.TemplateView):
 
         self.extra_context = {
             'construction_object': construction_object,
-            'paid_material_app': materials,
+            'materials': materials,
             'invoice': invoice
         }
         return super().get(request, *args, **kwargs)
@@ -189,13 +191,14 @@ class InvoicePaidMaterialsView(generic.TemplateView):
         if request.user.role == 'accountant' or request.user.role == 'purchaser' or construction_object not in list(
                 request.user.construction_objects.all()):
             return render(request, template_name='404.html')
-        materials = request.POST.getlist('paid_material_app')
+        materials = request.POST.getlist('materials')
         materials = Material.objects.filter(id__in=materials)
         context = {
-            'paid_material_app': materials,
+            'materials': materials,
             'construction_object': construction_object,
         }
         if request.POST['submit'] == 'delivered':
+
             for material in materials:
                 material.is_delivery = True
                 material.status = 'ок'
@@ -204,13 +207,13 @@ class InvoicePaidMaterialsView(generic.TemplateView):
                 material.marriage, material.shortage, material.inconsistency = 0, 0, 0
                 material.save()
         elif request.POST['submit'] == 'marriage':
-            return render(request, template_name='paid_material_app/paid_materials/marriage_materials.html',
+            return render(request, template_name='paid_material_app/marriage_materials.html',
                           context=context)
 
         elif request.POST['submit'] == 'return':
-            return render(request, template_name='paid_material_app/paid_materials/return_materials.html',
+            return render(request, template_name='paid_material_app/return_materials.html',
                           context=context)
-        return redirect('/construction_objects_app/invoice/' + str(self.kwargs['id']) + '/paid_material_app')
+        return redirect('/construction_objects/invoice/' + str(self.kwargs['id']) + '/paid_materials')
 
 
 def marriage_materials(request):
@@ -231,8 +234,8 @@ def marriage_materials(request):
                 material.is_delivery = True
             material.save()
 
-            message += str(
-                i) + '. ' + material.name + '\n' + 'Ок: ' + material.ok + '\nБрак: ' + material.marriage + '\nНехватка: ' + material.inconsistency + '\nНесоответсвие: ' + material.shortage + '\n\n'
+            message += str(i) + '. ' + material.name + '\n' + 'Ок: ' + str(
+                material.ok) + '\nБрак: ' + material.marriage + '\nНехватка: ' + material.inconsistency + '\nНесоответсвие: ' + material.shortage + '\n\n'
             invoice = material.invoice
         if request.POST['comment']:
             message += 'Примечение: ' + request.POST['comment'] + '\n'

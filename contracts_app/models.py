@@ -93,5 +93,4 @@ class InvoiceForPayment(models.Model):
             self.is_paid = True
             self.is_looked = True
             self.status = 'да'
-            self.is_done = True
         return super(InvoiceForPayment, self).save(*args, **kwargs)
