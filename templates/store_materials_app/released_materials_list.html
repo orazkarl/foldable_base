@@ -6,7 +6,7 @@
     <div class="container-fluid">
         <div class="card">
             <div class="card-header d-block">
-                <a href="/contract/{{ relesed_materials.all.first.contract.slug }}/materials" class="btn btn-light"><i
+                <a href="/contract/{{ released_materials.all.first.contract.slug }}/materials" class="btn btn-light"><i
                         class="ik ik-arrow-left"></i>Назад</a>
                 <br>
                 <br>
@@ -41,11 +41,11 @@
                         </thead>
                         <tbody>
 
-                        {% for released_material in relesed_materials %}
+                        {% for released_material in released_materials %}
                             <tr>
                                 <th scope="row">{{ forloop.counter }}</th>
 
-                                <td><a href="{% url 'detail_relesed_materials' released_material.id %}"
+                                <td><a href="{% url 'detail_released_materials' released_material.id %}"
                                        style="color: #4da3ff">Отпущенные
                                     материалы {{ released_material.unique_code }}</a></td>
                                 <td>{{ released_material.release_date }}</td>

@@ -149,8 +149,7 @@ class PaidMaterailsView(generic.TemplateView):
                 request.user.construction_objects.all()):
             return render(request, template_name='404.html')
 
-        invoices = InvoiceForPayment.objects.filter(
-            request_for_material__contract__construction_object=construction_object)
+        invoices = InvoiceForPayment.objects.filter(request_for_material__contract__construction_object=construction_object).filter(~Q(name_company=construction_object.name))
 
         self.extra_context = {
             'construction_object': construction_object,

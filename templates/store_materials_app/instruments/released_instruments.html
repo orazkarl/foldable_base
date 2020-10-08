@@ -36,11 +36,11 @@
                         </tr>
                         </thead>
                         <tbody>
-                        {% for material in relesed_materials.all %}
+                        {% for released_material in released_materials.all %}
                             <tr>
                                 <th scope="row">{{ forloop.counter }}</th>
 
-                                <td><a href="{% url 'detail_relesed_materials' released_material.id %}"
+                                <td><a href="{% url 'detail_released_materials' released_material.id %}"
                                        style="color: #4da3ff">Отпущенные
                                     материалы {{ released_material.unique_code }}</a></td>
                                 <td>{{ released_material.release_date }}</td>

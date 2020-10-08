@@ -8,7 +8,7 @@
             <div class="card-header d-block">
 
             {% if released_material.items.all.first.material.instrument_code == None %}
-                <a href="/contract/{{ released_material.contract.slug }}/relesed_materials" class="btn btn-light"><i
+                <a href="/contract/{{ released_material.contract.slug }}/released_materials" class="btn btn-light"><i
                         class="ik ik-arrow-left"></i>Назад</a>
             {% else %}
                 <a href="/construction_objects/{{ object.slug }}/released_instruments" class="btn btn-light"><i

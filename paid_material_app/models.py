@@ -35,6 +35,14 @@ class Material(models.Model):
 
     def save(self, *args, **kwargs):
         self.sum_price = self.quantity * self.price
+        if self.invoice.is_cash:
+            self.is_delivery = True
+            self.status = 'ок'
+            self.ok = self.quantity
+            self.remainder_count = self.quantity
+            self.marriage, self.shortage, self.inconsistency = 0, 0, 0
+            self.invoice.is_done = True
+
         construction_object = self.invoice.request_for_material.contract.construction_object
         instrument_code = ''
         for item in construction_object.name.split(' '):

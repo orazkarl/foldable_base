@@ -58,7 +58,14 @@
                                                    disabled></td>
                                         <td><input type="text" class="form-control"
                                                    name="return_mat{{ forloop.counter }}"
-                                                   value="0" id="return_mat{{ forloop.counter }}"></td>
+                                                   id="return_mat{{ forloop.counter }}"
+                                                {% if material.material.is_instrument %}
+                                                   value="{{ material.release_count }}" readonly
+                                                {% else %}
+                                                   value="0"
+                                                {% endif %}
+                                                   >
+                                        </td>
                                     </tr>
                                 {% endfor %}
 
