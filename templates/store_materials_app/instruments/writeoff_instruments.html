@@ -1,0 +1,101 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load mathfilters %}
+{% block content %}
+
+    <div class="container-fluid">
+        <div class="card">
+            <div class="card-header d-block">
+                {#                <a href="/construction_objects/{{ construction_object.slug }}/instruments" class="btn btn-light"><i#}
+                {#                        class="ik ik-arrow-left"></i>Назад</a>#}
+                <br>
+                <br>
+                <div class="row">
+
+                    <div class="col-md-9">
+                        <h2>Акт списание инструментов</h2>
+                    </div>
+
+                </div>
+
+
+            </div>
+            <div class="card-body p-0 table-border-style">
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Инстурмент</th>
+                            <th>Код инструмента</th>
+                            <th>Количество в складе</th>
+                            <th>Списать</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for material in materials %}
+                            <tr>
+                                <th scope="row">{{ forloop.counter }}</th>
+                                <td>{{ material.name }}</td>
+                                <td>{{ material.instrument_code }}</td>
+                                <td>{{ material.remainder_count }}</td>
+                                <td>
+                                    <input type="text" class="form-control w-50" name="material{{ forloop.counter }}" value="0">
+                                </td>
+
+                            </tr>
+                        {% endfor %}
+
+                        </tbody>
+                    </table>
+
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block script %}
+    {#    <script>#}
+    {#        function myFormInput(n) {#}
+    {#            var action_div = document.getElementById('action_div');#}
+    {#            for (i = 1; i <= n; i++) {#}
+    {#                var mat_checbox = document.getElementById('material_checkbox' + i);#}
+    {#                console.log(mat_checbox.checked)#}
+    {#                if (mat_checbox.checked === true) {#}
+    {#                    action_div.style.display = 'block';#}
+    {#                    return;#}
+    {#                } else {#}
+    {#                    action_div.style.display = 'none';#}
+    {#                }#}
+    {#            }#}
+    {##}
+    {#        }#}
+    {##}
+    {#        function checkAll(n) {#}
+    {#            for (i = 1; i <= n; i++) {#}
+    {#                var mat_checbox = document.getElementById('material_checkbox' + i);#}
+    {#                if (mat_checbox.checked === true) {#}
+    {#                    mat_checbox.checked = false;#}
+    {##}
+    {#                } else {#}
+    {#                    mat_checbox.checked = true;#}
+    {#                }#}
+    {#            }#}
+    {#        }#}
+    {##}
+    {#        function funcSubmit() {#}
+    {#            var my_checkbox = document.getElementById('myCheckbox');#}
+    {#            var submit_release = document.getElementById('submit_release');#}
+    {#submit_delivery.style.display = 'block';#}
+    {#            if (my_checkbox.checked === true) {#}
+    {#                submit_release.style.display = 'block';#}
+    {#            } else {#}
+    {#                submit_release.style.display = 'none';#}
+    {#            }#}
+    {##}
+    {#        }#}
+    {#    </script>#}
+{% endblock %}

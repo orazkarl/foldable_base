@@ -22,4 +22,5 @@ urlpatterns = [
     path('construction_objects/<slug:slug>/general_base', views.GeneralBaseView.as_view(), name='general_base'),
     path('construction_objects/<slug:slug>/remainder_materials', views.RemainderMaterialsView.as_view(),
          name='remainder_materials'),
+    path('writeoff_instruments/', views.writeoff_instruments, name='writeoff_instruments')
 ]

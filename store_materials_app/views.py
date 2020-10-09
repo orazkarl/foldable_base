@@ -2,18 +2,19 @@ from .models import ReleasedMaterialItem, ReleasedMaterial
 from django.shortcuts import render, redirect
 from django.views import generic
 from construction_objects_app.models import ConstructionObject
-from contracts_app.models import  Contract
+from contracts_app.models import Contract
 from .models import Material
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
-from django.db.models import  Q
+from django.db.models import Q
 from transliterate import slugify
 import datetime
-
 
 import os
 from foldable_base.settings import BASE_DIR
 from docxtpl import DocxTemplate
+
+
 @method_decorator(login_required(login_url='/accounts/login/'), name='dispatch')
 class ContractMaterialsView(generic.TemplateView):
     template_name = 'store_materials_app/contracts.html'
@@ -43,7 +44,6 @@ class MaterialsView(generic.TemplateView):
         materials = Material.objects.filter(invoice__request_for_material__contract__slug=self.kwargs['slug'],
                                             is_delivery=True, invoice__is_done=True, instrument_code=None)
 
-
         self.extra_context = {
             'construction_object': construction_object,
             'materials': materials,
@@ -71,7 +71,8 @@ def release_materials(request):
 
         is_instrument = False
 
-        released_material = ReleasedMaterial.objects.create(user=request.user, release_date=datetime.datetime.now(),contract=contract)
+        released_material = ReleasedMaterial.objects.create(user=request.user, release_date=datetime.datetime.now(),
+                                                            contract=contract)
         for i in range(1, int(request.POST['count']) + 1):
             material = Material.objects.get(id=int(request.POST['material' + str(i)]))
             released_materials_count = int(request.POST['release' + str(i)])
@@ -132,8 +133,8 @@ class ReleasedMaterialsView(generic.TemplateView):
         self.extra_context = {
             'construction_object': construction_object,
             'released_materials': ReleasedMaterial.objects.filter(contract__slug=self.kwargs['slug'],
-                                                                 items__material__instrument_code=None).order_by('-id').distinct(),
-
+                                                                  items__material__instrument_code=None).order_by(
+                '-id').distinct(),
 
         }
         return super().get(request, *args, **kwargs)
@@ -240,7 +241,8 @@ class AddReleaseWaybillView(generic.TemplateView):
         released_material.release_waybill = released_waybill
         released_material.save()
         if released_material.items.all()[0].material.is_instrument:
-            return redirect('/construction_objects/' + released_material.contract.construction_object.slug + '/released_instruments')
+            return redirect(
+                '/construction_objects/' + released_material.contract.construction_object.slug + '/released_instruments')
         else:
             return redirect('/contract/' + released_material.contract.slug + '/released_materials')
 
@@ -285,9 +287,10 @@ class InstrumentMateriralView(generic.TemplateView):
             return render(request, template_name='404.html')
 
         materials = Material.objects.filter(is_delivery=True, invoice__is_done=True,
-                                            invoice__request_for_material__contract__construction_object=contstruction_object, is_remainder=False).filter(
-            ~Q(instrument_code=None))
-
+                                            invoice__request_for_material__contract__construction_object=contstruction_object,
+                                            is_remainder=False, is_instrument=True)
+        print(Material.objects.filter(invoice__request_for_material__contract__construction_object=contstruction_object,
+                                      is_remainder=False, is_delivery=True, is_instrument=True, invoice__is_done=True))
         self.extra_context = {
             'construction_object': contstruction_object,
             'materials': materials,
@@ -302,7 +305,15 @@ class InstrumentMateriralView(generic.TemplateView):
             'materials': materials,
             'construction_object': construction_object,
         }
-        return render(request, template_name='store_materials_app/release_materials.html', context=context)
+        if request.POST['submit'] == 'delivered':
+            return render(request, template_name='store_materials_app/release_materials.html', context=context)
+        elif request.POST['submit'] == 'writeoff':
+            return render(request, template_name='store_materials_app/instruments/writeoff_instruments.html',
+                          context=context)
+
+
+def writeoff_instruments(request):
+    return redirect(request.META.get('HTTP_REFERER'))
 
 
 @method_decorator(login_required(login_url='/accounts/login/'), name='dispatch')
@@ -352,7 +363,8 @@ class RemainderMaterialsView(generic.TemplateView):
             return render(request, template_name='404.html')
 
         materials = Material.objects.filter(is_delivery=True, invoice__is_done=True,
-                                            invoice__request_for_material__contract__construction_object=construction_object, is_remainder=True)
+                                            invoice__request_for_material__contract__construction_object=construction_object,
+                                            is_remainder=True)
         self.extra_context = {
             'construction_object': construction_object,
             'materials': materials,

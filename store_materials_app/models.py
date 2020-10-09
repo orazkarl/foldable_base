@@ -3,6 +3,7 @@ from django.conf import settings
 from contracts_app.models import InvoiceForPayment, Contract
 from paid_material_app.models import Material
 
+
 class ReleasedMaterial(models.Model):
     unique_code = models.CharField(unique=True, max_length=100)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, verbose_name='Пользователь')
@@ -29,6 +30,27 @@ class ReleasedMaterialItem(models.Model):
     remainder_count = models.PositiveIntegerField('Сколько было?')
     release_count = models.PositiveIntegerField('Сколько отпустил?')
     return_count = models.PositiveIntegerField('Возвращено', default=0)
+
+    def __str__(self):
+        return self.material.name
+
+
+class WriteoffInstruments(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, verbose_name='Пользователь')
+    created_at = models.DateTimeField('Когда списал?', auto_now_add=True)
+
+    class Meta:
+        verbose_name = 'Акт списания инструмента'
+        verbose_name_plural = 'Акт списания инструментов'
+
+    def __str__(self):
+        return f"Списанные инструменты: {self.id}"
+
+
+class WriteoffInstrumentItem(models.Model):
+    material = models.ForeignKey(Material, related_name='writeoff_instrument_item', on_delete=models.CASCADE,
+                                 verbose_name='Материал')
+    writeoff_count = models.PositiveIntegerField('Сколько списано?')
 
     def __str__(self):
         return self.material.name
