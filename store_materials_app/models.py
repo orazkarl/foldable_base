@@ -35,7 +35,7 @@ class ReleasedMaterialItem(models.Model):
         return self.material.name
 
 
-class WriteoffInstruments(models.Model):
+class WriteoffInstrument(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, verbose_name='Пользователь')
     created_at = models.DateTimeField('Когда списал?', auto_now_add=True)
 
@@ -48,6 +48,8 @@ class WriteoffInstruments(models.Model):
 
 
 class WriteoffInstrumentItem(models.Model):
+    writeoff_instrument = models.ForeignKey(WriteoffInstrument, related_name='writeoff_instrument_item', on_delete=models.CASCADE,
+                                 verbose_name='Акт списания инструмента')
     material = models.ForeignKey(Material, related_name='writeoff_instrument_item', on_delete=models.CASCADE,
                                  verbose_name='Материал')
     writeoff_count = models.PositiveIntegerField('Сколько списано?')

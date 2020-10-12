@@ -22,34 +22,43 @@
             </div>
             <div class="card-body p-0 table-border-style">
                 <div class="table-responsive">
-                    <table class="table">
-                        <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>Инстурмент</th>
-                            <th>Код инструмента</th>
-                            <th>Количество в складе</th>
-                            <th>Списать</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        {% for material in materials %}
+                    <form action="{% url 'writeoff_instruments' %}" method="post"
+                          onsubmit="return writeoffSubmit({{ materials.count }});">
+                        {% csrf_token %}
+                        <table class="table">
+                            <thead>
                             <tr>
-                                <th scope="row">{{ forloop.counter }}</th>
-                                <td>{{ material.name }}</td>
-                                <td>{{ material.instrument_code }}</td>
-                                <td>{{ material.remainder_count }}</td>
-                                <td>
-                                    <input type="text" class="form-control w-50" name="material{{ forloop.counter }}" value="0">
-                                </td>
-
+                                <th>#</th>
+                                <th>Инстурмент</th>
+                                <th>Код инструмента</th>
+                                <th>Количество в складе</th>
+                                <th>Списать</th>
                             </tr>
-                        {% endfor %}
+                            </thead>
+                            <tbody>
+                            <input type="text" name="count" value="{{ materials.count }}" style="display: none">
+                            {% for material in materials %}
+                                <tr>
+                                    <input type="text" style="display: none" name="material{{ forloop.counter }}"
+                                           value="{{ material.id }}">
+                                    <th scope="row">{{ forloop.counter }}</th>
+                                    <td>{{ material.name }}</td>
+                                    <td>{{ material.instrument_code }}</td>
+                                    <td><input type="text" id="material_remainder_count{{ forloop.counter }}" value="{{ material.remainder_count }}"  class="form-control w-50 " disabled></td>
+                                    <td>
+                                        <input type="text" class="form-control w-50" id="writeoff_count{{ forloop.counter }}"
+                                               name="writeoff_count{{ forloop.counter }}"  value="0">
+                                    </td>
 
-                        </tbody>
-                    </table>
+                                </tr>
+                            {% endfor %}
 
-
+                            </tbody>
+                        </table>
+                        <div class="form-group" style="margin-left: 15px">
+                            <button class="btn btn-primary" type="submit">Подтвердить</button>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
@@ -58,44 +67,26 @@
 {% endblock %}
 
 {% block script %}
-    {#    <script>#}
-    {#        function myFormInput(n) {#}
-    {#            var action_div = document.getElementById('action_div');#}
-    {#            for (i = 1; i <= n; i++) {#}
-    {#                var mat_checbox = document.getElementById('material_checkbox' + i);#}
-    {#                console.log(mat_checbox.checked)#}
-    {#                if (mat_checbox.checked === true) {#}
-    {#                    action_div.style.display = 'block';#}
-    {#                    return;#}
-    {#                } else {#}
-    {#                    action_div.style.display = 'none';#}
-    {#                }#}
-    {#            }#}
-    {##}
-    {#        }#}
-    {##}
-    {#        function checkAll(n) {#}
-    {#            for (i = 1; i <= n; i++) {#}
-    {#                var mat_checbox = document.getElementById('material_checkbox' + i);#}
-    {#                if (mat_checbox.checked === true) {#}
-    {#                    mat_checbox.checked = false;#}
-    {##}
-    {#                } else {#}
-    {#                    mat_checbox.checked = true;#}
-    {#                }#}
-    {#            }#}
-    {#        }#}
-    {##}
-    {#        function funcSubmit() {#}
-    {#            var my_checkbox = document.getElementById('myCheckbox');#}
-    {#            var submit_release = document.getElementById('submit_release');#}
-    {#submit_delivery.style.display = 'block';#}
-    {#            if (my_checkbox.checked === true) {#}
-    {#                submit_release.style.display = 'block';#}
-    {#            } else {#}
-    {#                submit_release.style.display = 'none';#}
-    {#            }#}
-    {##}
-    {#        }#}
-    {#    </script>#}
+    <script>
+        function writeoffSubmit(n) {
+            var i;
+            {#window.location.href = '/construction_objects/{{ construction_object.slug }}/instruments';#}
+            for (i = 1; i <= parseInt(n); i++) {
+                var writeoff_count = document.getElementById('writeoff_count' + i);
+                var material_remainder_count = document.getElementById('material_remainder_count' + i);
+
+
+                if (parseInt(writeoff_count.value) > parseInt(material_remainder_count.value)) {
+                    return false;
+                }
+                if (writeoff_count.value === '') {
+
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+    </script>
 {% endblock %}

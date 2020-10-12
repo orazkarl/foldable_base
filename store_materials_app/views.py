@@ -1,4 +1,4 @@
-from .models import ReleasedMaterialItem, ReleasedMaterial
+from .models import ReleasedMaterialItem, ReleasedMaterial, WriteoffInstrument, WriteoffInstrumentItem
 from django.shortcuts import render, redirect
 from django.views import generic
 from construction_objects_app.models import ConstructionObject
@@ -313,8 +313,64 @@ class InstrumentMateriralView(generic.TemplateView):
 
 
 def writeoff_instruments(request):
+    if request.POST:
+        contract = Material.objects.get(id=int(request.POST['material1'])).invoice.request_for_material.contract
+        construction_object = ConstructionObject.objects.get(contract=contract)
+        if request.user.role == 'accountant' or request.user.role == 'purchaser' or construction_object not in list(request.user.construction_objects.all()):
+            return render(request, template_name='404.html')
+
+        writeoff_instrument = WriteoffInstrument.objects.create(user=request.user)
+
+
+
+
+        for i in range(1, int(request.POST['count']) + 1):
+            material = Material.objects.get(id=int(request.POST['material' + str(i)]))
+            writeoff_count = int(request.POST['writeoff_count' + str(i)])
+            material.quantity = material.quantity - writeoff_count
+            material.save()
+            WriteoffInstrumentItem.objects.create(writeoff_instrument=writeoff_instrument, material=material, writeoff_count=writeoff_count)
+
+
+        # context = {
+        #     'object_name': ConstructionObject.objects.get(contract=contract).name,
+        #     'object_address': ConstructionObject.objects.get(contract=contract).address,
+        #     'number_contract': contract.number_contract,
+        #     'date_contract': contract.date_contract,
+        #     'date_doc': datetime.datetime.now().strftime("%d-%m-%Y %H:%M"),
+        #     'number_doc': released_material.unique_code,
+        #     'role': request.user.get_role_display(),
+        #     'name': request.user.first_name + ' ' + request.user.last_name,
+        #     'contract_contractor': contract.contractor,
+        #     'materials': ReleasedMaterialItem.objects.filter(released_material=released_material),
+        #     'indexs': indexs,
+        #     'contract_name': contract.name,
+        # }
+        #
+        # tpl = DocxTemplate(os.path.join(BASE_DIR, 'mediafiles/nakladnaya.docx'))
+        # tpl.render(context)
+        # tpl.save('mediafiles/waybill/nakladnaya-' + contract.name + str(released_material.id) + '.docx')
+
     return redirect(request.META.get('HTTP_REFERER'))
 
+@method_decorator(login_required(login_url='/accounts/login/'), name='dispatch')
+class WriteoffInstrumentsList(generic.ListView):
+    model = WriteoffInstrument
+    template_name = 'store_materials_app/instruments/writeoff_instruments_list.html'
+
+    # def get(self, request, *args, **kwargs):
+    #     construction_object = ConstructionObject.objects.get(
+    #         contract__request_for_material__invoice_for_payment__id=self.kwargs['pk'])
+    #     if request.user.role == 'accountant' or request.user.role == 'purchaser' or construction_object not in list(
+    #             request.user.construction_objects.all()):
+    #         return render(request, template_name='404.html')
+    #     return super().get(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        construction_object = ConstructionObject.objects.get(slug=self.kwargs['slug'])
+        context['construction_object'] = construction_object
+        return context
 
 @method_decorator(login_required(login_url='/accounts/login/'), name='dispatch')
 class ReleasedInstruments(generic.TemplateView):

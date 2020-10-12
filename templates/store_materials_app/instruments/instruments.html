@@ -12,14 +12,17 @@
                 <br>
                 <div class="row">
 
-                    <div class="col-md-9">
+                    <div class="col-md-8">
                         <h2>Инструменты</h2>
                     </div>
                     {% for material in materials %}
                         {% if material.release_material_items.all %}
-                            <div class="col-md-3"><a type="button"
+                            <div class="col-md-2"><a type="button"
                                                      href="{% url 'released_instruments' construction_object.slug %}"
                                                      class="btn btn-primary">Отпущенные инструменты</a></div>
+                            <div class="col-md-2"><a type="button"
+                                                     href="{% url 'writeoff_instruments_list' construction_object.slug %}"
+                                                     class="btn btn-success">Акт списания инструментов</a></div>
                             {{ "<!--" }}
                         {% endif %}
                     {% endfor %}
