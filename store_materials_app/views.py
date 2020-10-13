@@ -2,7 +2,7 @@ from .models import ReleasedMaterialItem, ReleasedMaterial, WriteoffInstrument, 
 from django.shortcuts import render, redirect
 from django.views import generic
 from construction_objects_app.models import ConstructionObject
-from contracts_app.models import Contract
+from contracts_app.models import Contract, RequestForMaterial, InvoiceForPayment
 from .models import Material
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
@@ -421,9 +421,12 @@ class RemainderMaterialsView(generic.TemplateView):
         materials = Material.objects.filter(is_delivery=True, invoice__is_done=True,
                                             invoice__request_for_material__contract__construction_object=construction_object,
                                             is_remainder=True)
+        invoice = InvoiceForPayment.objects.get(name_company=construction_object.name)
+
         self.extra_context = {
             'construction_object': construction_object,
             'materials': materials,
+            'invoice': invoice,
         }
         return super().get(request, *args, **kwargs)
 

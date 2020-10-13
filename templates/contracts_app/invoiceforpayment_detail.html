@@ -5,16 +5,19 @@
     <div class="container-fluid">
         <div class="card">
             <div class="card-header d-block">
-                <a href="{% url 'request_for_material_detail' object.request_for_material.id %}"
-                   class="btn btn-light"><i class="ik ik-arrow-left"></i>Назад</a>
+
+
+                {% if object.name_company == construction_object.name %}
+                    <a href="{% url 'remainder_materials' construction_object.slug %}"
+                       class="btn btn-light"><i class="ik ik-arrow-left"></i>Назад</a>
+                {% else %}
+                    <a href="{% url 'request_for_material_detail' object.request_for_material.id %}"
+                       class="btn btn-light"><i class="ik ik-arrow-left"></i>Назад</a>
+                {% endif %}
 
                 <div class="row">
                     <div class="col-md-10">
                         <h2>Название компании: {{ object.name_company }}</h2>
-                        <p>БИН: {{ object.bin }}</p>
-                        <p>Файл: <a href="{{ object.doc_file.url }}" target="_blank"
-                                    style="color: #4da3ff">{{ object.doc_file }}</p>
-                        </a>
                     </div>
                     <div class="col-md-2">
                         {% if object.is_done == False %}
@@ -22,6 +25,11 @@
                                 <a href="{% url 'material_create' object.id %}" class="btn btn-primary">Добавить
                                     материал</a>
                             {% endif %}
+                        {% endif %}
+
+                        {% if object.name_company == construction_object.name %}
+                            <a href="{% url 'material_create' object.id %}" class="btn btn-primary">Добавить
+                                материал</a>
                         {% endif %}
                     </div>
                 </div>
@@ -59,7 +67,7 @@
                                     Нет
                                 {% endif %}
                                 </td>
-                                {% if object.request_for_material.contract.status == '1' %}
+                                {% if object.request_for_material.contract.status == '1' or object.name_company == construction_object.name %}
                                     <td><a href="{% url 'material_update' material.id %}" class="btn btn-primary">
                                         Изменить
                                     </a>
@@ -73,6 +81,7 @@
                                         </form>
                                     </td>
                                 {% endif %}
+
                             </tr>
                         {% endfor %}
                         </tbody>

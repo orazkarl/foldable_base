@@ -62,6 +62,10 @@ class Material(models.Model):
             else:
                 newid = self.id
             self.instrument_code = 'I' + instrument_code + '-' + str(datetime.datetime.now().year) + '-' + str(newid)
+        if self.invoice.name_company == self.invoice.request_for_material.contract.construction_object.name:
+            self.is_remainder = True
+            self.is_delivery = True
+            self.invoice.is_done = True
         return super(Material, self).save(*args, **kwargs)
 
     def __str__(self):

@@ -67,7 +67,10 @@ class AddMaterialsExcelView(generic.TemplateView):
             if instriment_code == 1:
                 material.is_instrument = True
             material.save()
-        return redirect('/request/' + str(invoice.request_for_material.id) + '/detail/')
+        if invoice.name_company == invoice.request_for_material.contract.construction_object.name:
+            return redirect('/construction_objects/' + invoice.request_for_material.contract.construction_object.slug + '/remainder_materials')
+        else:
+            return redirect('/request/' + str(invoice.request_for_material.id) + '/detail/')
 
 
 @method_decorator(login_required(login_url='/accounts/login/'), name='dispatch')

@@ -9,8 +9,13 @@
     <div class="container-fluid">
         <div class="card">
             <div class="card-header d-block">
-                <a href="/request_for_material/detail/{{ invoice.request_for_material.id }}" class="btn btn-light"><i
+                {% if invoice.name_company == construction_object.name %}
+                    <a href="{% url 'remainder_materials' construction_object.slug %}"
+                       class="btn btn-light"><i class="ik ik-arrow-left"></i>Назад</a>
+                {% else %}
+                    <a href="/request_for_material/detail/{{ invoice.request_for_material.id }}" class="btn btn-light"><i
                         class="ik ik-arrow-left"></i>Назад</a>
+                {% endif %}
                 <h2>Добавить материалы</h2>
             </div>
 

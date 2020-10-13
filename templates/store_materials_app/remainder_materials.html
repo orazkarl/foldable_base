@@ -13,9 +13,18 @@
                 <br>
                 <br>
                 <div class="row">
-                    <div class="col-md-9">
+                    <div class="col-md-8">
                         <h2>Остаток</h2>
                     </div>
+                    <div class="col-md-2">
+                        <a href="{% url 'invoice_for_payment_detail' invoice.id %}" class="btn btn-primary">Материалы</a>
+                    </div>
+                    <div class="col-md-2">
+                        <a href="{% url 'add_material' invoice.id %}"
+                                                           class="btn btn-success">Загрузить
+                                                            материалы</a>
+                    </div>
+
                 </div>
 
 
