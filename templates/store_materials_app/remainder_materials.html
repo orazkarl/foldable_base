@@ -13,7 +13,7 @@
                 <br>
                 <br>
                 <div class="row">
-                    <div class="col-md-8">
+                    <div class="col-md-6">
                         <h2>Остаток</h2>
                     </div>
                     <div class="col-md-2">
@@ -24,6 +24,19 @@
                                                            class="btn btn-success">Загрузить
                                                             материалы</a>
                     </div>
+                    {% for material in materials %}
+                        {% if material.release_material_items.all %}
+                            <div class="col-md-2"><a type="button"
+                                                     href="{% url 'remainder_released_materials'  construction_object.slug %}"
+                                                     class="btn btn-primary">Отпущенные материалы</a></div>
+                               {{ "<!--" }}
+
+
+                        {% endif %}
+
+
+                    {% endfor %}
+                {{ "-->" }}
 
                 </div>
 

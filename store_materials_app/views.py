@@ -63,7 +63,10 @@ class MaterialsView(generic.TemplateView):
 
 def release_materials(request):
     if request.POST:
-        contract = Material.objects.get(id=int(request.POST['material1'])).invoice.request_for_material.contract
+        if 'contract' in request.POST:
+            contract = Contract.objects.get(id=int(request.POST['contract']))
+        else:
+            contract = Material.objects.get(id=int(request.POST['material1'])).invoice.request_for_material.contract
         construction_object = ConstructionObject.objects.get(contract=contract)
         if request.user.role == 'accountant' or request.user.role == 'purchaser' or construction_object not in list(
                 request.user.construction_objects.all()):
@@ -439,3 +442,21 @@ class RemainderMaterialsView(generic.TemplateView):
             'construction_object': construction_object,
         }
         return render(request, template_name='store_materials_app/release_materials.html', context=context)
+
+
+@method_decorator(login_required(login_url='/accounts/login/'), name='dispatch')
+class RemainderReleasedMaterialsView(generic.TemplateView):
+    template_name = 'store_materials_app/remainder_released_materials.html'
+
+    def get(self, request, *args, **kwargs):
+        construction_object = ConstructionObject.objects.get(contract__slug=self.kwargs['slug'])
+        if request.user.role == 'accountant' or request.user.role == 'purchaser' or construction_object not in list(
+                request.user.construction_objects.all()):
+            return render(request, template_name='404.html')
+        self.extra_context = {
+            'construction_object': construction_object,
+            'released_materials': ReleasedMaterial.objects.filter(items__material__is_remainder=True).order_by(
+                '-id').distinct(),
+
+        }
+        return super().get(request, *args, **kwargs)

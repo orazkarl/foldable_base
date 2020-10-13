@@ -6,14 +6,14 @@
     <div class="container-fluid">
         <div class="card">
             <div class="card-header d-block">
-                <a href="/contract/{{ released_materials.all.first.contract.slug }}/materials" class="btn btn-light"><i
+                <a href="{% url 'remainder_materials' construction_object.slug %}" class="btn btn-light"><i
                         class="ik ik-arrow-left"></i>Назад</a>
                 <br>
                 <br>
                 <div class="row">
 
                     <div class="col-md-9">
-                        <h2>Отпущенные материалы</h2>
+                        <h2>Отпущенные материалы с остатка </h2>
                         {#                        <p>Работа: {{ paid_material_app.first.invoice.request_mat.contract }}</p>#}
                     </div>
 
@@ -53,12 +53,10 @@
                                     <a href="{% url 'return_relesed_materials' released_material.id %}"
                                        style="color: #4da3ff">Возврат</a>{% endif %}</td>
                                 <td>
-                                    <a href="/media/waybill/nakladnaya-
-                                            {{ released_material.contract.name }}{{ released_material.id }}.docx"
+                                    <a href="/media/waybill/nakladnaya-{{ released_material.contract.name }}{{ released_material.id }}.docx"
                                        style="color: #4da3ff" download>Скачать</a>
                                 </td>
-                                <td>{% if released_material.is_done %}<a href="/media/waybill/nakladnaya_final-
-                                        {{ released_material.contract.name }}{{ released_material.id }}.docx"
+                                <td>{% if released_material.is_done %}<a href="/media/waybill/nakladnaya_final-{{ released_material.contract.name }}{{ released_material.id }}.docx"
                                                                          style="color: #4da3ff"
                                                                          download>Скачать</a>{% endif %}</td>
                                 {#                                    <td>{{ material.release_count }}</td>#}
@@ -94,45 +92,3 @@
 
 {% endblock %}
 
-{% block script %}
-    {#    <script>#}
-    {#        function myFormInput(n) {#}
-    {#            var action_div = document.getElementById('action_div');#}
-    {#            for (i = 1; i <= n; i++) {#}
-    {#                var mat_checbox = document.getElementById('material_checkbox' + i);#}
-    {#                console.log(mat_checbox.checked)#}
-    {#                if (mat_checbox.checked === true) {#}
-    {#                    action_div.style.display = 'block';#}
-    {#                    return;#}
-    {#                } else {#}
-    {#                    action_div.style.display = 'none';#}
-    {#                }#}
-    {#            }#}
-    {##}
-    {#        }#}
-    {##}
-    {#        function checkAll(n) {#}
-    {#            for (i = 1; i <= n; i++) {#}
-    {#                var mat_checbox = document.getElementById('material_checkbox' + i);#}
-    {#                if (mat_checbox.checked === true) {#}
-    {#                    mat_checbox.checked = false;#}
-    {##}
-    {#                } else {#}
-    {#                    mat_checbox.checked = true;#}
-    {#                }#}
-    {#            }#}
-    {#        }#}
-    {##}
-    {#        function funcSubmit() {#}
-    {#            var my_checkbox = document.getElementById('myCheckbox');#}
-    {#            var submit_release = document.getElementById('submit_release');#}
-    {#submit_delivery.style.display = 'block';#}
-    {#            if (my_checkbox.checked === true) {#}
-    {#                submit_release.style.display = 'block';#}
-    {#            } else {#}
-    {#                submit_release.style.display = 'none';#}
-    {#            }#}
-    {##}
-    {#        }#}
-    {#    </script>#}
-{% endblock %}

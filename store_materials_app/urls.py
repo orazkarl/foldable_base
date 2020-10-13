@@ -23,6 +23,7 @@ urlpatterns = [
     path('construction_objects/<slug:slug>/remainder_materials', views.RemainderMaterialsView.as_view(),
          name='remainder_materials'),
     path('writeoff_instruments/', views.writeoff_instruments, name='writeoff_instruments'),
-    path('construction_objects/<slug:slug>/writeoff_instruments_list', views.WriteoffInstrumentsList.as_view(), name='writeoff_instruments_list')
+    path('construction_objects/<slug:slug>/writeoff_instruments_list', views.WriteoffInstrumentsList.as_view(), name='writeoff_instruments_list'),
+    path('construction_objects/<slug:slug>/remainder_released_materials', views.RemainderReleasedMaterialsView.as_view(), name='remainder_released_materials'),
 
 ]
