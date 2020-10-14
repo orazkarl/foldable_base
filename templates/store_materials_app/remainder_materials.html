@@ -17,26 +17,27 @@
                         <h2>Остаток</h2>
                     </div>
                     <div class="col-md-2">
-                        <a href="{% url 'invoice_for_payment_detail' invoice.id %}" class="btn btn-primary">Материалы</a>
+                        <a href="{% url 'invoice_for_payment_detail' invoice.id %}"
+                           class="btn btn-primary">Материалы</a>
                     </div>
                     <div class="col-md-2">
                         <a href="{% url 'add_material' invoice.id %}"
-                                                           class="btn btn-success">Загрузить
-                                                            материалы</a>
+                           class="btn btn-success">Загрузить
+                            материалы</a>
                     </div>
                     {% for material in materials %}
                         {% if material.release_material_items.all %}
                             <div class="col-md-2"><a type="button"
                                                      href="{% url 'remainder_released_materials'  construction_object.slug %}"
                                                      class="btn btn-primary">Отпущенные материалы</a></div>
-                               {{ "<!--" }}
+                            {{ "<!--" }}
 
 
                         {% endif %}
 
 
                     {% endfor %}
-                {{ "-->" }}
+                    {{ "-->" }}
 
                 </div>
 
@@ -104,12 +105,15 @@
                         <div style="display: none" id="action_div">
                             <div class="row">
 
-                                <div style="margin: 10px 0 10px 10px" class="col-md-12">
+                                <div style="margin: 10px 0 10px 10px" class="col-md-4">
                                     <input type="checkbox" class="form-radio" style="height: 18px; width: 18px;"
                                            oninput="funcSubmit();" id="myCheckbox">
                                     <label for="myCheckbox"><h3>Отпустить</h3></label>
+
                                     <div style="display:none " id="submit_release">
+
                                         <h3>ФИО: <span style="text-decoration: underline">{{ request.user }}</span>
+
                                         </h3>
                                         <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
                                             tempor
@@ -118,6 +122,31 @@
                                                 value="delivered">
                                             Подтвердить
                                         </button>
+                                    </div>
+
+                                </div>
+                                <div style="margin: 10px 0 10px 10px" class="col-md-4">
+                                    <input type="checkbox" class="form-radio" style="height: 18px; width: 18px;"
+                                           oninput="transferSubmit();" id="transfer_id">
+                                    <label for="transfer_id"><h3>Перевод</h3></label>
+                                    <div style="display:none " id="submit_transfer">
+{#                                        <select name="construction_object" class="form-control" required>#}
+{#                                            <option selected disabled>Выбрать объект</option>#}
+{#                                            {% for con_object in construction_objects %}#}
+{#                                                {% if con_object != construction_object %}#}
+{#                                                    <option value="{{ con_object.id }}">{{ con_object }}</option>#}
+{#                                                {% endif %}#}
+{#                                            {% endfor %}#}
+{#                                        </select>#}
+                                        <h3>ФИО: <span style="text-decoration: underline">{{ request.user }}</span>
+                                        </h3>
+                                        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
+                                            tempor
+                                            incididunt ut labore et dolore magna aliqua.</p>
+                                                                                <button type="submit" name="submit" class="btn btn-primary"
+                                                                                        value="transfer">
+                                                                                    Перевод
+                                                                                </button>
                                     </div>
 
                                 </div>
@@ -176,13 +205,23 @@
         function funcSubmit() {
             var my_checkbox = document.getElementById('myCheckbox');
             var submit_release = document.getElementById('submit_release');
-            {#submit_delivery.style.display = 'block';#}
             if (my_checkbox.checked === true) {
                 submit_release.style.display = 'block';
             } else {
                 submit_release.style.display = 'none';
             }
 
+
+        }
+
+        function transferSubmit() {
+            var transfer_id = document.getElementById('transfer_id');
+            var submit_transfer = document.getElementById('submit_transfer');
+            if (transfer_id.checked === true) {
+                submit_transfer.style.display = 'block';
+            } else {
+                submit_transfer.style.display = 'none';
+            }
 
         }
 

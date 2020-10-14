@@ -319,42 +319,47 @@ def writeoff_instruments(request):
     if request.POST:
         contract = Material.objects.get(id=int(request.POST['material1'])).invoice.request_for_material.contract
         construction_object = ConstructionObject.objects.get(contract=contract)
-        if request.user.role == 'accountant' or request.user.role == 'purchaser' or construction_object not in list(request.user.construction_objects.all()):
+        if request.user.role == 'accountant' or request.user.role == 'purchaser' or construction_object not in list(
+                request.user.construction_objects.all()):
             return render(request, template_name='404.html')
 
         writeoff_instrument = WriteoffInstrument.objects.create(user=request.user)
 
-
-
-
+        writeoff_count_all = 0
+        writeoff_sum_price_all = 0
         for i in range(1, int(request.POST['count']) + 1):
             material = Material.objects.get(id=int(request.POST['material' + str(i)]))
             writeoff_count = int(request.POST['writeoff_count' + str(i)])
             material.quantity = material.quantity - writeoff_count
+
+            WriteoffInstrumentItem.objects.create(writeoff_instrument=writeoff_instrument, material=material,
+                                                  writeoff_count=writeoff_count)
+            writeoff_count_all += writeoff_count
+            writeoff_sum_price_all += writeoff_count * material.price
             material.save()
-            WriteoffInstrumentItem.objects.create(writeoff_instrument=writeoff_instrument, material=material, writeoff_count=writeoff_count)
 
+        context = {
+            # 'object_name': ConstructionObject.objects.get(contract=contract).name,
+            # 'object_address': ConstructionObject.objects.get(contract=contract).address,
+            # 'number_contract': contract.number_contract,
+            # 'date_contract': contract.date_contract,
+            'date_doc': datetime.datetime.now().strftime("%d-%m-%Y %H:%M"),
+            # 'number_doc': released_material.unique_code,
+            # 'role': request.user.get_role_display(),
+            # 'name': request.user.first_name + ' ' + request.user.last_name,
+            # 'contract_contractor': contract.contractor,
+            'materials': WriteoffInstrumentItem.objects.filter(writeoff_instrument=writeoff_instrument),
+            'writeoff_count_all': writeoff_count_all,
+            'writeoff_sum_price_all': writeoff_sum_price_all,
+            # 'contract_name': contract.name,
+        }
 
-        # context = {
-        #     'object_name': ConstructionObject.objects.get(contract=contract).name,
-        #     'object_address': ConstructionObject.objects.get(contract=contract).address,
-        #     'number_contract': contract.number_contract,
-        #     'date_contract': contract.date_contract,
-        #     'date_doc': datetime.datetime.now().strftime("%d-%m-%Y %H:%M"),
-        #     'number_doc': released_material.unique_code,
-        #     'role': request.user.get_role_display(),
-        #     'name': request.user.first_name + ' ' + request.user.last_name,
-        #     'contract_contractor': contract.contractor,
-        #     'materials': ReleasedMaterialItem.objects.filter(released_material=released_material),
-        #     'indexs': indexs,
-        #     'contract_name': contract.name,
-        # }
-        #
-        # tpl = DocxTemplate(os.path.join(BASE_DIR, 'mediafiles/nakladnaya.docx'))
-        # tpl.render(context)
-        # tpl.save('mediafiles/waybill/nakladnaya-' + contract.name + str(released_material.id) + '.docx')
+        tpl = DocxTemplate(os.path.join(BASE_DIR, 'mediafiles/act_writeoff_instruments.docx'))
+        tpl.render(context)
+        tpl.save('mediafiles/acts_writeoff/act_writeoff_instruments-' +  str(writeoff_instrument.id) + '.docx')
 
     return redirect(request.META.get('HTTP_REFERER'))
+
 
 @method_decorator(login_required(login_url='/accounts/login/'), name='dispatch')
 class WriteoffInstrumentsList(generic.ListView):
@@ -374,6 +379,7 @@ class WriteoffInstrumentsList(generic.ListView):
         construction_object = ConstructionObject.objects.get(slug=self.kwargs['slug'])
         context['construction_object'] = construction_object
         return context
+
 
 @method_decorator(login_required(login_url='/accounts/login/'), name='dispatch')
 class ReleasedInstruments(generic.TemplateView):
@@ -430,6 +436,7 @@ class RemainderMaterialsView(generic.TemplateView):
             'construction_object': construction_object,
             'materials': materials,
             'invoice': invoice,
+
         }
         return super().get(request, *args, **kwargs)
 
@@ -440,8 +447,47 @@ class RemainderMaterialsView(generic.TemplateView):
         context = {
             'materials': materials,
             'construction_object': construction_object,
+            'construction_objects': ConstructionObject.objects.all(),
         }
-        return render(request, template_name='store_materials_app/release_materials.html', context=context)
+
+        if request.POST['submit'] == 'delivered':
+            return render(request, template_name='store_materials_app/release_materials.html', context=context)
+        elif request.POST['submit'] == 'transfer':
+            return render(request, template_name='store_materials_app/transfer_materials.html', context=context)
+
+
+def transfer_materials(request):
+    if request.POST:
+        construction_object = ConstructionObject.objects.get(id=int(request.POST['construction_object']))
+        if request.user.role == 'accountant' or request.user.role == 'purchaser':
+            return render(request, template_name='404.html')
+        invoice = InvoiceForPayment.objects.get(name_company=construction_object.name)
+        for i in range(1, int(request.POST['count']) + 1):
+            material = Material.objects.get(id=int(request.POST['material' + str(i)]))
+            material.invoice = invoice
+            material.save()
+
+        # indexs = list(range(1, ReleasedMaterialItem.objects.filter(released_material=released_material).count() + 1))
+        # context = {
+        #     'object_name': ConstructionObject.objects.get(contract=contract).name,
+        #     'object_address': ConstructionObject.objects.get(contract=contract).address,
+        #     'number_contract': contract.number_contract,
+        #     'date_contract': contract.date_contract,
+        #     'date_doc': datetime.datetime.now().strftime("%d-%m-%Y %H:%M"),
+        #     'number_doc': released_material.unique_code,
+        #     'role': request.user.get_role_display(),
+        #     'name': request.user.first_name + ' ' + request.user.last_name,
+        #     'contract_contractor': contract.contractor,
+        #     'materials': ReleasedMaterialItem.objects.filter(released_material=released_material),
+        #     'indexs': indexs,
+        #     'contract_name': contract.name,
+        # }
+        #
+        # tpl = DocxTemplate(os.path.join(BASE_DIR, 'mediafiles/nakladnaya.docx'))
+        # tpl.render(context)
+        # tpl.save('mediafiles/waybill/nakladnaya-' + contract.name + str(released_material.id) + '.docx')
+
+    return redirect(request.META.get('HTTP_REFERER'))
 
 
 @method_decorator(login_required(login_url='/accounts/login/'), name='dispatch')

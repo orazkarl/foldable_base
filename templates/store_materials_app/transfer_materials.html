@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load mathfilters %}
+{% block content %}
+
+    <div class="container-fluid">
+        <div class="card">
+            <div class="card-header d-block">
+                <div class="row">
+                    <div class="col-md-10">
+                        <h2>Перевод материалов на другой объект</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body p-0 table-border-style">
+                <div class="table-responsive">
+                    <form action="{% url 'transfer_materials' %}" method="post">
+                        <div class="form-group col-md-3" style="margin-top: 10px">
+                            <label> Выбрать объект</label>
+                            <select name="construction_object" class="form-control" required>
+                                <option selected disabled>Выбрать объект</option>
+                                {% for con_object in construction_objects %}
+                                    {% if con_object != construction_object %}
+                                        <option value="{{ con_object.id }}">{{ con_object }}</option>
+                                    {% endif %}
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <table class="table">
+                            <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>название</th>
+                                <th>ед изм.</th>
+                                <th>остаток</th>
+                                <th>Код инструмента</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+
+                            {% csrf_token %}
+                            <input type="text" name="count" value="{{ materials.count }}" style="display: none">
+                            {% for material in materials %}
+                                <tr>
+                                    <input type="text" style="display: none" name="material{{ forloop.counter }}"
+                                           value="{{ material.id }}">
+                                    <th scope="row">{{ forloop.counter }}</th>
+                                    <td>{{ material.name }}</td>
+                                    <td>{{ material.units }}</td>
+                                    <td>{{ material.remainder_count }}</td>
+                                    <td>    {% if material.is_instrument %}
+                                        {{ material.instrument_code }}
+                                    {% else %}
+                                        Нет
+                                    {% endif %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+
+                            </tbody>
+                        </table>
+                        <div class="row" style="margin-left: 20px">
+                            <div class="col-md-4">
+                                <div class="form-group">
+
+                                        <textarea name="comment" class="form-control" rows="5"
+                                                  placeholder="Примечение"></textarea>
+                                </div>
+
+                            </div>
+                            <div class="col-md-8">
+                                <div class="form-group">
+                                    <button class="btn btn-primary">Подтвердить</button>
+                                </div>
+                            </div>
+                        </div>
+
+                    </form>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block script %}
+
+
+
+
+
+{% endblock %}
