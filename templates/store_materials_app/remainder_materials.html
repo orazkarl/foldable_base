@@ -31,11 +31,7 @@
                                                      href="{% url 'remainder_released_materials'  construction_object.slug %}"
                                                      class="btn btn-primary">Отпущенные материалы</a></div>
                             {{ "<!--" }}
-
-
                         {% endif %}
-
-
                     {% endfor %}
                     {{ "-->" }}
 
@@ -130,23 +126,23 @@
                                            oninput="transferSubmit();" id="transfer_id">
                                     <label for="transfer_id"><h3>Перевод</h3></label>
                                     <div style="display:none " id="submit_transfer">
-{#                                        <select name="construction_object" class="form-control" required>#}
-{#                                            <option selected disabled>Выбрать объект</option>#}
-{#                                            {% for con_object in construction_objects %}#}
-{#                                                {% if con_object != construction_object %}#}
-{#                                                    <option value="{{ con_object.id }}">{{ con_object }}</option>#}
-{#                                                {% endif %}#}
-{#                                            {% endfor %}#}
-{#                                        </select>#}
+                                        {#                                        <select name="construction_object" class="form-control" required>#}
+                                        {#                                            <option selected disabled>Выбрать объект</option>#}
+                                        {#                                            {% for con_object in construction_objects %}#}
+                                        {#                                                {% if con_object != construction_object %}#}
+                                        {#                                                    <option value="{{ con_object.id }}">{{ con_object }}</option>#}
+                                        {#                                                {% endif %}#}
+                                        {#                                            {% endfor %}#}
+                                        {#                                        </select>#}
                                         <h3>ФИО: <span style="text-decoration: underline">{{ request.user }}</span>
                                         </h3>
                                         <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
                                             tempor
                                             incididunt ut labore et dolore magna aliqua.</p>
-                                                                                <button type="submit" name="submit" class="btn btn-primary"
-                                                                                        value="transfer">
-                                                                                    Перевод
-                                                                                </button>
+                                        <button type="submit" name="submit" class="btn btn-primary"
+                                                value="transfer">
+                                            Перевод
+                                        </button>
                                     </div>
 
                                 </div>

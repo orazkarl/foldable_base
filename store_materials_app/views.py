@@ -323,7 +323,8 @@ def writeoff_instruments(request):
                 request.user.construction_objects.all()):
             return render(request, template_name='404.html')
 
-        writeoff_instrument = WriteoffInstrument.objects.create(user=request.user)
+        writeoff_instrument = WriteoffInstrument.objects.create(user=request.user,
+                                                                construction_object=construction_object)
 
         writeoff_count_all = 0
         writeoff_sum_price_all = 0
@@ -332,8 +333,11 @@ def writeoff_instruments(request):
             writeoff_count = int(request.POST['writeoff_count' + str(i)])
             material.quantity = material.quantity - writeoff_count
 
-            WriteoffInstrumentItem.objects.create(writeoff_instrument=writeoff_instrument, material=material,
-                                                  writeoff_count=writeoff_count)
+            writeoff_instrument_item = WriteoffInstrumentItem.objects.create(writeoff_instrument=writeoff_instrument,
+                                                                             material=material,
+                                                                             writeoff_count=writeoff_count)
+            writeoff_instrument_item.life_time = (writeoff_instrument_item.created_at - material.created_at).days
+            writeoff_instrument_item.save()
             writeoff_count_all += writeoff_count
             writeoff_sum_price_all += writeoff_count * material.price
             material.save()
@@ -346,7 +350,7 @@ def writeoff_instruments(request):
             'date_doc': datetime.datetime.now().strftime("%d-%m-%Y %H:%M"),
             # 'number_doc': released_material.unique_code,
             # 'role': request.user.get_role_display(),
-            # 'name': request.user.first_name + ' ' + request.user.last_name,
+            'name': request.user.first_name + ' ' + request.user.last_name,
             # 'contract_contractor': contract.contractor,
             'materials': WriteoffInstrumentItem.objects.filter(writeoff_instrument=writeoff_instrument),
             'writeoff_count_all': writeoff_count_all,
@@ -356,7 +360,7 @@ def writeoff_instruments(request):
 
         tpl = DocxTemplate(os.path.join(BASE_DIR, 'mediafiles/act_writeoff_instruments.docx'))
         tpl.render(context)
-        tpl.save('mediafiles/acts_writeoff/act_writeoff_instruments-' +  str(writeoff_instrument.id) + '.docx')
+        tpl.save('mediafiles/acts_writeoff/act_writeoff_instruments-' + str(writeoff_instrument.id) + '.docx')
 
     return redirect(request.META.get('HTTP_REFERER'))
 
@@ -366,19 +370,45 @@ class WriteoffInstrumentsList(generic.ListView):
     model = WriteoffInstrument
     template_name = 'store_materials_app/instruments/writeoff_instruments_list.html'
 
-    # def get(self, request, *args, **kwargs):
-    #     construction_object = ConstructionObject.objects.get(
-    #         contract__request_for_material__invoice_for_payment__id=self.kwargs['pk'])
-    #     if request.user.role == 'accountant' or request.user.role == 'purchaser' or construction_object not in list(
-    #             request.user.construction_objects.all()):
-    #         return render(request, template_name='404.html')
-    #     return super().get(request, *args, **kwargs)
+    def get(self, request, *args, **kwargs):
+        construction_object = ConstructionObject.objects.get(slug=self.kwargs['slug'])
+        if request.user.role == 'accountant' or request.user.role == 'purchaser' or construction_object not in list(
+                request.user.construction_objects.all()):
+            return render(request, template_name='404.html')
+        return super().get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         construction_object = ConstructionObject.objects.get(slug=self.kwargs['slug'])
         context['construction_object'] = construction_object
         return context
+
+
+@method_decorator(login_required(login_url='/accounts/login/'), name='dispatch')
+class WriteoffActDocumentUpload(generic.TemplateView):
+    template_name = 'store_materials_app/act_document_upload.html'
+
+    def get(self, request, *args, **kwargs):
+        writeoff_instrument = WriteoffInstrument.objects.get(id=self.kwargs['pk'])
+        contstruction_object = writeoff_instrument.construction_object
+        if request.user.role == 'accountant' or request.user.role == 'purchaser' or contstruction_object not in list(
+                request.user.construction_objects.all()):
+            return render(request, template_name='404.html')
+
+        self.extra_context = {
+            'construction_object': contstruction_object,
+            'writeoff_instrument': writeoff_instrument,
+        }
+        return super().get(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        act_document = request.FILES['document']
+        writeoff_instrument = WriteoffInstrument.objects.get(id=self.kwargs['pk'])
+        writeoff_instrument.act_document = act_document
+        writeoff_instrument.save()
+        return redirect(
+            '/construction_objects/' + writeoff_instrument.construction_object.slug + '/writeoff_instruments_list')
+
 
 
 @method_decorator(login_required(login_url='/accounts/login/'), name='dispatch')

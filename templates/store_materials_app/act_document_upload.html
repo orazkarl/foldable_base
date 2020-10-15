@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+
+        <div class="container-fluid">
+            <div class="card">
+
+                <div class="card-header d-block">
+
+                    <a href="/construction_objects/{{ construction_object.slug }}/writeoff_instruments_list" class="btn btn-light"><i
+                            class="ik ik-arrow-left"></i>Назад</a>
+
+                    <h2>Загрузить АКТ списания инструментов</h2>
+                </div>
+
+                <div class="card-body">
+                    <form class="forms-sample" action="{% url 'upload_act_document' writeoff_instrument.id %}" method="post"
+                          enctype="multipart/form-data">
+
+
+                        <div class="form-group">
+                            <label>Файл</label>
+                            <input type="file" name="document" class="form-control">
+
+                        </div>
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-primary mr-2">Сохранить</button>
+
+
+                    </form>
+                </div>
+            </div>
+        </div>
+
+{% endblock %}

@@ -29,18 +29,70 @@
                             <th>#</th>
                             <th></th>
                             <th>Дата</th>
+                            <th>Акт списание (Шаблон)</th>
+                            <th>Акт списание</th>
+
+                            <th>Название материала</th>
+                            <th>Код инструмента</th>
+                            <th>Срок службы</th>
+                            <th>ед. из.</th>
+                            <th>Количество</th>
+                            <th>Цена</th>
+                            <th>Сумма</th>
                         </tr>
                         </thead>
                         <tbody>
 
-                        {% for writeoff_instrument_item in object_list %}
+                        {% for writeoff_instrument in object_list %}
                             <tr>
-                                <th scope="row">{{ forloop.counter }}</th>
-                            <td>{{ writeoff_instrument_item }}</td>
-                            <td>{{ writeoff_instrument_item.created_at }}</td>
+                                <th>{{ forloop.counter }}</th>
+                                <td>{{ writeoff_instrument }}</td>
+                                <td>{{ writeoff_instrument.created_at }}</td>
+                                <td>
+                                    <a href="/media/acts_writeoff/act_writeoff_instruments-{{ writeoff_instrument.id }}.docx"
+                                       style="color: #4da3ff" download>Скачать</a></td>
+                                <td>
+                                    {% if writeoff_instrument.act_document %}
+                                        <a href="{{ writeoff_instrument.act_document.url }}" style="color: #4da3ff">скачать</a>
+                                    {% else %}
+                                        <a href="{% url 'upload_act_document' writeoff_instrument.id %}" class="btn btn-primary">Загрузить</a>
+                                    {% endif %}
+                                </td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
                             </tr>
+                            {% for writeoff_instrument_item in writeoff_instrument.writeoff_instrument_item.all %}
+                                <tr>
+                                    <th scope="row"></th>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td>{{ writeoff_instrument_item.material.name }}</td>
+                                    <td>{{ writeoff_instrument_item.material.instrument_code }}</td>
+                                    <td>{{ writeoff_instrument_item.life_time }}</td>
+                                    <td>{{ writeoff_instrument_item.material.units }}</td>
+                                    <td>{{ writeoff_instrument_item.writeoff_count }}</td>
+                                    <td>    {{ writeoff_instrument_item.material.price }}</td>
+                                    <td>{{ writeoff_instrument_item.writeoff_sum_price }}</td>
+                                </tr>
+                            {% endfor %}
+                            {#                            <tr>#}
+                            {#                            <td></td>#}
+                            {#                            <td></td>#}
+                            {#                            <td></td>#}
+                            {#                            <td></td>#}
+                            {#                            <td></td>#}
+                            {#                            <td></td>#}
+                            {#                            <td></td>#}
+                            {#                            <td></td>#}
+                            {#                            </tr>#}
                         {% endfor %}
-
                         </tbody>
                     </table>
 
@@ -53,44 +105,4 @@
 {% endblock %}
 
 {% block script %}
-    {#    <script>#}
-    {#        function myFormInput(n) {#}
-    {#            var action_div = document.getElementById('action_div');#}
-    {#            for (i = 1; i <= n; i++) {#}
-    {#                var mat_checbox = document.getElementById('material_checkbox' + i);#}
-    {#                console.log(mat_checbox.checked)#}
-    {#                if (mat_checbox.checked === true) {#}
-    {#                    action_div.style.display = 'block';#}
-    {#                    return;#}
-    {#                } else {#}
-    {#                    action_div.style.display = 'none';#}
-    {#                }#}
-    {#            }#}
-    {##}
-    {#        }#}
-    {##}
-    {#        function checkAll(n) {#}
-    {#            for (i = 1; i <= n; i++) {#}
-    {#                var mat_checbox = document.getElementById('material_checkbox' + i);#}
-    {#                if (mat_checbox.checked === true) {#}
-    {#                    mat_checbox.checked = false;#}
-    {##}
-    {#                } else {#}
-    {#                    mat_checbox.checked = true;#}
-    {#                }#}
-    {#            }#}
-    {#        }#}
-    {##}
-    {#        function funcSubmit() {#}
-    {#            var my_checkbox = document.getElementById('myCheckbox');#}
-    {#            var submit_release = document.getElementById('submit_release');#}
-    {#submit_delivery.style.display = 'block';#}
-    {#            if (my_checkbox.checked === true) {#}
-    {#                submit_release.style.display = 'block';#}
-    {#            } else {#}
-    {#                submit_release.style.display = 'none';#}
-    {#            }#}
-    {##}
-    {#        }#}
-    {#    </script>#}
 {% endblock %}
