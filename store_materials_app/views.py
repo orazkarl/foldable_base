@@ -1,4 +1,5 @@
-from .models import ReleasedMaterialItem, ReleasedMaterial, WriteoffInstrument, WriteoffInstrumentItem
+from .models import ReleasedMaterialItem, ReleasedMaterial, WriteoffInstrument, WriteoffInstrumentItem, \
+    TransferMaterial, TransferMaterialItem
 from django.shortcuts import render, redirect
 from django.views import generic
 from construction_objects_app.models import ConstructionObject
@@ -13,6 +14,12 @@ import datetime
 import os
 from foldable_base.settings import BASE_DIR
 from docxtpl import DocxTemplate
+
+import telebot
+
+GENERAL_BOT_TOKEN = '1270115367:AAGCRLBP1iSZhpTniwVYQ9p9fqLysY668ew'
+general_bot = telebot.TeleBot(GENERAL_BOT_TOKEN)
+channel_id = '-1001342160485'
 
 
 @method_decorator(login_required(login_url='/accounts/login/'), name='dispatch')
@@ -80,7 +87,9 @@ def release_materials(request):
             material = Material.objects.get(id=int(request.POST['material' + str(i)]))
             released_materials_count = int(request.POST['release' + str(i)])
             material.release_count = material.release_count + released_materials_count
+
             material.remainder_count = material.remainder_count - released_materials_count
+            print(released_materials_count, material.remainder_count)
             is_instrument = material.is_instrument
             material.save()
             ReleasedMaterialItem.objects.create(released_material=released_material, material=material,
@@ -410,7 +419,6 @@ class WriteoffActDocumentUpload(generic.TemplateView):
             '/construction_objects/' + writeoff_instrument.construction_object.slug + '/writeoff_instruments_list')
 
 
-
 @method_decorator(login_required(login_url='/accounts/login/'), name='dispatch')
 class ReleasedInstruments(generic.TemplateView):
     template_name = 'store_materials_app/instruments/released_instruments.html'
@@ -488,14 +496,29 @@ class RemainderMaterialsView(generic.TemplateView):
 
 def transfer_materials(request):
     if request.POST:
-        construction_object = ConstructionObject.objects.get(id=int(request.POST['construction_object']))
+        to_construction_object = ConstructionObject.objects.get(id=int(request.POST['to_construction_object']))
+        from_construction_object = ConstructionObject.objects.get(id=int(request.POST['from_construction_object']))
         if request.user.role == 'accountant' or request.user.role == 'purchaser':
             return render(request, template_name='404.html')
-        invoice = InvoiceForPayment.objects.get(name_company=construction_object.name)
+        # invoice = InvoiceForPayment.objects.get(name_company=construction_object.name)
+        transfer_material = TransferMaterial.objects.create(from_construction_object=from_construction_object,
+                                                            to_construction_object=to_construction_object,
+                                                            user=request.user)
         for i in range(1, int(request.POST['count']) + 1):
             material = Material.objects.get(id=int(request.POST['material' + str(i)]))
-            material.invoice = invoice
-            material.save()
+            transfer_count = request.POST['transfer_count' + str(i)]
+            TransferMaterialItem.objects.create(transfer_material=transfer_material, material=material,
+                                                transfer_count=transfer_count)
+
+            # material.invoice = invoice
+            # material.save()
+        message = '🔔🔔🔔🔔🔔🔔🔔🔔🔔🔔🔔🔔🔔🔔🔔🔔\n'
+        message += 'Перевод материалов!\n'
+        message += str(transfer_material) + '\n'
+        message += 'От: ' + from_construction_object.name + '\n'
+        message += 'В: ' + to_construction_object.name + '\n'
+
+        general_bot.send_message(channel_id, text=message)
 
         # indexs = list(range(1, ReleasedMaterialItem.objects.filter(released_material=released_material).count() + 1))
         # context = {
@@ -536,3 +559,62 @@ class RemainderReleasedMaterialsView(generic.TemplateView):
 
         }
         return super().get(request, *args, **kwargs)
+
+
+@method_decorator(login_required(login_url='/accounts/login/'), name='dispatch')
+class TransferedMaterialsList(generic.TemplateView):
+    template_name = 'store_materials_app/transfered_materials_list.html'
+
+    def get(self, request, *args, **kwargs):
+        construction_object = ConstructionObject.objects.get(slug=self.kwargs['slug'])
+        if request.user.role == 'accountant' or request.user.role == 'purchaser' or construction_object not in list(
+                request.user.construction_objects.all()):
+            return render(request, template_name='404.html')
+        transfer_materials = TransferMaterial.objects.filter(to_construction_object=construction_object, is_access=True)
+        self.extra_context = {
+            'construction_object': construction_object,
+            'transfer_materials': transfer_materials,
+        }
+        return super().get(request, *args, **kwargs)
+
+
+@method_decorator(login_required(login_url='/accounts/login/'), name='dispatch')
+class TransferedMaterialsItem(generic.TemplateView):
+    template_name = 'store_materials_app/transfered_materials_item.html'
+
+    def get(self, request, *args, **kwargs):
+        transfer_material = TransferMaterial.objects.get(id=int(self.kwargs['pk']))
+        construction_object = transfer_material.to_construction_object
+        if request.user.role == 'accountant' or request.user.role == 'purchaser' or construction_object not in list(
+                request.user.construction_objects.all()):
+            return render(request, template_name='404.html')
+
+        self.extra_context = {
+            'construction_object': construction_object,
+            'transfer_material': transfer_material,
+        }
+        return super().get(request, *args, **kwargs)
+
+
+def transfer_materials_delivered(request):
+    if request.POST:
+        transfer_material = TransferMaterial.objects.get(id=int(request.POST['transfer_material']))
+        to_construnction_object = transfer_material.to_construction_object
+        if request.user.role == 'accountant' or request.user.role == 'purchaser' or to_construnction_object not in list(
+                request.user.construction_objects.all()):
+            return render(request, template_name='404.html')
+        invoice = InvoiceForPayment.objects.get(name_company=to_construnction_object.name)
+        for material in transfer_material.transfer_material_item.all():
+            if material.transfer_count == material.material.remainder_count:
+                material.material.invoice = invoice
+                material.material.save()
+            else:
+                material.material.remainder_count = material.material.remainder_count - material.transfer_count
+                material.material.save()
+                Material.objects.create(invoice=invoice, quantity=material.transfer_count, ok=material.transfer_count,
+                                        remainder_count=material.transfer_count, is_delivery=True, status='ок',
+                                        is_remainder=True, name=material.material.name, units=material.material.units,
+                                        price=material.material.price, is_instrument=material.material.is_instrument)
+        transfer_material.is_delivered = True
+        transfer_material.save()
+        return redirect('/transfered_material/' + str(transfer_material.id) + '/detail')

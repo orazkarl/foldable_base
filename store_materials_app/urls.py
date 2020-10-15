@@ -27,5 +27,8 @@ urlpatterns = [
     path('writeoff_instrument/<int:pk>/upload_act_document', views.WriteoffActDocumentUpload.as_view(), name='upload_act_document'),
     path('construction_objects/<slug:slug>/remainder_released_materials', views.RemainderReleasedMaterialsView.as_view(), name='remainder_released_materials'),
     path('transfer_materials/', views.transfer_materials, name='transfer_materials'),
+    path('construction_objects/<slug:slug>/transfered_materials_list', views.TransferedMaterialsList.as_view(), name='transfered_materials_list'),
+    path('transfered_material/<int:pk>/detail', views.TransferedMaterialsItem.as_view(), name='transfered_materials_item'),
+    path('transfer_materials_delivered/', views.transfer_materials_delivered, name='transfer_materials_delivered')
 
 ]

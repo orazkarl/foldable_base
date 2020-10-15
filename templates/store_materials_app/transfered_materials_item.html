@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+
+    <div class="container-fluid">
+        <div class="card">
+            <div class="card-header d-block">
+                <a href="/construction_objects/{{ construction_object.slug }}/transfered_materials_list"
+                   class="btn btn-light"><i
+                        class="ik ik-arrow-left"></i>Назад</a>
+                <div class="row">
+                    <div class="col-md-10">
+                        <h2>{{ transfer_material }}</h2>
+                    </div>
+                </div>
+
+
+            </div>
+            <div class="card-body p-0 table-border-style">
+
+                <div class="table-responsive">
+
+                    <table class="table">
+                        <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Название материала</th>
+                            <th>От</th>
+                            <th>В</th>
+                            <th>Дата</th>
+                            <th>Количество</th>
+                            <th>ед. из.</th>
+                            <th>Код инструмента</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% csrf_token %}
+                        {% for material in transfer_material.transfer_material_item.all %}
+                            <tr>
+                                <th scope="row">{{ forloop.counter }}</th>
+                                <td>{{ material.material.name }}</td>
+                                <td>{{ transfer_material.from_construction_object }}</td>
+                                <td>{{ transfer_material.to_construction_object }}</td>
+                                <td>{{ material.created_at }}</td>
+                                <td>{{ material.transfer_count }}</td>
+                                <td>{{ material.material.units }}</td>
+                                <td>
+                                    {% if  material.material.instrument_code %}
+                                        {{ material.material.instrument_code }}
+                                    {% else %}
+                                        Нет
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+
+                        </tbody>
+                    </table>
+                    <br>
+                    <div>
+                        {% if transfer_material.is_delivered == False %}
+                            <div class="row">
+                            <div style="margin: 10px 0 10px 10px" class="col-md-5">
+                                <form action="{% url 'transfer_materials_delivered' %}" method="post">
+                                    {% csrf_token %}
+                                    <input type="text" name="transfer_material" style="display:none;" value="{{ transfer_material.id }}">
+                                    <div>
+                                        <button type="submit"  class="btn btn-primary">
+                                            Принять
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block script %}
+{% endblock %}

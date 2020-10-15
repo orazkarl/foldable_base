@@ -63,6 +63,14 @@ class AddMaterialsExcelView(generic.TemplateView):
             sum_price = quantuty * price
             material = Material.objects.create(invoice=invoice, name=name, quantity=quantuty, units=units, price=price,
                                                sum_price=int(sum_price))
+            if material.invoice.name_company == material.invoice.request_for_material.contract.construction_object.name:
+                material.is_remainder = True
+                material.is_delivery = True
+                material.invoice.is_done = True
+                material.status = 'ок'
+                material.ok = material.quantity
+                material.remainder_count = material.quantity
+                material.marriage, material.shortage, material.inconsistency = 0, 0, 0
 
             if instriment_code == 1:
                 material.is_instrument = True
@@ -84,6 +92,15 @@ class MaterialCreateView(generic.CreateView):
     def form_valid(self, form):
         invoice = InvoiceForPayment.objects.get(id=self.kwargs['pk'])
         form.instance.invoice = invoice
+        instance = form.instance
+        if instance.invoice.name_company == instance.invoice.request_for_material.contract.construction_object.name:
+            instance.is_remainder = True
+            instance.is_delivery = True
+            instance.invoice.is_done = True
+            instance.status = 'ок'
+            instance.ok = instance.quantity
+            instance.remainder_count = instance.quantity
+            instance.marriage, instance.shortage, instance.inconsistency = 0, 0, 0
         return super(MaterialCreateView, self).form_valid(form)
 
     def get(self, request, *args, **kwargs):

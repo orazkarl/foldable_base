@@ -13,7 +13,7 @@
                 <br>
                 <br>
                 <div class="row">
-                    <div class="col-md-6">
+                    <div class="col-md-4">
                         <h2>Остаток</h2>
                     </div>
                     <div class="col-md-2">
@@ -34,6 +34,9 @@
                         {% endif %}
                     {% endfor %}
                     {{ "-->" }}
+                    <div class="col-md-2"><a type="button"
+                                             href="{% url 'transfered_materials_list' construction_object.slug  %}"
+                                             class="btn btn-success">Переводонные материалы</a></div>
 
                 </div>
 
@@ -78,7 +81,7 @@
                                         <td>{{ material.name }}</td>
                                         <td>{{ material.quantity }}</td>
                                         <td>{{ material.release_count }}</td>
-                                        <td>{{ material.quantity|sub:material.release_count }}</td>
+                                        <td>{{ material.remainder_count }}</td>
                                         <td>{{ material.units }}</td>
                                         <td>
                                             {% if material.instrument_code == None %}

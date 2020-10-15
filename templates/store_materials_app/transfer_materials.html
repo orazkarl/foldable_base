@@ -15,9 +15,10 @@
             <div class="card-body p-0 table-border-style">
                 <div class="table-responsive">
                     <form action="{% url 'transfer_materials' %}" method="post">
+                        <input type="text" name="from_construction_object" value="{{ construction_object.id }}" style="display: none">
                         <div class="form-group col-md-3" style="margin-top: 10px">
                             <label> Выбрать объект</label>
-                            <select name="construction_object" class="form-control" required>
+                            <select name="to_construction_object" class="form-control" required>
                                 <option selected disabled>Выбрать объект</option>
                                 {% for con_object in construction_objects %}
                                     {% if con_object != construction_object %}
@@ -34,6 +35,7 @@
                                 <th>ед изм.</th>
                                 <th>остаток</th>
                                 <th>Код инструмента</th>
+                                <th>Сколько нужно переводить?</th>
                             </tr>
                             </thead>
                             <tbody>
@@ -53,6 +55,9 @@
                                     {% else %}
                                         Нет
                                     {% endif %}
+                                    <td>
+                                        <input type="text" class="form-control" name="transfer_count{{ forloop.counter }}" value="0">
+                                    </td>
                                     </td>
                                 </tr>
                             {% endfor %}
