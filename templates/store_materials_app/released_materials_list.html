@@ -53,17 +53,13 @@
                                     <a href="{% url 'return_relesed_materials' released_material.id %}"
                                        style="color: #4da3ff">Возврат</a>{% endif %}</td>
                                 <td>
-                                    <a href="/media/waybill/nakladnaya-
-                                            {{ released_material.contract.name }}{{ released_material.id }}.docx"
+                                    <a href="/media/waybill/nakladnaya-{{ released_material.contract.name }}{{ released_material.id }}.docx"
                                        style="color: #4da3ff" download>Скачать</a>
                                 </td>
-                                <td>{% if released_material.is_done %}<a href="/media/waybill/nakladnaya_final-
-                                        {{ released_material.contract.name }}{{ released_material.id }}.docx"
+                                <td>{% if released_material.is_done %}
+                                    <a href="/media/waybill/nakladnaya_final-{{ released_material.contract.name }}{{ released_material.id }}.docx"
                                                                          style="color: #4da3ff"
                                                                          download>Скачать</a>{% endif %}</td>
-                                {#                                    <td>{{ material.release_count }}</td>#}
-                                {#                                    <td>{{ material.quantity|sub:material.release_count }}</td>#}
-                                {#                                    <td>{{ material.units }}</td>#}
                                 <td>{% if released_material.release_waybill %}
                                     <a href="{{ released_material.release_waybill.url }}" style="color: #4da3ff"
                                        download>скачать</a>

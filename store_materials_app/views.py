@@ -205,11 +205,12 @@ class ReturnReleaseMaterialsView(generic.TemplateView):
             tpl = DocxTemplate(os.path.join(BASE_DIR, 'mediafiles/nakladnaya_final.docx'))
             tpl.render(context)
             tpl.save('mediafiles/waybill/nakladnaya_final-' + contract.name + str(released_material.id) + '.docx')
-
+        print(released_material.items.all()[0].material.is_instrument)
         if released_material.items.all()[0].material.is_instrument:
             return redirect('/construction_objects/' + contract.construction_object.slug + '/released_instruments')
         else:
             return redirect('/contract/' + contract.slug + '/released_materials')
+        # return redirect(request.META.get('HTTP_REFERER'))
 
 
 @method_decorator(login_required(login_url='/accounts/login/'), name='dispatch')

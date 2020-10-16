@@ -16,17 +16,20 @@
                 <div class="table-responsive">
                     <form action="{% url 'release_materials' %}"
                           onsubmit="return mySubmit({{ materials.count }});" method="post">
-                        <div class="form-group col-md-3" style="margin-top: 10px">
-                            <label> Выбрать работу</label>
-                            <select name="contract" id="" class="form-control" required>
-                                <option selected disabled>Выбрать работу</option>
-                                {% for contract in construction_object.contract.all %}
-                                    {% if contract.name != construction_object.name %}
-                                        <option value="{{ contract.id }}">{{ contract }}</option>
-                                    {% endif %}
-                                {% endfor %}
-                            </select>
-                        </div>
+
+                        {% if materials.first.invoice.name_company == construction_object.name %}
+                            <div class="form-group col-md-3" style="margin-top: 10px">
+                                <label> Выбрать работу</label>
+                                <select name="contract" id="" class="form-control" required>
+                                    <option selected disabled>Выбрать работу</option>
+                                    {% for contract in construction_object.contract.all %}
+                                        {% if contract.name != construction_object.name %}
+                                            <option value="{{ contract.id }}">{{ contract }}</option>
+                                        {% endif %}
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        {% endif %}
                         <table class="table">
                             <thead>
                             <tr>
