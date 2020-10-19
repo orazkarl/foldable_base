@@ -72,8 +72,8 @@ class WriteoffInstrumentItem(models.Model):
 
 
 class TransferMaterial(models.Model):
-    from_construction_object = models.ForeignKey(ConstructionObject, on_delete=models.CASCADE, verbose_name='Объект', related_name='from_transfer_material')
-    to_construction_object = models.ForeignKey(ConstructionObject, on_delete=models.CASCADE, verbose_name='Объект', related_name='to_transfer_material')
+    from_construction_object = models.ForeignKey(ConstructionObject, on_delete=models.CASCADE, verbose_name='От', related_name='from_transfer_material')
+    to_construction_object = models.ForeignKey(ConstructionObject, on_delete=models.CASCADE, verbose_name='В', related_name='to_transfer_material')
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, verbose_name='Пользователь')
     created_at = models.DateTimeField(auto_now_add=True)
     is_access = models.BooleanField('Доступ', default=False)
