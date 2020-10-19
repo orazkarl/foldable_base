@@ -36,7 +36,10 @@ class Contract(models.Model):
         verbose_name_plural = 'Работы'
 
     def save(self, *args, **kwargs):
-        self.slug = slugify(self.name)
+        if slugify(self.name) is None:
+            self.slug = self.name
+        else:
+            self.slug = slugify(self.name)
         if self.status == '2' or self.status == '4':
             for request_for_material in self.request_for_material.all():
                 for invoice in request_for_material.invoice_for_payment.all():

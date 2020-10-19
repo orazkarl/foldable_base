@@ -28,7 +28,7 @@ class AddMaterialsExcelView(generic.TemplateView):
         construction_object = ConstructionObject.objects.get(
             contract__request_for_material__invoice_for_payment__id=self.kwargs['id'])
         invoice = InvoiceForPayment.objects.get(id=self.kwargs['id'])
-        if request.user.role == 'accountant' or request.user.role == 'manager' or construction_object not in list(
+        if request.user.role == 'accountant' or construction_object not in list(
                 request.user.construction_objects.all()):
             return render(request, template_name='404.html')
         self.extra_context = {
@@ -106,7 +106,7 @@ class MaterialCreateView(generic.CreateView):
     def get(self, request, *args, **kwargs):
         construction_object = ConstructionObject.objects.get(
             contract__request_for_material__invoice_for_payment__id=self.kwargs['pk'])
-        if check_user(request.user, ['accountant', 'manager'], construction_object) == 404:
+        if check_user(request.user, ['accountant'], construction_object) == 404:
             return render(request, '404.html')
         return super().get(request, *args, **kwargs)
 
@@ -132,7 +132,7 @@ class MaterialUpdateView(generic.UpdateView):
     def get(self, request, *args, **kwargs):
         construction_object = ConstructionObject.objects.get(
             contract__request_for_material__invoice_for_payment__material__id=self.kwargs['pk'])
-        if check_user(request.user, ['accountant', 'manager'], construction_object) == 404:
+        if check_user(request.user, ['accountant'], construction_object) == 404:
             return render(request, '404.html')
         return super().get(request, *args, **kwargs)
 
@@ -151,7 +151,7 @@ def material_delete(request):
     material = Material.objects.get(id=int(request.POST['material_id']))
     invoice = material.invoice
     construction_object = invoice.request_for_material.contract.construction_object
-    if request.user.role == 'accountant' or request.user.role == 'manager' or construction_object not in list(
+    if request.user.role == 'accountant'  or construction_object not in list(
             request.user.construction_objects.all()):
         return render(request, template_name='404.html')
     red = '/invoice/' + str(invoice.id) + '/detail/'
