@@ -7,8 +7,8 @@ from django.utils.html import format_html
 
 from .models import ReleasedMaterial, ReleasedMaterialItem, WriteoffInstrumentItem, WriteoffInstrument, TransferMaterial
 
-# admin.site.register(ReleasedMaterial)
-# admin.site.register(ReleasedMaterialItem)
+admin.site.register(ReleasedMaterial)
+admin.site.register(ReleasedMaterialItem)
 # admin.site.register(WriteoffInstrument)
 # admin.site.register(WriteoffInstrumentItem)
 
