@@ -6,7 +6,7 @@ from construction_objects_app.models import ConstructionObject
 
 
 class ReleasedMaterial(models.Model):
-    unique_code = models.CharField(unique=True, max_length=100)
+    unique_code = models.CharField(unique=True, max_length=100, null=True, blank=True)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, verbose_name='Пользователь')
     release_date = models.DateTimeField('Когда отпустил?', auto_now_add=True)
     contract = models.ForeignKey(Contract, on_delete=models.CASCADE, related_name='realeas_material',
