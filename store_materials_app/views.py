@@ -28,7 +28,7 @@ class ContractMaterialsView(generic.TemplateView):
 
     def get(self, request, *args, **kwargs):
         construction_object = ConstructionObject.objects.get(slug=self.kwargs['slug'])
-        if request.user.role == 'accountant' or request.user.role == 'purchaser' or construction_object not in list(
+        if request.user.role == 'accountant'  or construction_object not in list(
                 request.user.construction_objects.all()):
             return render(request, template_name='404.html')
         contracts = Contract.objects.filter(construction_object=construction_object, status='1')
@@ -443,7 +443,7 @@ class GeneralBaseView(generic.TemplateView):
 
     def get(self, request, *args, **kwargs):
         construction_object = ConstructionObject.objects.get(slug=self.kwargs['slug'])
-        if request.user.role == 'accountant' or request.user.role == 'purchaser' or construction_object not in list(
+        if request.user.role == 'accountant'  or construction_object not in list(
                 request.user.construction_objects.all()):
             return render(request, template_name='404.html')
 
