@@ -129,6 +129,14 @@ class MaterialUpdateView(generic.UpdateView):
         return reverse('invoice_for_payment_detail',
                        kwargs={'pk': InvoiceForPayment.objects.get(material__id=self.kwargs['pk']).id})
 
+    def form_valid(self, form):
+        material = Material.objects.get(id=self.kwargs['pk'])
+        invoice = material.invoice
+        if invoice.name_company == invoice.request_for_material.contract.construction_object.name:
+            form.instance.remainder_count = int(form.instance.quantity)
+            form.instance.ok = int(form.instance.quantity)
+        return super(MaterialUpdateView, self).form_valid(form)
+
     def get(self, request, *args, **kwargs):
         construction_object = ConstructionObject.objects.get(
             contract__request_for_material__invoice_for_payment__material__id=self.kwargs['pk'])
