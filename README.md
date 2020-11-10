@@ -2,7 +2,6 @@
 
 ## Project install 
 ```
-git clone https://github.com/orazkarl/online_school_rest.git
 pip install -r requirements.txt
 ```
 
